@@ -7,6 +7,7 @@ import { Slider } from "@material-ui/core";
 import ReactFileReader from "react-file-reader";
 import GYModal from "../components/Modal";
 import Select from "react-select";
+import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
 
 const colourStyles = {
   option: (styles, { data, isDisabled, isFocused, isSelected }) => {
@@ -134,21 +135,27 @@ var FileSaver = require("file-saver");
 export default function RoomControl(props) {
   const [params, setParams] = useState(initState);
   const [visible, setVisible] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(groupOptions[0]);
   const [upload, setUpload] = useState(false);
-  const [maskOption, setMaskOption] = useState(null);
+  const [maskOption, setMaskOption] = useState(maskOptions[0]);
   const [maskConfig, setMaskConfig] = useState(null);
   const classes = useStyles();
   const room = props.match.params.room;
+  const socket_url = `/${NAMESPACES.control}`;
+  const socket = io(socket_url, {
+    autoConnect: false
+  });
   useEffect(() => {
-    const socket = io.connect("/control");
-    socket.emit("control-room", { room: room });
+    console.log(`Connecting to socket ${socket_url}`)
+    socket.connect();
+    console.log(socket)
+    socket.emit(SOCKET_CMDS.CONTROL_ROOM.cmd, { room: room });
     socket.on("process-in-progress", (data) => {
       console.log(data);
       let time_diff = data.time_diff;
       alert(`process in ongoing, ${time_diff} seconds left`);
     });
-    socket.on("process-stop", () => {
+    socket.on(SOCKET_CMDS.PROCESS_STOP.cmd, () => {
       alert("process stop");
     });
   }, []);
@@ -187,7 +194,7 @@ export default function RoomControl(props) {
       },
     };
     console.log(data);
-    socket.emit("control", data);
+    socket.emit(SOCKET_CMDS.CONTROL.cmd, data);
   }
 
   function onProcessStart() {
@@ -200,7 +207,7 @@ export default function RoomControl(props) {
     }
     console.log(cfg);
     if (maskOption != null && selectedOption != null) {
-      socket.emit("process-control", {
+      socket.emit(SOCKET_CMDS.PROCESS_CONTROL.cmd, {
         room: room,
         cfg: cfg,
         topic: selectedOption.value,

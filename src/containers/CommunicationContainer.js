@@ -4,6 +4,9 @@ import MediaContainer from "./MediaContainer";
 import Communication from "../components/Communication";
 import store from "../store";
 import { connect } from "react-redux";
+import { SOCKET_CMDS } from '../managers/SocketCommands'
+
+
 class CommunicationContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -35,14 +38,14 @@ class CommunicationContainer extends React.Component {
     });
     console.log(this.props);
 
-    socket.on("create", () =>
+    socket.on(SOCKET_CMDS.CREATE_ROOM.cmd, () =>
       this.props.media.setState({ user: "host", bridge: "create" })
     );
-    socket.on("full", this.full);
+    socket.on(SOCKET_CMDS.ROOM_FULL.cmd, this.full);
     socket.on("bridge", (role) => this.props.media.init());
-    socket.on("join", () => {
+    socket.on(SOCKET_CMDS.JOIN_ROOM.cmd, () => {
       this.props.media.setState({ user: "guest", bridge: "join" });
-      this.props.socket.emit("auth", this.state);
+      this.props.socket.emit(SOCKET_CMDS.AUTH.cmd, this.state);
       this.hideAuth();
     });
     socket.on("approve", ({ message, sid }) => {
@@ -54,7 +57,7 @@ class CommunicationContainer extends React.Component {
       }, 5000);
     });
 
-    socket.emit("find");
+    socket.emit(SOCKET_CMDS.FIND_ROOM.cmd);
     this.props.getUserMedia.then((stream) => {
       this.localStream = stream;
       this.track = stream.getVideoTracks()[0];
@@ -79,7 +82,7 @@ class CommunicationContainer extends React.Component {
   }
   send(e) {
     e.preventDefault();
-    this.props.socket.emit("auth", this.state);
+    this.props.socket.emit(SOCKET_CMDS.AUTH.cmd, this.state);
     this.hideAuth();
   }
   handleInvitation(e) {

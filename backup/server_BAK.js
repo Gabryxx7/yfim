@@ -10,15 +10,10 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 var hash = require("object-hash");
 const { SingleEntryPlugin } = require("webpack");
-const { SessionManager } = require("./src/managers/SessionManager")
-const { ControlManager } = require("./src/managers/ControlManager")
-const { ChatsManager } = require("./src/managers/ChatsManager");
-// const ChatsManager = require("./src/managers/ChatsManager")
 
 // CouchDB
-const COUCHDB_URL = process.env.COUCHDB_URL || 'http://localhost:5984';
 // const nano = require("nano")("http://admin:admin@localhost:5984");
-const nano = require("nano")(COUCHDB_URL);
+const nano = require("nano")(process.env.COUCHDB_URL);
 const tableName = "occlusion_mask";
 
 // const db = nano.db.use(tableName);
@@ -38,33 +33,21 @@ nano.db
     app.set("couch", couch);
   });
 
-
-server_port = process.env.PORT || 3000
 const app = express(),
   options = {
     key: fs.readFileSync(__dirname + "/rtc-video-room-key.pem"),
     cert: fs.readFileSync(__dirname + "/rtc-video-room-cert.pem"),
   },
-  port = server_port,
+  port = process.env.PORT || 3000,
   server =
     process.env.NODE_ENV === "production"
       ? http.createServer(app).listen(port)
       : https.createServer(options, app).listen(port),
   io = sio(server);
 
-  console.log(`\nServing on port: ${server_port}`);
-  console.log(`Room 1 control: on port: https://localhost:${server_port}/control/1/`);
-  console.log(`Room 1 chat: on port: https://localhost:${server_port}/r/1/guest`);
-  console.log(`Room 1 survey: on port: https://localhost:${server_port}/s/1/guest`);
-// chatio = io.of("chat");
-// controlio = io.of("control");
-// projectio = io.of("projection");
-
-const questionset = require("./assets/topics/topics.json");
-const stagesConfig = require("./assets/stages.json");
-const masksConfig = require("./assets/MaskSetting/masks.json");
-const sessionManager = new SessionManager(io, stagesConfig, masksConfig, questionset)
-// sessionManager = new SessionManager(io)
+chatio = io.of("chat");
+controlio = io.of("control");
+projectio = io.of("projection");
 
 console.log("starting server on port: " + port);
 
@@ -173,6 +156,18 @@ function processStart(room, start_time, cfg) {
     // start chatting
     timmer = setInterval(() => {
       let nowTime = new Date().getTime();
+      if (survey_in_progress) {
+        let extend_time = 0;
+        if (stage == 2) {
+          extend_time = 1000 * 150;
+        }
+        if (stage == 3) {
+          extend_time = 1000 * 90;
+        }
+        endTime = nowTime + extend_time;
+      }
+      let time_left = Math.round((endTime - nowTime) / 1000);
+
       if (time_left > 150) {
         //stage1
         if (stage != 1) {
@@ -185,12 +180,12 @@ function processStart(room, start_time, cfg) {
 
           topic_selected.push(topic);
           console.log("- sending update to projection in room: " + room);
-          chatio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+          chatio.emit("stage-control", {
             mask: mask_setting,
             topic: [topic],
             stage,
           });
-          projectio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+          projectio.emit("stage-control", {
             mask: mask_setting,
             topic: [topic],
             stage,
@@ -207,8 +202,8 @@ function processStart(room, start_time, cfg) {
               stage +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+          chatio.emit("survey-start", { stage: stage });
+          controlio.emit("survey-start", { stage: stage });
           survey_in_progress = true;
           stage = 2;
           //send mask
@@ -228,12 +223,12 @@ function processStart(room, start_time, cfg) {
               topic +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+          chatio.emit("stage-control", {
             mask: mask_setting,
             topic: [topic],
             stage,
           });
-          controlio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, { stage });
+          controlio.emit("stage-control", { stage });
         }
       } else if (time_left < 90 && time_left > 0) {
         //stage3
@@ -245,8 +240,8 @@ function processStart(room, start_time, cfg) {
               stage +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+          chatio.emit("survey-start", { stage: stage });
+          controlio.emit("survey-start", { stage: stage });
           survey_in_progress = true;
           stage = 3;
           //send mask
@@ -266,8 +261,8 @@ function processStart(room, start_time, cfg) {
               topic +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, { mask: mask_setting, topic, stage });
-          controlio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, { stage });
+          chatio.emit("stage-control", { mask: mask_setting, topic, stage });
+          controlio.emit("stage-control", { stage });
         }
       }
 
@@ -281,8 +276,8 @@ function processStart(room, start_time, cfg) {
               stage +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+          chatio.emit("survey-start", { stage: stage });
+          controlio.emit("survey-start", { stage: stage });
           survey_in_progress = true;
         }
         if (!stop && !survey_in_progress) {
@@ -317,8 +312,85 @@ function processStop(room, accident_stop) {
   clearInterval(timmer);
   // socket send stop
 
-  // io.to(room).emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-  chatio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-  controlio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-  projectio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
+  // io.to(room).emit("process-stop", { accident_stop });
+  chatio.emit("process-stop", { accident_stop });
+  controlio.emit("process-stop", { accident_stop });
+  projectio.emit("process-stop", { accident_stop });
 }
+async function storeData(room) {
+  const results = {
+    guest: question_data["guest"],
+    host: question_data["host"],
+  };
+  let phase_result = [];
+  for (let i = 0; i < 3; i++) {
+    const data = {
+      topic: topic_selected[i],
+      mask_setting: current_cfg["setting"][i + 1],
+      host: {
+        survey: question_data["host"][i],
+        emotions: emotion_data["host"][i],
+      },
+      guest: {
+        survey: question_data["guest"][i],
+        emotions: emotion_data["guest"][i],
+      },
+    };
+    phase_result.push(data);
+  }
+
+  const audio = {
+    host: record_by_user["host"] ? startTime.toString() + "_host.webm" : "none",
+    guest: record_by_user["guest"]
+      ? startTime.toString() + "_guest.webm"
+      : "none",
+  };
+
+  // const video = {
+  //   host: record_by_user["host"]
+  //     ? startTime.toString() + "_host_video.webm"
+  //     : "none",
+  //   guest: record_by_user["guest"]
+  //     ? startTime.toString() + "_guest_host_video.webm"
+  //     : "none",
+  // };
+  const data = {
+    _id: startTime.toString(),
+    start_time_stamp: sessionId,
+    start_time: startTime,
+    phase_01: phase_result[0],
+    phase_02: phase_result[1],
+    phase_03: phase_result[2],
+    audio: audio,
+  };
+  topic_selected = [];
+  emotion_ready = { host: false, guest: false };
+  question_ready = { host: false, guest: false };
+  emotion_data = {
+    host: {},
+    guest: {},
+  };
+  question_data = {
+    host: {},
+    guest: {},
+  };
+  record_by_user = {
+    host: false,
+    guest: false,
+  };
+  console.log(data);
+  chatio.emit("upload-finish", results);
+  const response = await couch
+    .insert(data)
+    .then((res) => {
+      console.log("+ SUCCESS: all data saved in db: ");
+      console.log(res);
+    })
+    .catch((error) => {
+      console.log("- ERROR: could not save data in db");
+      console.log(error);
+    });
+}
+// chatio.js
+// controlio.js
+// projectio.js

@@ -1,5 +1,8 @@
 # YourFaceisMuted with ReactJS
 
+## 2023 Updates
+We decided to revamp the project in 2023 and adapt it to be better suited for studies.
+
 ## Introduction
 
 <i>Your Face is Muted</i> xplores how a lack of non-verbal cues

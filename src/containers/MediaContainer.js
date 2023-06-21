@@ -11,6 +11,7 @@ import Introduction from "../components/Introduction";
 import IntroFaceDetect from "../components/IntroFaceDetect";
 import Thankyou from "../components/Thankyou";
 import SideBar from "../components/SideBar";
+import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
 var FileSaver = require("file-saver");
 
 const RECORD_AUDIO = true;
@@ -129,19 +130,19 @@ class MediaBridge extends Component {
       (stream) => (this.localVideo.srcObject = this.localStream = stream)
     );
 
-    this.props.socket.on("process-start", this.onProcessStart);
-    this.props.socket.on("process-stop", this.onProcessStop);
-    this.props.socket.on("process-control", this.onProcessControl);
-    this.props.socket.on("reset", this.onReset);
-    this.props.socket.on("stage-control", this.onStageControl);
+    this.props.socket.on(SOCKET_CMDS.PROCESS_START.cmd, this.onProcessStart);
+    this.props.socket.on(SOCKET_CMDS.PROCESS_STOP.cmd, this.onProcessStop);
+    this.props.socket.on(SOCKET_CMDS.PROCESS_CONTROL.cmd, this.onProcessControl);
+    this.props.socket.on(SOCKET_CMDS.RESET.cmd, this.onReset);
+    this.props.socket.on(SOCKET_CMDS.STAGE_CONTROL.cmd, this.onStageControl);
     this.props.socket.on("upload-finish", this.onUploadingFinish);
-    this.props.socket.on("survey-start", this.onSurveyStart);
-    this.props.socket.on("survey-end", this.onSurveyEnd);
-    this.props.socket.on("face-detected", this.onFace);
+    this.props.socket.on(SOCKET_CMDS.SURVEY_START.cmd, this.onSurveyStart);
+    this.props.socket.on(SOCKET_CMDS.SURVEY_END.cmd, this.onSurveyEnd);
+    this.props.socket.on(SOCKET_CMDS.FACE_DETECTED.cmd, this.onFace);
 
     this.props.socket.on("message", this.onMessage);
     this.props.socket.on("hangup", this.onRemoteHangup);
-    this.props.socket.on("control", this.onControl);
+    this.props.socket.on(SOCKET_CMDS.CONTROL.cmd, this.onControl);
     this.props.socket.on("recording", this.startRecording);
     this.remoteVideo.addEventListener("play", () => {
       // start detect remote's face and process
@@ -173,7 +174,7 @@ class MediaBridge extends Component {
     if (this.localStream !== undefined) {
       this.localStream.getVideoTracks()[0].stop();
     }
-    this.props.socket.emit("room-idle", { room: this.props.room });
+    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE.cmd, { room: this.props.room });
     this.props.socket.emit("leave");
     clearInterval(this.timmer);
   }
@@ -245,7 +246,7 @@ class MediaBridge extends Component {
     } else {
       new_topic = topic[this.state.user == "host" ? 0 : 1];
     }
-    console.log("survey-end", stage);
+    console.log(SOCKET_CMDS.SURVEY_END.cmd, stage);
     if (stage != 4 && this.survey_count < 3) {
       this.setState({
         ...this.state,
@@ -281,7 +282,7 @@ class MediaBridge extends Component {
     }
     this.props.updateAll(controlData);
 
-    console.log("survey-end", data, this.endTime);
+    console.log(SOCKET_CMDS.SURVEY_END.cmd, data, this.endTime);
   }
 
   // update sidebar prompt when survey start
@@ -362,7 +363,7 @@ class MediaBridge extends Component {
   }
 
   onReset() {
-    this.props.socket.emit("reset", { room: this.props.room });
+    this.props.socket.emit(SOCKET_CMDS.RESET.cmd, { room: this.props.room });
   }
   // reset all parameters when process stop
   onProcessStop(data) {
@@ -537,7 +538,7 @@ class MediaBridge extends Component {
     } else {
       user = "guest";
     }
-    this.props.socket.emit("face-detected", {
+    this.props.socket.emit(SOCKET_CMDS.FACE_DETECTED.cmd, {
       room: this.props.room,
       user,
     });
@@ -672,12 +673,11 @@ class MediaBridge extends Component {
                 } else {
                   if (!lose_face_f) {
                     lose_face_f = true;
-                    this.sendData("room-idle");
+                    this.sendData(SOCKET_CMDS.ROOM_IDLE.cmd);
                   }
                 }
 
-                console.log(
-                  "WARNING: Lost face tracking for more than 10 secs."
+                console.log(            "WARNING: Lost face tracking for more than 10 secs."
                 );
               }
               if (this.losingface >= 20 && this.state.process) {
@@ -691,12 +691,11 @@ class MediaBridge extends Component {
                 !this.state.ready
               ) {
                 // Restart whole process
-                this.props.socket.emit("room-idle", { room: this.props.room });
+                this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE.cmd, { room: this.props.room });
                 console.log("The room seems to be idle.");
               }
 
-              console.log(
-                "WARNING: Can't detect face on remote side",
+              console.log(          "WARNING: Can't detect face on remote side",
                 this.losingface
               );
             }
@@ -874,7 +873,7 @@ class MediaBridge extends Component {
           ready: true,
         });
       }
-      if (msg == "room-idle") {
+      if (msg == SOCKET_CMDS.ROOM_IDLE.cmd) {
         this.setState({
           ...this.state,
           ready: false,
@@ -897,7 +896,7 @@ class MediaBridge extends Component {
   hangup() {
     this.setState({ ...this.state, bridge: "guest-hangup" });
     this.pc.close();
-    this.props.socket.emit("room-idle", { room: this.props.room });
+    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE.cmd, { room: this.props.room });
     this.props.socket.emit("leave");
   }
   handleError(e) {
@@ -908,13 +907,12 @@ class MediaBridge extends Component {
     this.emo_result.push(this.record.record_detail);
     console.log("+ finish, sending data, ", this.emo_result, eresult);
     const emo_record = this.emo_result;
-    console.log(
-      "sending data to server ",
+    console.log("sending data to server ",
       JSON.parse(JSON.stringify(emo_record))
     );
-    this.props.socket.emit("data-send", {
+    this.props.socket.emit(SOCKET_CMDS.DATA_SEND.cmd, {
       room: this.props.room,
-      data_type: "emotion",
+      data_type: DATA_TYPES.EMOTION,
       user: this.state.user,
       data: emo_record,
     });

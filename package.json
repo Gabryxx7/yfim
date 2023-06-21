@@ -3,12 +3,14 @@
   "version": "2.0.3",
   "description": "WebRTC Video Room is a Single-Page App in React using React Router that provides peer-to-peer video and audio communication in a web browser with minimum dependencies required.",
   "scripts": {
-    "start": "node --openssl-legacy-provider ./node_modules/.bin/webpack build && node server.js",
+    "start": "node ./node_modules/.bin/webpack build && node server.js",
+    "start_bak": "node --openssl-legacy-provider ./node_modules/.bin/webpack build && node server.js",
     "serverstart": "npx webpack && node server.js",
     "dev": "webpack --mode development",
     "build": "webpack --mode production",
     "postinstall": "webpack --mode production",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "test-session-manager": "node test_sessions.js"
   },
   "keywords": [
     "WebRTC Video Chat",
@@ -30,10 +32,11 @@
     "@babel/plugin-transform-runtime": "^7.12.17",
     "@babel/runtime": "^7.12.18",
     "@material-ui/core": "^4.11.3",
+    "caniuse-lite": "^1.0.30001488",
     "compression": "^1.7.2",
     "dotenv": "^14.2.0",
     "express": "^4.16.3",
-    "face-api.js": "^0.22.2",
+    "face-api.js": "^0.20.0",
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
     "lodash": "^4.17.21",

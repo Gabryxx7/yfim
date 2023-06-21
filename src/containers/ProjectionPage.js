@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
 import io from "socket.io-client";
 const v_yellow =
   "https://yourfaceismute.s3.ap-southeast-2.amazonaws.com/Gradient-yellow.mp4";
@@ -20,14 +21,14 @@ export default function ProjectionPage(props) {
 
   useEffect(() => {
     const socket = io.connect("/projection");
-    socket.emit("projection-connect", {
+    socket.emit(SOCKET_CMDS.PROJECTION_CONNECT.cmd, {
       room: props.match.params.room,
       user: props.match.params.user,
     });
-    socket.on("process-stop", () => {
+    socket.on(SOCKET_CMDS.PROCESS_STOP.cmd, () => {
       setVideoid(0);
     });
-    socket.on("stage-control", (data) => {
+    socket.on(SOCKET_CMDS.STAGE_CONTROL.cmd, (data) => {
       const { stage } = data;
       console.log("stage ", stage);
       if (stage < 4) {

@@ -1,0 +1,104 @@
+[
+  {
+    "name": "Start",
+    "steps": [
+      {
+        "type": "survey",
+        "duration": 1,
+        "params": {
+          "param1": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "Stage 1",
+    "steps": [
+      {
+        "name": "Chat",
+        "type": "video-chat",
+        "duration": 5,
+        "params": {
+          "mask_settings": {
+            "show_features": ["leftEye", "rightEye", "mouth", "nose"]
+          },
+          "audio": true,
+          "video": true,
+          "question_type": "icebreaker"
+        }
+      },
+      {
+        "name": "Survey",
+        "type": "survey",
+        "duration": 7,
+        "params": {
+          "param1": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "Stage 2",
+    "steps": [
+      {
+        "name": "Chat",
+        "type": "video-chat",
+        "duration": 180,
+        "params": {
+          "mask_settings": {
+            "show_features": ["leftEye", "rightEye", "mouth", "nose"]
+          },
+          "audio": true,
+          "video": true,
+          "question_type": "wouldyou"
+        }
+      },
+      {
+        "name": "Survey",
+        "type": "survey",
+        "duration": 150,
+        "params": {
+          "param1": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "Stage 3",
+    "steps": [
+      {
+        "name": "Chat",
+        "type": "video-chat",
+        "duration": 180,
+        "params": {
+          "mask_settings": {
+            "show_features": ["leftEye", "rightEye", "mouth", "nose"]
+          },
+          "audio": true,
+          "video": true,
+          "question_type": "quest"
+        }
+      },
+      {
+        "name": "Survey",
+        "type": "survey",
+        "duration": 90,
+        "params": {
+          "param1": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "End",
+    "steps": [
+      {
+        "type": "survey",
+        "duration": 90,
+        "params": {
+          "param1": ""
+        }
+      }
+    ]
+  }
+]
