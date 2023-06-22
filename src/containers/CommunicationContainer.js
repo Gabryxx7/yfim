@@ -27,6 +27,7 @@ class CommunicationContainer extends React.Component {
     this.props.media.setState({ bridge: "connecting" });
   }
   full() {
+    console.log(`Room is full!`)
     this.props.media.setState({ bridge: "full" });
   }
   componentDidMount() {

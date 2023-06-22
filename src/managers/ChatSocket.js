@@ -6,13 +6,18 @@ class ChatSocket {
       this.manager = manager;
       this.sessionManager = sessionManager;
       this.roomId = null;
-      this.setupSocket()
+      // console.log(this.socket)
+      this.socket.onAny((eventName, ...args) => {
+        console.log(`Received event ${eventName} on a ${this.constructor.name}`)
+      });
+      this.setupSocket();
     }
+
     setupSocket(){
       this.socket.on(SOCKET_CMDS.DISCONNECT.cmd, () => this.disconnect());
       this.socket.on(SOCKET_CMDS.MESSAGE.cmd, (message) => this.broadcastMessage(SOCKET_CMDS.MESSAGE.cmd, message));
-      this.socket.on(SOCKET_CMDS.FIND_ROOM.cmd, () => this.leaveRoom());
-      this.socket.on(SOCKET_CMDS.LEAVE_ROOM.cmd, (id) => this.reject(id));
+      this.socket.on(SOCKET_CMDS.FIND_ROOM.cmd, () => this.getRoom());
+      this.socket.on(SOCKET_CMDS.LEAVE_ROOM.cmd, () => this.leaveRoom());
       this.socket.on(SOCKET_CMDS.AUTH.cmd, (data) => this.auth(data));
       this.socket.on(SOCKET_CMDS.ACCEPT.cmd, (id) => this.accept(id));
       this.socket.on(SOCKET_CMDS.REJECT.cmd, (id) => this.reject(id));
@@ -61,46 +66,70 @@ class ChatSocket {
     }
   
     disconnect(){
-      console.log("- client left room: ");
+      console.log("- client left room: " + this.roomId);
       console.log(this.socket.rooms);
       this.sessionManager.onProcessStop("test", true);
     }
   
-    createRoom(room){
+    joinRoom(room, newRoom=false){
+      if(newRoom){
+        this.socket.emit(SOCKET_CMDS.CREATE_ROOM.cmd);
+        console.log("+ new room created: " + room);
+      }
+      else{
+        this.socket.emit(SOCKET_CMDS.JOIN_ROOM.cmd);
+        console.log("- room (" + room + ") exists: try to join.");
+      } 
       this.socket.join(room);
-      this.socket.emit(SOCKET_CMDS.CREATE_ROOM.cmd);
-      console.log("+ new room created: " + this.roomId);
+      console.log(this.socket.rooms);
     }
   
-    joinRoom(room){
-      this.socket.emit(SOCKET_CMDS.JOIN_ROOM.cmd);
-      console.log("- room (" + this.roomId + ") exists: try to join.");
-      this.socket.join(room);
-    }
-  
-    leaveRoom(room){
+    leaveRoom(){
       this.broadcastMessage(SOCKET_CMDS.HANGUP.cmd)
       // this.socket.broadcast.to(room).emit("hangup");
       this.socket.leave(this.roomId);
       console.log("- client left room: " + this.roomId);
+      console.log(`Sockets in room ${this.roomToString(this.manager.nsio, this.roomId)}`)
       // clearInterval(timmer);
+    }
+
+    roomToString(namespace, key){
+      let res = ""
+      try{
+        const socketsInRoomStr = Array.from(namespace.adapter.rooms.get(key)).join(', ');
+        res = `${key} = \{ ${socketsInRoomStr} \}`;
+      } catch (error) {
+        res = `Room ${key} does not exist in namespace`;
+      }
+      return res;
+    }
+
+    printRooms(namespace, roomId=null){
+      for (let [key, value] of namespace.adapter.rooms) {
+        const isRoom = roomId === key ? "[+]" : "-"
+        console.log(`${isRoom} ${this.roomToString(namespace, key)}`)
+      }
     }
   
     getRoom(){
       this.started = true;
       const url = this.socket.request.headers.referer.split("/");
       this.roomId = url[url.length - 2];
-  
-      const sr = this.manager.findRoom(room);
-      if (sr === undefined) {
-        this.createRoom(this.roomId)
-      } else if (sr.length === 1) {
-        this.joinRoom(this.roomId)
+      this.roomId = `room_${this.roomId}`
+      console.log(`Socket ID: ${this.socket.id} \t Room:${this.roomId}\t URL: ${url}`)
+      const sr = this.manager.nsio.adapter.rooms.get(this.roomId);
+      if(sr !== undefined){
+        console.log(`Sockets in room ${this.roomToString(this.manager.nsio, this.roomId)}`)
+      }
+      // Double check that the size should be 1 or 2, i would assume we need two clients in a room but it does not seem to be the case
+      if (sr === undefined || sr.size < 2) {
+        this.joinRoom(this.roomId, (sr === undefined))
       } else {
         // max two clients
         this.socket.emit(SOCKET_CMDS.ROOM_FULL.cmd, this.roomId);
         console.log("- room (" + this.roomId + ") exists but is full");
       }
+      // this.printRooms(this.manager.nsio);
     }
   
     controlRoom(data){
