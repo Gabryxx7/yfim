@@ -141,7 +141,7 @@ export default function RoomControl(props) {
   const [maskConfig, setMaskConfig] = useState(null);
   const classes = useStyles();
   const room = props.match.params.room;
-  const socket_url = `/${NAMESPACES.control}`;
+  const socket_url = `/${NAMESPACES.CONTROL}`;
   const socket = io(socket_url, {
     autoConnect: false
   });

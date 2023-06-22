@@ -15,7 +15,7 @@ export default function (props) {
   const [data_show, setData_show] = useState();
   const [data_num, setData_num] = useState(0);
   useEffect(() => {
-    const socket = io.connect(`/${NAMESPACES.control}`);
+    const socket = io.connect(`/${NAMESPACES.CONTROL}`);
     socket.emit(SOCKET_CMDS.DATA_CONNECT.cmd);
     socket.on("data-retrieve", (data) => {
       setResult(data);

@@ -26,7 +26,7 @@ function SurveyPage(props) {
 
   // socket event, room-idle, survey start and ending, process start and stop
   useEffect(() => {
-    const socket = io.connect(`/${NAMESPACES.control}`);
+    const socket = io.connect(`/${NAMESPACES.CONTROL}`);
     socket.emit(SOCKET_CMDS.SURVEY_CONNECT.cmd, {
       room: props.match.params.room,
       user: props.match.params.user,

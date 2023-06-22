@@ -6,6 +6,7 @@ import store from "../store";
 import io from "socket.io-client";
 import { surveyJSON } from "../components/Survey_JSON";
 import * as Survey from "survey-react";
+const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands')
 
 class RoomPage extends Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class RoomPage extends Component {
     this.state = {
       survey: false,
     };
-    this.socket = io.connect("/chat");
+    this.socket = io.connect(`/${NAMESPACES.CHAT}`);
 
     console.log("socket create", this.socket);
   }

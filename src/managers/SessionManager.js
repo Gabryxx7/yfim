@@ -1,18 +1,12 @@
-const { ChatsManager } = require('../managers/ChatsManager')
-const { ControlManager } = require('../managers/ControlManager')
-const { ProjectionManager } = require('../managers/ProjectionManager')
-const { SOCKET_CMDS, DATA_TYPES } = require('../managers/SocketCommands')
+const { NamespaceManager } = require('../managers/NamespaceManager')
+const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands')
 const { STATUS, Stage } = require('../managers/Stage')
-const { Room } = require('../managers/Stage')
-const { User } = require('../managers/Stage')
+const { Room } = require('../managers/Room')
+const { User } = require('../managers/User')
+const { ChatSocket } = require('./ChatSocket')
+const { ControlSocket } = require('./ControlSocket')
 
 class SessionManager {
-  NAMESPACES = {
-    CHAT: "namespace-chat",
-    CONTROL: "namespace-control",
-    PROJECTION: 'namespace-projection'
-  } 
-
   constructor(sio, stagesConfig, masksConfig, questionset) {
     this.sio = sio;
     this.rooms = {}
@@ -38,9 +32,20 @@ class SessionManager {
         this.stages.push(new Stage(this, stagesConfig[i], null, i));
       }
     }
-    this.chatsManager = new ChatsManager(this.sio, this);
-    this.controlManager = new ControlManager(this.sio, this);
-    this.projectionManager = new ProjectionManager(this.sio, this);
+    // this.chatsManager = new ChatsManager(this.sio, this);
+    // this.controlManager = new ControlManager(this.sio, this);
+    // this.projectionManager = new ProjectionManager(this.sio, this);
+    this.chatsManager = new NamespaceManager(this.sio, "Chat", NAMESPACES.CHAT, this, ChatSocket);
+    this.controlManager = new NamespaceManager(this.sio, "Control", NAMESPACES.CONTROL, this, ControlSocket);
+    this.projectionManager = new NamespaceManager(this.sio, "Projection", NAMESPACES.PROJECTION, this, null, (socket) => {
+        socket.join(SOCKET_CMDS.PROJECTION_TEST.cmd);
+        socket.on(SOCKET_CMDS.PROJECTION_CONNECT.cmd, (data) => {
+          const { room, user } = data;
+          // socket.join("projection-" + room);
+          console.log(    '+ a projection was connected in room: " ' + room + ", user: " + user
+          );
+        });
+      });
   }
 
   addRoom(id, socket, roomType){
@@ -153,7 +158,7 @@ class SessionManager {
     }
     this.chatsManager.nsio.emit("process-stop", { accident_stop });
     this.controlManager.nsio.emit("process-stop", { accident_stop });
-    this.projectionManager.nsio.emit("process-stop", { accident_stop });
+    // this.projectionManager.nsio.emit("process-stop", { accident_stop });
   }
 
   async storeData(room) {

@@ -11,9 +11,6 @@ require("dotenv").config();
 var hash = require("object-hash");
 const { SingleEntryPlugin } = require("webpack");
 const { SessionManager } = require("./src/managers/SessionManager")
-const { ControlManager } = require("./src/managers/ControlManager")
-const { ChatsManager } = require("./src/managers/ChatsManager");
-// const ChatsManager = require("./src/managers/ChatsManager")
 
 // CouchDB
 const COUCHDB_URL = process.env.COUCHDB_URL || 'http://localhost:5984';

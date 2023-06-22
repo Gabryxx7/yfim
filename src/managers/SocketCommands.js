@@ -41,9 +41,9 @@ const DATA_TYPES = {
 
 
 const NAMESPACES = {
-  chat: "chat-page",
-  control: "control-page",
-  projection: "projection-page",
+  CHAT: "chat-page",
+  CONTROL: "control-page",
+  PROJECTION: "projection-page",
 }
 
 
