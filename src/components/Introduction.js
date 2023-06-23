@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 export default function Introduction() {
   return (
-    <div className="topic">
+    <div className="topic intro-topic">
       <p className="topic_head">YOUR FACE IS MUTED</p>
       <p className="topic_text">
         <i>Your Face is Muted</i> explores how a lack of non-verbal cues

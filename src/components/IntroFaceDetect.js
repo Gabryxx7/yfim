@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 export default function IntroFaceDetect() {
   return (
-    <div className="topic">
+    <div className="topic  introfacedetect-topic">
       <p className="topic_head">YOUR FACE IS MUTED</p>
       <p className="topic_text">
         This is a three-part experience that will take 3 minutes.

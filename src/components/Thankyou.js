@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 export default function Thankyou(props) {
   const { result } = props;
   return (
-    <div className="topic">
+    <div className="topic  thankyou-topic">
       <p className="topic_head">THANK YOU</p>
       <p className="topic_text">
         <br />

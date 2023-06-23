@@ -1166,6 +1166,11 @@
   resolved "https://registry.npmjs.org/@types/webgl2/-/webgl2-0.0.4.tgz"
   integrity sha512-PACt1xdErJbMUOUweSrbVM7gSIYm1vTncW2hF6Os/EeWi6TXYAYMPp+8v6rzHmypE5gHrxaxZNXgMkJVIdZpHw==
 
+"@vladmandic/face-api@^1.7.12":
+  version "1.7.12"
+  resolved "https://registry.npmjs.org/@vladmandic/face-api/-/face-api-1.7.12.tgz"
+  integrity sha512-kTdYHhXEuwNJBXbviuJiZiVdAHtKF/wyWchiBzWDSYPsi54fYwFCKu8/+VTyzLvR1u7bJBlJFl2nPbaGqhxGAg==
+
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
   resolved "https://registry.npmjs.org/@webassemblyjs/ast/-/ast-1.9.0.tgz"
