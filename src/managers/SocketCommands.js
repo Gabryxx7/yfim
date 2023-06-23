@@ -31,7 +31,9 @@ const SOCKET_CMDS = {
   CONTROL:      {id: 8,   cmd: "control", callbacks: []},
   PROJECTION_TEST:      {id: 8,   cmd: "projection-test", callbacks: []},
   PROJECTION_CONNECT:      {id: 8,   cmd: "projection-connect", callbacks: []},
-  STAGE_CONTROL:      {id: 8,   cmd: "stage-control", callbacks: []}
+  STAGE_CONTROL:      {id: 8,   cmd: "stage-control", callbacks: []},
+  RECORDING:      {id: 8,   cmd: "recording", callbacks: []},
+  UPLOAD_FINISH:      {id: 8,   cmd: "upload-finish", callbacks: []}
 }
 
 const DATA_TYPES = {
@@ -39,12 +41,10 @@ const DATA_TYPES = {
   EMOTION: "emotion"
 }
 
-
 const NAMESPACES = {
   CHAT: "chat-page",
   CONTROL: "control-page",
   PROJECTION: "projection-page",
 }
-
 
 module.exports = { SOCKET_CMDS, DATA_TYPES, NAMESPACES }

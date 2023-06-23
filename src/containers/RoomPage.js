@@ -26,7 +26,7 @@ class RoomPage extends Component {
     };
     this.socket = io.connect(`/${NAMESPACES.CHAT}`);
 
-    console.log("socket create", this.socket);
+    console.log(`Created Socket: ${this.socket?.nsp}`, this.socket);
   }
   componentDidMount() {
     this.props.addRoom();

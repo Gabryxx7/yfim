@@ -27,6 +27,7 @@ function SurveyPage(props) {
   // socket event, room-idle, survey start and ending, process start and stop
   useEffect(() => {
     const socket = io.connect(`/${NAMESPACES.CONTROL}`);
+    console.log(`SURVEY PAGE HERE, connecting to ${socket?.nsp}`)
     socket.emit(SOCKET_CMDS.SURVEY_CONNECT.cmd, {
       room: props.match.params.room,
       user: props.match.params.user,
@@ -57,7 +58,7 @@ function SurveyPage(props) {
     });
     socket.on(SOCKET_CMDS.PROCESS_STOP.cmd, (data) => {
       const { accident_stop } = data;
-      console.log("- process-stop", accident_stop);
+      console.log("- Survey page process-stop", accident_stop);
       if (!accident_stop) {
         console.log(SOCKET_CMDS.PROCESS_STOP.cmd, answer);
         socket.emit(SOCKET_CMDS.DATA_SEND.cmd, {

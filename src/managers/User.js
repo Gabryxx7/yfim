@@ -7,7 +7,7 @@ const { SOCKET_CMDS, DATA_TYPES } = require('../managers/SocketCommands')
  * Obviously the "User.Type" field is not really needed but just in case we'd like to expand this project to have more people in one room... 
  * **/
 class User {
-    TYPE = {
+    static TYPE = {
       NONE: "none",
       HOST: "host",
       GUEST: "guest"

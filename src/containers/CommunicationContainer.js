@@ -37,6 +37,7 @@ class CommunicationContainer extends React.Component {
       audio: this.props.audio,
       zoom: this.props.zoom,
     });
+    console.log(`SOCKET: ${this.props?.socket?.nsp}`)
     console.log(this.props);
 
     socket.on(SOCKET_CMDS.CREATE_ROOM.cmd, () =>
@@ -49,11 +50,13 @@ class CommunicationContainer extends React.Component {
       this.props.socket.emit(SOCKET_CMDS.AUTH.cmd, this.state);
       this.hideAuth();
     });
-    socket.on("approve", ({ message, sid }) => {
+    socket.on(SOCKET_CMDS.APPROVE.cmd, ({ message, sid }) => {
+      console.log(`Received approve from ${sid}: ${message}`)
       this.props.media.setState({ bridge: "approve" });
       this.setState({ message, sid });
       setTimeout(() => {
-        this.props.socket.emit(["accept"], sid);
+        console.log(`Emitting ${SOCKET_CMDS.ACCEPT.cmd} ${sid}`)
+        this.props.socket.emit([SOCKET_CMDS.ACCEPT.cmd], sid);
         this.hideAuth();
       }, 5000);
     });
@@ -62,20 +65,30 @@ class CommunicationContainer extends React.Component {
     this.props.getUserMedia.then((stream) => {
       this.localStream = stream;
       this.track = stream.getVideoTracks()[0];
-
-      this.track.applyConstraints({
-        advanced: [{ ["zoom"]: this.props.zoom }],
-      });
+      try{
+        this.track.applyConstraints({
+          advanced: [{ ["zoom"]: this.props.zoom }],
+        }).catch( ( error ) => {
+          console.error(`Error applying constraints to track: `, error)
+        });
+      }catch(error){
+        console.error(`Error applying constraints to track: `, error)
+      }
       this.localStream.getVideoTracks()[0].enabled = this.state.video;
       this.localStream.getAudioTracks()[0].enabled = this.state.audio;
     });
   }
   componentDidUpdate() {
+    console.log(`SOCKET: ${this.props?.socket?.nsp}`)
     console.log(this.props);
-    if (this.track) {
+    try{
       this.track.applyConstraints({
         advanced: [{ ["zoom"]: this.props.zoom }],
+      }).catch( ( error ) => {
+        console.error(`Error applying constraints to track: `, error)
       });
+    }catch(error){
+      console.error(`Error applying constraints to track: `, error)
     }
   }
   handleInput(e) {

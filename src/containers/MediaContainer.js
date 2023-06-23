@@ -135,15 +135,15 @@ class MediaBridge extends Component {
     this.props.socket.on(SOCKET_CMDS.PROCESS_CONTROL.cmd, this.onProcessControl);
     this.props.socket.on(SOCKET_CMDS.RESET.cmd, this.onReset);
     this.props.socket.on(SOCKET_CMDS.STAGE_CONTROL.cmd, this.onStageControl);
-    this.props.socket.on("upload-finish", this.onUploadingFinish);
+    this.props.socket.on(SOCKET_CMDS.UPLOAD_FINISH.cmd, this.onUploadingFinish);
     this.props.socket.on(SOCKET_CMDS.SURVEY_START.cmd, this.onSurveyStart);
     this.props.socket.on(SOCKET_CMDS.SURVEY_END.cmd, this.onSurveyEnd);
     this.props.socket.on(SOCKET_CMDS.FACE_DETECTED.cmd, this.onFace);
 
-    this.props.socket.on("message", this.onMessage);
-    this.props.socket.on("hangup", this.onRemoteHangup);
+    this.props.socket.on(SOCKET_CMDS.MESSAGE.cmd, this.onMessage);
+    this.props.socket.on(SOCKET_CMDS.HANGUP.cmd, this.onRemoteHangup);
     this.props.socket.on(SOCKET_CMDS.CONTROL.cmd, this.onControl);
-    this.props.socket.on("recording", this.startRecording);
+    this.props.socket.on(SOCKET_CMDS.RECORDING.cmd, this.startRecording);
     this.remoteVideo.addEventListener("play", () => {
       // start detect remote's face and process
       this.showEmotion();
@@ -367,12 +367,15 @@ class MediaBridge extends Component {
   }
   // reset all parameters when process stop
   onProcessStop(data) {
-    const { accident_stop } = data;
+    let { accident_stop } = data;
+    if(accident_stop === undefined || accident_stop === null){
+      accident_stop = "From Socket";
+    }
     if (this.state.recording) {
       this.stopRecording(accident_stop);
     }
 
-    console.log("process stop", accident_stop);
+    console.log("media process stop. Accident: ", accident_stop);
     clearInterval(this.timmer);
     this.setState({
       ...this.state,

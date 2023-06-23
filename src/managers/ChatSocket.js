@@ -1,4 +1,5 @@
 const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands')
+const { User } = require('../managers/User')
 
 class ChatSocket {
     constructor(socket, manager, sessionManager) {
@@ -6,23 +7,18 @@ class ChatSocket {
       this.manager = manager;
       this.sessionManager = sessionManager;
       this.roomId = null;
+      this.userType = User.TYPE.NONE;
+      this.socketId = `${this.userType} (${this.socket.id}) in room '${this.roomId} (nsp: ${this.socket?.nsp?.name})`;
       // console.log(this.socket)
       this.socket.onAny((eventName, ...args) => {
         console.log(`Received event ${eventName} on a ${this.constructor.name}`)
       });
-      this.setupSocket();
+      this.setupCommonCallbacks();
+      this.setupCallbacks();
     }
 
-    setupSocket(){
+    setupCommonCallbacks(){
       this.socket.on(SOCKET_CMDS.DISCONNECT.cmd, () => this.disconnect());
-      this.socket.on(SOCKET_CMDS.MESSAGE.cmd, (message) => this.broadcastMessage(SOCKET_CMDS.MESSAGE.cmd, message));
-      this.socket.on(SOCKET_CMDS.FIND_ROOM.cmd, () => this.getRoom());
-      this.socket.on(SOCKET_CMDS.LEAVE_ROOM.cmd, () => this.leaveRoom());
-      this.socket.on(SOCKET_CMDS.AUTH.cmd, (data) => this.auth(data));
-      this.socket.on(SOCKET_CMDS.ACCEPT.cmd, (id) => this.accept(id));
-      this.socket.on(SOCKET_CMDS.REJECT.cmd, (id) => this.reject(id));
-      this.socket.on(SOCKET_CMDS.CONTROL_ROOM.cmd, (data) => this.controlRoom(data));
-      this.socket.on(SOCKET_CMDS.ROOM_IDLE.cmd, (data) => this.roomIdle(data));
       this.socket.on(SOCKET_CMDS.SURVEY_CONNECT.cmd, (data) => this.surveyConnect(data));
       this.socket.on(SOCKET_CMDS.DATA_CONNECT.cmd, () => this.dataConnect());
       this.socket.on(SOCKET_CMDS.SURVEY_START.cmd, (data) => this.surveyStart(data));
@@ -31,12 +27,24 @@ class ChatSocket {
       this.socket.on(SOCKET_CMDS.FACE_DETECTED.cmd, (data) => this.onFaceDetected(data));
       this.socket.on(SOCKET_CMDS.PROCESS_CONTROL.cmd, (data) => this.onProcessControl(data));
       this.socket.on(SOCKET_CMDS.PROCESS_READY.cmd, (data) => this.onProcessReady(data));
-      this.socket.on(SOCKET_CMDS.DATA_SEND.cmd, (data_get) => this.onDataSend(data_get));
       this.socket.on(SOCKET_CMDS.CONTROL.cmd, (data) => this.onControl(data));
+      this.socket.on(SOCKET_CMDS.DATA_SEND.cmd, (data_get) => this.onDataSend(data_get));
+    }
+
+    setupCallbacks(){
+      this.socket.on(SOCKET_CMDS.MESSAGE.cmd, (message) => this.broadcastMessage(SOCKET_CMDS.MESSAGE.cmd, message));
+      this.socket.on(SOCKET_CMDS.FIND_ROOM.cmd, () => this.getRoom());
+      this.socket.on(SOCKET_CMDS.LEAVE_ROOM.cmd, () => this.leaveRoom());
+      this.socket.on(SOCKET_CMDS.AUTH.cmd, (data) => this.auth(data));
+      this.socket.on(SOCKET_CMDS.ACCEPT.cmd, (id) => this.accept(id));
+      this.socket.on(SOCKET_CMDS.REJECT.cmd, (id) => this.reject(id));
+      this.socket.on(SOCKET_CMDS.CONTROL_ROOM.cmd, (data) => this.controlRoom(data));
+      this.socket.on(SOCKET_CMDS.ROOM_IDLE.cmd, (data) => this.roomIdle(data));
     }
   
     // sending to all clients in the room (channel) except sender
     broadcastMessage(cmd, message=null){
+      console.log(`Broadcasting ${cmd} to room ${this.roomId}: ${message}`);
       if(this.roomId != null){
         if(message == null){
           this.socket.broadcast.to(this.roomId).emit(cmd)
@@ -54,10 +62,10 @@ class ChatSocket {
     }
   
     accept(id){
-      // io.sockets.connected[id].join(room);
+      console.log("- accept client in room " + this.roomId);
+      this.socket.join(this.roomId);
       // sending to all clients in 'game' room(channel), include sender
       this.chatio.emit(SOCKET_CMDS.BRIDGE.cmd);
-      console.log("- accept client in room " + this.roomId);
     }
   
     reject(id){
@@ -66,9 +74,9 @@ class ChatSocket {
     }
   
     disconnect(){
-      console.log("- client left room: " + this.roomId);
+      console.log(`- client ${this.socketId} disconnected`);
       console.log(this.socket.rooms);
-      this.sessionManager.onProcessStop("test", true);
+      this.sessionManager.onProcessStop("test", `${this.socketId} Disconnected`);
     }
   
     joinRoom(room, newRoom=false){
@@ -88,7 +96,7 @@ class ChatSocket {
       this.broadcastMessage(SOCKET_CMDS.HANGUP.cmd)
       // this.socket.broadcast.to(room).emit("hangup");
       this.socket.leave(this.roomId);
-      console.log("- client left room: " + this.roomId);
+      console.log(`- client ${this.socketId} left the room ${this.roomId}`);
       console.log(`Sockets in room ${this.roomToString(this.manager.nsio, this.roomId)}`)
       // clearInterval(timmer);
     }
@@ -114,9 +122,11 @@ class ChatSocket {
     getRoom(){
       this.started = true;
       const url = this.socket.request.headers.referer.split("/");
+      this.userType = url[url.length - 1];
       this.roomId = url[url.length - 2];
-      this.roomId = `room_${this.roomId}`
-      console.log(`Socket ID: ${this.socket.id} \t Room:${this.roomId}\t URL: ${url}`)
+      this.roomId = `room_${this.roomId}`;
+      this.socketId = `${this.userType} (${this.socket.id}) in room '${this.roomId}`;
+      console.log(`Socket ID: ${this.socketId} \t URL: ${url}`)
       const sr = this.manager.nsio.adapter.rooms.get(this.roomId);
       if(sr !== undefined){
         console.log(`Sockets in room ${this.roomToString(this.manager.nsio, this.roomId)}`)
@@ -145,10 +155,11 @@ class ChatSocket {
       // console.log(`room ${room} is idle now`);
       controlio.emit(SOCKET_CMDS.ROOM_IDLE.cmd);
       console.log("- room idle: " + this.roomId + " -> initiate process stop");
-      this.sessionManager.onProcessStop(room, true);
+      this.sessionManager.onProcessStop(room, `${this.socketId} RoomIdle`);
     }
   
     surveyConnect(data){
+      console.log("Received survey connect")
       const { room, user } = data;
       this.socket.join("survey-" + this.roomId);
       // survey_socket[user] = socket;
@@ -194,7 +205,7 @@ class ChatSocket {
         }
         let duration = extend_time;
         console.log("moving on: after", duration);
-        this.sessionManager.namespaceIo.emit(SOCKET_CMDS.SURVEY_END.cmd, { stage_startTime, duration, stage });
+        this.manager.nsio.emit(SOCKET_CMDS.SURVEY_END.cmd, { stage_startTime, duration, stage });
         projectio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, { stage });
       }
     };
@@ -202,7 +213,7 @@ class ChatSocket {
     reset(data){
       const { room } = data;
       console.log("- resetting room: " + this.roomId);
-      this.sessionManager.onProcessStop(room, true);
+      this.manager.onProcessStop(room, `${this.socketId} RESET`);
     };
   
     onFaceDetected(data){
@@ -210,7 +221,7 @@ class ChatSocket {
       console.log("- face-detected received in room: " + this.roomId + ", user: " + user);
   
       controlio.emit(SOCKET_CMDS.FACE_DETECTED.cmd);
-      this.sessionManager.namespaceIo.emit(SOCKET_CMDS.FACE_DETECTED.cmd, user);
+      this.manager.nsio.emit(SOCKET_CMDS.FACE_DETECTED.cmd, user);
     };
   
     onProcessControl(data){

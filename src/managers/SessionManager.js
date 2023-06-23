@@ -129,14 +129,14 @@ class SessionManager {
         // processStart(roomId, startTime, config);
 
         const { duration } = config["setting"][0];
-        this.chatsManager.namespaceIo.emit(SOCKET_CMDS.PROCESS_START.cmd, {
+        this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
           startTime,
           duration,
           record_by_user,
           sessionId,
         });
 
-        this.controlManager.namespaceIo.emit(SOCKET_CMDS.PROCESS_START.cmd);
+        this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd);
 
         console.log("- resetting ready_user_by_room for next survey (?)");
         this.resetRoom(roomId);
@@ -156,9 +156,9 @@ class SessionManager {
     if(this.timer != null){
       clearInterval(this.timer);
     }
-    this.chatsManager.nsio.emit("process-stop", { accident_stop });
-    this.controlManager.nsio.emit("process-stop", { accident_stop });
-    // this.projectionManager.nsio.emit("process-stop", { accident_stop });
+    this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
+    this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
+    // this.projectionManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
   }
 
   async storeData(room) {
