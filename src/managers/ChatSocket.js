@@ -19,6 +19,7 @@ class ChatSocket {
 
     setupCommonCallbacks(){
       this.socket.on(SOCKET_CMDS.DISCONNECT.cmd, () => this.disconnect());
+      this.socket.on(SOCKET_CMDS.CONNECT_ERROR.cmd, () => this.connectError());
       this.socket.on(SOCKET_CMDS.SURVEY_CONNECT.cmd, (data) => this.surveyConnect(data));
       this.socket.on(SOCKET_CMDS.DATA_CONNECT.cmd, () => this.dataConnect());
       this.socket.on(SOCKET_CMDS.SURVEY_START.cmd, (data) => this.surveyStart(data));
@@ -44,7 +45,8 @@ class ChatSocket {
   
     // sending to all clients in the room (channel) except sender
     broadcastMessage(cmd, message=null){
-      console.log(`Broadcasting ${cmd} to room ${this.roomId}: ${message}`);
+      const dbg_msg = message?.type ? `Type: ${message?.type}` : `${message}`
+      console.log(`Broadcasting ${cmd} to room ${this.roomId}: ${dbg_msg}`);
       if(this.roomId != null){
         if(message == null){
           this.socket.broadcast.to(this.roomId).emit(cmd)
@@ -65,12 +67,16 @@ class ChatSocket {
       console.log("- accept client in room " + this.roomId);
       this.socket.join(this.roomId);
       // sending to all clients in 'game' room(channel), include sender
-      this.chatio.emit(SOCKET_CMDS.BRIDGE.cmd);
+      this.manager.nsio.emit(SOCKET_CMDS.BRIDGE.cmd);
     }
   
     reject(id){
       this.socket.emit(SOCKET_CMDS.ROOM_FULL.cmd);
       console.log("- rejected");
+    }
+
+    connectError(err){
+      console.log(`connect_error on ${this.socketId} due to ${err.message}`);
     }
   
     disconnect(){

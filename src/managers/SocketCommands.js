@@ -33,7 +33,9 @@ const SOCKET_CMDS = {
   PROJECTION_CONNECT:      {id: 8,   cmd: "projection-connect", callbacks: []},
   STAGE_CONTROL:      {id: 8,   cmd: "stage-control", callbacks: []},
   RECORDING:      {id: 8,   cmd: "recording", callbacks: []},
-  UPLOAD_FINISH:      {id: 8,   cmd: "upload-finish", callbacks: []}
+  UPLOAD_FINISH:      {id: 8,   cmd: "upload-finish", callbacks: []},
+  CONNECT_ERROR:      {id: 8,   cmd: "connect_error", callbacks: []},
+  HELLO:      {id: 8,   cmd: "hello", callbacks: []}
 }
 
 const DATA_TYPES = {

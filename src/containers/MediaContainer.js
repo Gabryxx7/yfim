@@ -146,7 +146,9 @@ class MediaBridge extends Component {
     this.props.socket.on(SOCKET_CMDS.RECORDING.cmd, this.startRecording);
     this.remoteVideo.addEventListener("play", () => {
       // start detect remote's face and process
-      this.showEmotion();
+      this.showEmotion().catch((error) => {
+        console.warn(`Error showing emotion: ${error}`)
+      });
     });
 
     // audio recorder initialize
@@ -181,7 +183,13 @@ class MediaBridge extends Component {
 
   async showEmotion() {
     console.log("++ showEmotion(): start face detection");
-    this.detections = this.detectFace();
+    this.detectFace()
+      .then((detections) => {
+        this.detections = detections;
+      })
+      .catch((err) => {
+        console.warn(`Error detecting face: ${err}`);
+      });
   }
   // load faceapi models for detection
   async loadModel() {
@@ -638,14 +646,18 @@ class MediaBridge extends Component {
             console.log("Triggering face detection..");
             this.faceDetectionInProgress = true;
 
-            this.detections = await faceapi
-              .detectSingleFace(
-                this.remoteVideo,
-                new faceapi.TinyFaceDetectorOptions()
-              )
-              .withFaceLandmarks()
-              .withFaceExpressions();
-            // console.log("detections", this.detections);
+            try {
+              this.detections = await faceapi
+                .detectSingleFace(
+                  this.remoteVideo,
+                  new faceapi.TinyFaceDetectorOptions()
+                )
+                .withFaceLandmarks()
+                .withFaceExpressions();
+              // console.log("detections", this.detections);
+            }catch (err) {
+              console.log(`Error detecting single face ${err}`);
+            }
             let utc = new Date().getTime();
             try {
               this.faceAttributes = getFeatureAttributes(this.detections);
@@ -658,7 +670,7 @@ class MediaBridge extends Component {
                 lose_face_f = false;
               }
             } catch (err) {
-              // console.log(err);
+              console.log(`Error getting feature attributes ${err}`);
 
               if (this.state.survey_in_progress) {
                 this.losingface += 0.5;

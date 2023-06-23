@@ -32,19 +32,34 @@ class CommunicationContainer extends React.Component {
   }
   componentDidMount() {
     const socket = this.props.socket;
+
+    socket.on(SOCKET_CMDS.HELLO.cmd, () => {
+      console.log(`SOCKET CONNECTED (hello received): ${this.props?.socket?.id} ${this.props?.socket?.nsp}`)
+      // console.log(`SOCKET CONNECTED (hello received): ${socket?.id} ${socket?.nsp}`)
+    })
+
+    socket.onAny((eventName, ...args) => {
+      console.log(`Received event ${eventName}`)
+    });
+
+    socket.on(SOCKET_CMDS.CONNECT_ERROR.cmd, (err) => {
+      console.log(`connect_error on ${this.socketId} due to ${err.message}`);
+    });
     this.setState({
       video: this.props.video,
       audio: this.props.audio,
       zoom: this.props.zoom,
     });
-    console.log(`SOCKET: ${this.props?.socket?.nsp}`)
     console.log(this.props);
 
     socket.on(SOCKET_CMDS.CREATE_ROOM.cmd, () =>
       this.props.media.setState({ user: "host", bridge: "create" })
     );
     socket.on(SOCKET_CMDS.ROOM_FULL.cmd, this.full);
-    socket.on("bridge", (role) => this.props.media.init());
+    socket.on(SOCKET_CMDS.BRIDGE.cmd, (role) => {
+      console.log("Received bridge");
+      this.props.media.init();
+    });
     socket.on(SOCKET_CMDS.JOIN_ROOM.cmd, () => {
       this.props.media.setState({ user: "guest", bridge: "join" });
       this.props.socket.emit(SOCKET_CMDS.AUTH.cmd, this.state);
@@ -56,8 +71,12 @@ class CommunicationContainer extends React.Component {
       this.setState({ message, sid });
       setTimeout(() => {
         console.log(`Emitting ${SOCKET_CMDS.ACCEPT.cmd} ${sid}`)
-        this.props.socket.emit([SOCKET_CMDS.ACCEPT.cmd], sid);
-        this.hideAuth();
+        try{
+          this.props.socket.emit(SOCKET_CMDS.ACCEPT.cmd, sid);
+          this.hideAuth();
+        }catch(error){
+          console.error(`Error emitting accept `, error)
+        }
       }, 5000);
     });
 
@@ -79,8 +98,6 @@ class CommunicationContainer extends React.Component {
     });
   }
   componentDidUpdate() {
-    console.log(`SOCKET: ${this.props?.socket?.nsp}`)
-    console.log(this.props);
     try{
       this.track.applyConstraints({
         advanced: [{ ["zoom"]: this.props.zoom }],
@@ -101,7 +118,8 @@ class CommunicationContainer extends React.Component {
   }
   handleInvitation(e) {
     e.preventDefault();
-    this.props.socket.emit([e.target.dataset.ref], this.state.sid);
+    console.log(`Emitting Invitation accept ${e.target.dataset.ref}: ${this.state.sid}`)
+    this.props.socket.emit(e.target.dataset.ref, this.state.sid); // I'm not sure why so many emit() had an array [cmd] as command
     this.hideAuth();
   }
   toggleVideo() {

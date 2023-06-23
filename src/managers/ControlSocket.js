@@ -33,7 +33,7 @@ class ControlSocket extends ChatSocket{
     };
   
     onProcessStop(data){
-      console.log("- process-stop");
+      console.log("- Control process-stop");
       console.log(data);
   
       const params_room = data.room;

@@ -20,6 +20,7 @@ class NamespaceManager {
 
     onConnection(socket){
         console.log(`+ New socket connection! ID: ${socket.id}\t Connected to ${this.name} Namespace ${this.namespace}`);
+        socket.emit(SOCKET_CMDS.HELLO.cmd);
         if(this.onConnectionHandler != null){
             this.onConnectionHandler(socket);
             return;

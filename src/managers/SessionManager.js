@@ -152,7 +152,7 @@ class SessionManager {
   }
 
   onProcessStop(room, accident_stop){
-    console.log("+ process stop ");
+    console.log("+ Session process stop ");
     if(this.timer != null){
       clearInterval(this.timer);
     }
