@@ -1,7 +1,7 @@
-const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands');
-const { ChatSocket } = require('./ChatSocket');
+const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('./SocketCommands');
+const { User } = require('./User');
 
-class ControlSocket extends ChatSocket{
+class ControlUser extends User{
     constructor(socket, manager, sessionManager) {
       super(socket, manager, sessionManager);
     }
@@ -13,8 +13,8 @@ class ControlSocket extends ChatSocket{
   
     controlRoom(data){
       const room = data.room;
-      console.log("- received control-room message for room: " + room);
-      this.sessionManager.addRoom(room, this.socket, Room.TYPE.CONTROL)
+      console.info("- received control-room message for room: " + room);
+      this.sessionManager.createRoom(room, this.socket, Room.TYPE.CONTROL)
       // control_room_list[room] = this.socket;
     }
   
@@ -25,7 +25,7 @@ class ControlSocket extends ChatSocket{
       let current_cfg = data.cfg;
       let current_rating = data.topic;
   
-      console.log("+ process-control received: ");
+      console.info("+ process-control received: ");
       console.log(current_cfg);
       console.log(current_rating);
   
@@ -33,7 +33,7 @@ class ControlSocket extends ChatSocket{
     };
   
     onProcessStop(data){
-      console.log("- Control process-stop");
+      console.info("- Control process-stop");
       console.log(data);
   
       const params_room = data.room;
@@ -46,5 +46,5 @@ class ControlSocket extends ChatSocket{
       this.sessionManager.onProcessReady(data);
     }
 }
-module.exports = { ControlSocket }
+module.exports = { ControlUser }
   

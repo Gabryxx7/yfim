@@ -217,6 +217,22 @@ export default function RoomControl(props) {
     }
   }
 
+  function onForceStart() {
+    console.log("force process start, asking for ready");
+    socket.emit(SOCKET_CMDS.PROCESS_READY.cmd, {
+      room: room,
+      user: 'host',
+      // rating: rating,
+      // record: record
+    });
+    socket.emit(SOCKET_CMDS.PROCESS_READY.cmd, {
+      room: room,
+      user: 'guest',
+      // rating: rating,
+      // record: record
+    });
+  }
+
   function onUploadConfig(files) {
     console.log("uploading config file");
     var reader = new FileReader();
@@ -690,6 +706,10 @@ export default function RoomControl(props) {
 
         <button onClick={() => onProcessStart()} className="primary-button">
           Process Start
+        </button>
+
+        <button onClick={() => onForceStart()} className="primary-button">
+          Force Start
         </button>
 
         <button

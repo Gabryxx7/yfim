@@ -7,8 +7,9 @@ const STATUS = {
 };
 
 class Stage {
-  constructor(session, config, parent = null, idx = -1) {
+  constructor(room, session, config, parent = null, idx = -1) {
     this.session = session;
+    this.room = room;
     this.config = config;
     this.name = this.config.name ? this.config.name : "";
     this.name =
@@ -28,7 +29,7 @@ class Stage {
     this.steps = [];
     if (this.config.steps) {
       for (let i = 0; i < this.config.steps.length; i++) {
-        this.steps.push(new Stage(this.session, this.config.steps[i], this, i));
+        this.steps.push(new Stage(this.room, this.session, this.config.steps[i], this, i));
       }
     }
     if (this.steps.length > 0) {
@@ -55,9 +56,9 @@ class Stage {
       let topic = prompts[rindex];
 
       this.session.topic_selected.push(topic);
-      console.log("- sending update to projection in room: " + room);
-      if(this.session.chatio){
-        this.session.chatio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+      console.info("- sending update to projection in room: " + this.room.id);
+      if(this.session.chatsManager.nsio){
+        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
             mask: mask_setting,
             topic: [topic],
             stage,
@@ -71,9 +72,9 @@ class Stage {
       });
     }
     } else if (this.type == "survey") {
-        this.session.chatio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-        this.session.controlio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-      // console.log(`- sending survey start to room: ${room} (stage: ${stage})`);
+        this.session.chatsManager.nsio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+        this.session.controlManager.nsio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+      // console.info(`- sending survey start to room: ${this.room.id} (stage: ${stage})`);
     }
     this.status = STATUS.IN_PROGRESS;
   }

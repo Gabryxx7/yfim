@@ -52,9 +52,10 @@ class CommunicationContainer extends React.Component {
     });
     console.log(this.props);
 
-    socket.on(SOCKET_CMDS.CREATE_ROOM.cmd, () =>
-      this.props.media.setState({ user: "host", bridge: "create" })
-    );
+    socket.on(SOCKET_CMDS.CREATE_ROOM.cmd, () =>{
+        console.log(`Creating room`);
+        this.props.media.setState({ user: "host", bridge: "create" })
+    });
     socket.on(SOCKET_CMDS.ROOM_FULL.cmd, this.full);
     socket.on(SOCKET_CMDS.BRIDGE.cmd, (role) => {
       console.log("Received bridge");
@@ -64,6 +65,7 @@ class CommunicationContainer extends React.Component {
       this.props.media.setState({ user: "guest", bridge: "join" });
       this.props.socket.emit(SOCKET_CMDS.AUTH.cmd, this.state);
       this.hideAuth();
+      console.log('Emitting Auth');
     });
     socket.on(SOCKET_CMDS.APPROVE.cmd, ({ message, sid }) => {
       console.log(`Received approve from ${sid}: ${message}`)
@@ -83,18 +85,20 @@ class CommunicationContainer extends React.Component {
     socket.emit(SOCKET_CMDS.FIND_ROOM.cmd);
     this.props.getUserMedia.then((stream) => {
       this.localStream = stream;
-      this.track = stream.getVideoTracks()[0];
+      const videoTracks = stream.getVideoTracks();
+      console.log("VideoTracks: ",videoTracks);
+      this.track = videoTracks[0];
       try{
         this.track.applyConstraints({
           advanced: [{ ["zoom"]: this.props.zoom }],
         }).catch( ( error ) => {
-          console.error(`Error applying constraints to track: `, error)
+          console.warn(`Error applying constraints to track: `, error)
         });
+        this.localStream.getVideoTracks()[0].enabled = this.state.video;
+        this.localStream.getAudioTracks()[0].enabled = this.state.audio;
       }catch(error){
-        console.error(`Error applying constraints to track: `, error)
+        console.warn(`Error applying constraints to track: `, error)
       }
-      this.localStream.getVideoTracks()[0].enabled = this.state.video;
-      this.localStream.getAudioTracks()[0].enabled = this.state.audio;
     });
   }
   componentDidUpdate() {
@@ -102,10 +106,10 @@ class CommunicationContainer extends React.Component {
       this.track.applyConstraints({
         advanced: [{ ["zoom"]: this.props.zoom }],
       }).catch( ( error ) => {
-        console.error(`Error applying constraints to track: `, error)
+        console.warn(`Error applying constraints to track: `, error)
       });
     }catch(error){
-      console.error(`Error applying constraints to track: `, error)
+      console.warn(`Error applying constraints to track: `, error)
     }
   }
   handleInput(e) {

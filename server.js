@@ -11,6 +11,7 @@ require("dotenv").config();
 var hash = require("object-hash");
 const { SingleEntryPlugin } = require("webpack");
 const { SessionManager } = require("./src/managers/SessionManager")
+const { console  } = require("./src/utils/colouredLogger")
 
 // CouchDB
 const COUCHDB_URL = process.env.COUCHDB_URL || 'http://localhost:5984';

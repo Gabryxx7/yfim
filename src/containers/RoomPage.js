@@ -29,7 +29,7 @@ class RoomPage extends Component {
     console.log(`Created Socket: ${this.socket?.nsp}`, this.socket);
   }
   componentDidMount() {
-    this.props.addRoom();
+    this.props.createRoom();
   }
   render() {
     return (
@@ -54,7 +54,7 @@ class RoomPage extends Component {
 }
 const mapStateToProps = (store) => ({ rooms: new Set([...store.rooms]) });
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  addRoom: () =>
+  createRoom: () =>
     store.dispatch({ type: "ADD_ROOM", room: ownProps.match.params.room }),
 });
 export default connect(mapStateToProps, mapDispatchToProps)(RoomPage);

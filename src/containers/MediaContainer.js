@@ -146,6 +146,7 @@ class MediaBridge extends Component {
     this.props.socket.on(SOCKET_CMDS.CONTROL.cmd, this.onControl);
     this.props.socket.on(SOCKET_CMDS.RECORDING.cmd, this.startRecording);
     this.remoteVideo.addEventListener("play", () => {
+      console.log("Remote Video Play");
       // start detect remote's face and process
       this.showEmotion().catch((error) => {
         console.warn(`Error showing emotion: ${error}`)
@@ -154,6 +155,7 @@ class MediaBridge extends Component {
 
     // audio recorder initialize
     this.localVideo.addEventListener("play", () => {
+      console.log("Local Video Play");
       let audio_track = this.localStream.getAudioTracks()[0];
       let video_track = this.localStream.getVideoTracks()[0];
       let audio_stream = new MediaStream();
@@ -183,7 +185,7 @@ class MediaBridge extends Component {
   }
 
   async showEmotion() {
-    console.log("++ showEmotion(): start face detection");
+    console.info("++ showEmotion(): start face detection");
     try{
       this.startFaceDetection();
     }
@@ -193,7 +195,7 @@ class MediaBridge extends Component {
   }
   // load faceapi models for detection
   async loadModel() {
-    console.log("++ loading model");
+    console.info("++ loading model");
 
     await faceapi.tf.setBackend("webgl"); // Or 'wasm'
     const MODEL_URL = "/models";
@@ -210,16 +212,16 @@ class MediaBridge extends Component {
 
     // console.log(faceapi.nets);
 
-    // console.log("+ tinyFaceDetectorModel loaded:");
+    // console.info("+ tinyFaceDetectorModel loaded:");
     // console.log(tinyFaceDetectorModel);
 
-    // console.log("+ faceLandmarkModel loaded:");
+    // console.info("+ faceLandmarkModel loaded:");
     // console.log(faceLandmarkModel);
 
-    // console.log("+ faceRecognitionModel loaded:");
+    // console.info("+ faceRecognitionModel loaded:");
     // console.log(faceRecognitionModel);
 
-    // console.log("+ faceExpressionModel loaded:");
+    // console.info("+ faceExpressionModel loaded:");
     // console.log(faceExpressionModel);
   }
 
@@ -468,11 +470,11 @@ class MediaBridge extends Component {
   // update mask and topic and clock time for new stage, triggerred by server socket message
   //
   onStageControl(data) {
-    console.log("- onStageControl()", data);
+    console.info("- onStageControl()", data);
 
     if (this.state.stage != 0) {
       this.emo_result.push(this.record.record_detail);
-      console.log("- stage control, ", this.state, this.emo_result);
+      console.info("- stage control, ", this.state, this.emo_result);
     }
     this.record = {
       record_count: 0,
@@ -515,6 +517,7 @@ class MediaBridge extends Component {
 
   // get setting and control(mask) data at the beginning of process
   onControl(control_data) {
+    console.log("On Control");
     const { user, controlData } = control_data;
     if (user == this.state.user) {
       this.props.updateAll(controlData);
@@ -543,7 +546,7 @@ class MediaBridge extends Component {
 
   // if losing promote user's face, send socket message to server
   onFaceDetect() {
-    console.log("+ Face detected");
+    console.info("+ Face detected");
     // console.log(faceapi.nets);
     let user;
     if (this.state.user == "guest") {
@@ -559,7 +562,7 @@ class MediaBridge extends Component {
 
   // face detected event listener
   onFace(data) {
-    console.log("- onFace()");
+    // console.info("- onFace()");
 
     if (this.state.user == data && !this.state.process) {
       this.setState({
@@ -585,7 +588,7 @@ class MediaBridge extends Component {
       // say that we're recording
       this.setState({ recording: true });
     } else {
-      console.log("- AUDIO RECORDING IS DISABLED");
+      console.info("- AUDIO RECORDING IS DISABLED");
       this.setState({ recording: false });
     }
   }
@@ -617,7 +620,7 @@ class MediaBridge extends Component {
       // const videos = this.state.videos.concat([videoURL]);
       // this.setState({ videos });
     } else {
-      console.log("- VIDEO RECORDING IS DISABLED");
+      console.info("- VIDEO RECORDING IS DISABLED");
     }
   }
 
@@ -657,9 +660,9 @@ class MediaBridge extends Component {
           .withFaceExpressions();
         // console.log("detections", this.detections);
       }catch (err) {
-        console.log(`Error detecting single face ${err}`);
+        console.error(`ERROR detecting single face ${err}`);
       }
-      console.log(`Getting face attributes`);
+      // console.log(`Getting face attributes`);
       let utc = new Date().getTime();
       try {
         this.faceAttributes = getFeatureAttributes(this.detections);
@@ -672,7 +675,7 @@ class MediaBridge extends Component {
           lose_face_f = false;
         }
       } catch (err) {
-        console.log(`Error getting feature attributes ${err}`);
+        console.error(`ERROR getting feature attributes ${err}`);
 
         if (this.state.survey_in_progress) {
           this.losingface += 0.5;
@@ -717,7 +720,7 @@ class MediaBridge extends Component {
         );
       }
 
-      console.log(`Updating survey or state progress?!`);
+      // console.log(`Updating survey or state progress?!`);
       if (this.state.process && !this.state.survey_in_progress) {
         try {
           const emo_data = {
@@ -732,7 +735,7 @@ class MediaBridge extends Component {
         }
       }
 
-      console.log(`Drawing on canvas`);
+      // console.log(`Drawing on canvas`);
       if (this.props.controlParams.occlusion_mask){
         this.drawCanvas(true);
       }
@@ -743,7 +746,7 @@ class MediaBridge extends Component {
       // console.log('setting detection in progress to false');
       this.faceDetectionInProgress = false;
     } else {
-      console.log("-- skipped. Face detection in progress");
+      console.info("-- skipped. Face detection in progress");
     }
     setTimeout(async () => await this.faceDetectionCallback(), 200);
   }
@@ -928,7 +931,7 @@ class MediaBridge extends Component {
   sendDataToServer() {
     let eresult = this.record;
     this.emo_result.push(this.record.record_detail);
-    console.log("+ finish, sending data, ", this.emo_result, eresult);
+    console.info("+ finish, sending data, ", this.emo_result, eresult);
     const emo_record = this.emo_result;
     console.log("sending data to server ",
       JSON.parse(JSON.stringify(emo_record))
@@ -943,9 +946,11 @@ class MediaBridge extends Component {
     this.record.record_count = 0;
   }
   init() {
+    console.log('Initializing Media');
     try {
       // wait for local media to be ready
       const attachMediaIfReady = () => {
+        console.log('Attach media if ready ()');
         this.dc = this.pc.createDataChannel("chat");
         this.setupDataHandlers();
         console.log("attachMediaIfReady");
@@ -962,15 +967,20 @@ class MediaBridge extends Component {
       this.pc = new RTCPeerConnection({
         iceServers: [
           {
+            urls: "stun:stun.l.google.com:19302",
+          },
+          {
             urls: "turn:139.180.183.4:3478",
             username: "hao",
             credential: "158131hh2232A",
-          },
-          {
-            urls: "stun:stun.l.google.com:19302",
-          },
+          }
         ],
       });
+      console.log('RTCPeerCOnnection created');
+      this.pc.onconnectionstatechange = (event) => {
+        console.log("onconnectionstatechange change ", event);
+      };
+      
       this.pc.addEventListener("iceconnectionstatechange", (event) => {
         let pcstate = this.pc.iceConnectionState;
         console.log("iceconnection change ", pcstate);
@@ -991,13 +1001,17 @@ class MediaBridge extends Component {
       });
       // when our browser gets a candidate, send it to the peer
       this.pc.onicecandidate = (e) => {
-        // console.log(e, "onicecandidate");
+        console.log("onicecandidate", e);
         if (e.candidate) {
           this.props.socket.send({
             type: "candidate",
             candidate: e.candidate,
           });
         }
+      };
+
+      this.pc.ontrack = (event) => {
+        console.log("ontrack", event);
       };
       // when the other side added a media stream, show it on screen
       this.pc.onaddstream = (e) => {
@@ -1007,6 +1021,7 @@ class MediaBridge extends Component {
         this.setState({ ...this.state, bridge: "established" });
       };
       this.pc.ondatachannel = (e) => {
+        console.log('ondatachannel', e);
         // data channel
         this.dc = e.channel;
         this.setupDataHandlers();
@@ -1017,17 +1032,25 @@ class MediaBridge extends Component {
         });
         //sendData('hello');
       };
+      console.log('RTCPeerCOnnection listeners added');
       // attach local media to the peer connection
       this.localStream
         .getTracks()
-        .forEach((track) => this.pc.addTrack(track, this.localStream));
+        .forEach((track) => {
+          console.log('Adding track ', track);
+          this.pc.addTrack(track, this.localStream)
+        });
       // call if we were the last to connect (to increase
       // chances that everything is set up properly at both ends)
       if (this.state.user === "host") {
-        this.props.getUserMedia.then(attachMediaIfReady);
+        this.props.getUserMedia
+          .then(attachMediaIfReady)
+          .catch((error) => {
+            console.warn(`Error Getting user media: `, error)
+          });
       }
     } catch (error) {
-      console.log("ERROR: Could not init WebRTC", error);
+      console.error("ERROR: Could not init WebRTC", error);
     }
   }
   // components: SideBar, Clock, GYModal(popup window, loseface attention), Introduction, Introduction when face detected, Thankyou, local and remote video

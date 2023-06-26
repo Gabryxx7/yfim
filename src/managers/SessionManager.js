@@ -1,10 +1,11 @@
+const hash = require("object-hash");
 const { NamespaceManager } = require('../managers/NamespaceManager')
 const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands')
 const { STATUS, Stage } = require('../managers/Stage')
 const { Room } = require('../managers/Room')
 const { User } = require('../managers/User')
-const { ChatSocket } = require('./ChatSocket')
-const { ControlSocket } = require('./ControlSocket')
+const { ControlUser } = require('./ControlUser')
+const { console  } = require("../utils/colouredLogger")
 
 class SessionManager {
   constructor(sio, stagesConfig, masksConfig, questionset) {
@@ -14,6 +15,7 @@ class SessionManager {
     this.questionset = questionset;
     this.icebreaker = this.questionset["icebreaker"];
     this.wouldyou = this.questionset["wouldyou"];
+    this.topics = this.questionset;
     this.current_rating = "mature"
     this.quest = [
       ...this.questionset["quest"][this.current_rating],
@@ -25,18 +27,14 @@ class SessionManager {
     this.currentStage = null;
     this.currentStageIdx = -1;
     this.masksConfig = masksConfig;
+    this.stagesConfig = stagesConfig;
     this.topic_selected = [];
     this.stages = [];
-    if(stagesConfig) {
-      for(let i = 0; i < stagesConfig.length; i++){
-        this.stages.push(new Stage(this, stagesConfig[i], null, i));
-      }
-    }
     // this.chatsManager = new ChatsManager(this.sio, this);
     // this.controlManager = new ControlManager(this.sio, this);
     // this.projectionManager = new ProjectionManager(this.sio, this);
-    this.chatsManager = new NamespaceManager(this.sio, "Chat", NAMESPACES.CHAT, this, ChatSocket);
-    this.controlManager = new NamespaceManager(this.sio, "Control", NAMESPACES.CONTROL, this, ControlSocket);
+    this.chatsManager = new NamespaceManager(this.sio, "Chat", NAMESPACES.CHAT, this, User);
+    this.controlManager = new NamespaceManager(this.sio, "Control", NAMESPACES.CONTROL, this, ControlUser);
     this.projectionManager = new NamespaceManager(this.sio, "Projection", NAMESPACES.PROJECTION, this, null, (socket) => {
         socket.join(SOCKET_CMDS.PROJECTION_TEST.cmd);
         socket.on(SOCKET_CMDS.PROJECTION_CONNECT.cmd, (data) => {
@@ -48,19 +46,6 @@ class SessionManager {
       });
   }
 
-  addRoom(id, socket, roomType){
-    this.rooms[id] = new Room(id, socket, roomType);
-    this.resetRoom(id);
-  }
-
-  resetRoom(id){
-    this.rooms[id].addUser(User.TYPE.HOST);
-    this.rooms[id].addUser(User.TYPE.GUEST);
-  }
-
-  getRoom(id){
-    return this.rooms[id];
-  }
 
   update(){
     let nowTime = new Date().getTime();
@@ -82,15 +67,66 @@ class SessionManager {
   }
   
 
-  startSession(){
-    if(this.timer != null){
-      return;
+  startSession(room){
+    console.info(`Starting session on room ${room.id}`);
+    try {
+      console.info("+ both ready: start process");
+      console.info(room.toString())
+      this.startTime = new Date().getTime();
+      this.sessionId = this.generateSessionId(this.startTime);
+
+      let mask_id = Math.floor(Math.random() * 3);
+      let config = require(`../MaskSetting/endWithEyes.json`);
+      let host = room.getUserbyId(User.TYPE.HOST);
+      let guest = room.getUserbyId(User.TYPE.GUEST);
+      let rating = "general";
+      if (host.rating == guest.rating) {
+        rating = host.rating;
+      }
+      console.info(`- current rating: ${rating}`);
+      console.info(`- rating by user: ${room.getUsersRating()}`);
+
+      if(this.timer != null){
+        return;
+      }
+      this.startTime = new Date().getTime();
+      this.currentStageIdx = 0;
+      if(this.stagesConfig) {
+        for(let i = 0; i < this.stagesConfig.length; i++){
+          this.stages.push(new Stage(room, this, this.stagesConfig[i], null, i));
+        }
+      }
+      this.currentStage = this.stages[this.currentStageIdx];
+      this.currentStage.initalize();
+      this.update();
+      // processStart(roomId, startTime, config);
+
+      const { duration } = config["setting"][0];
+      const startTime = this.startTime;
+      const sessionId = this.sessionId;
+      const record_by_user = {
+        host: false,
+        guest: false,
+      };
+      this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
+        startTime,
+        duration,
+        record_by_user,
+        sessionId
+      });
+
+      this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
+        startTime,
+        duration,
+        record_by_user,
+        sessionId
+      });
+
+      console.info("- resetting ready_user_by_room for next survey (?)");
+      // this.resetRoom(roomId);
+    } catch (err) {
+      console.error(`Ooops! Something went wrong: Please confirm that the admin has started the process`, err);
     }
-    this.startTime = new Date().getTime();
-    this.currentStageIdx = 0;
-    this.currentStage = this.stages[this.currentStageIdx];
-    this.currentStage.initalize();
-    this.update();
   }
 
   generateSessionId(startTime){
@@ -101,58 +137,26 @@ class SessionManager {
   onProcessReady(data){
     const { roomId, userId, rating, record } = data;
     // this.socket.broadcast.to(room).emit(SOCKET_CMDS.PROCESS_START.cmd);
-    console.log(`+ ${userId} in room ${roomId} is ready to record: `, record);
+    console.info(`+ ${userId} in room ${roomId} is ready to record: `, record);
 
-    var user = this.manager.rooms[roomId].getUser(userId);
+    var user = this.rooms[roomId].getUser(userId);
     user.ready = true;
     user.rating = rating;
     user.record = record;
-    if(this.manager.rooms[roomId].allUsersReady()){
-      console.log("- process start, both users are ready");
-      try {
-        console.log("+ both ready: start process");
-        this.startTime = new Date().getTime();
-        this.sessionId = this.generateSessionId(this.startTime);
-
-        let mask_id = Math.floor(Math.random() * 3);
-        let config = require(`./assets/MaskSetting/${mask_set[mask_id]}.json`);
-        let host = this.manager.rooms[roomId].getUser(User.TYPE.HOST);
-        let guest = this.manager.rooms[roomId].getUser(User.TYPE.GUEST);
-        let rating = "general";
-        if (host.rating == guest.rating) {
-          rating = host.rating;
-        }
-        console.log(`- current rating: ${rating}`);
-        console.log(`- rating by user: ${this.manager.rooms[roomId].getUsersRating()}`);
-
-        this.startSession();
-        // processStart(roomId, startTime, config);
-
-        const { duration } = config["setting"][0];
-        this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
-          startTime,
-          duration,
-          record_by_user,
-          sessionId,
-        });
-
-        this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd);
-
-        console.log("- resetting ready_user_by_room for next survey (?)");
-        this.resetRoom(roomId);
-      } catch (err) {
-        console.log(`Ooops! Something went wrong: Please confirm that the admin has started the process\n${err}`);
-      }
+    if(this.rooms[roomId].allUsersReady()){
+      console.info("- process start, both users are ready");
+      this.startSession();
+      
 
       // this.socket.broadcast.to(room).emit(SOCKET_CMDS.PROCESS_START.cmd);
       // this.socket.emit(SOCKET_CMDS.PROCESS_START.cmd);
     } else {
-      console.log("- not all users ready yet");
+      console.info("- not all users ready yet");
     }
   }
 
   onProcessStop(room, accident_stop){
-    console.log("+ Session process stop ");
+    console.info("+ Session process stop ");
     if(this.timer != null){
       clearInterval(this.timer);
     }
@@ -227,11 +231,11 @@ class SessionManager {
     const response = await couch
       .insert(data)
       .then((res) => {
-        console.log("+ SUCCESS: all data saved in db: ");
+        console.info("+ SUCCESS: all data saved in db: ");
         console.log(res);
       })
       .catch((error) => {
-        console.log("- ERROR: could not save data in db");
+        console.info("- ERROR: could not save data in db");
         console.log(error);
       });
   }
