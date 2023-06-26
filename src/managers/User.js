@@ -35,7 +35,9 @@ class User {
       this.socketId = `${this.userId} (${this.socket.id}) in room '${this.roomId} (nsp: ${this.socket?.nsp?.name})`;
       // console.log(this.socket)
       this.socket.onAny((eventName, ...args) => {
-        console.debug(`Received event ${eventName} on a ${this.constructor.name} ${this.userId}`)
+        if(eventName != SOCKET_CMDS.FACE_DETECTED.cmd){
+          console.debug(`Received event ${eventName} on a ${this.constructor.name} ${this.userId}`)
+        }
       });
       this.setupCommonCallbacks();
       this.setupCallbacks();

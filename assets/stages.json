@@ -3,8 +3,25 @@
     "name": "Start",
     "steps": [
       {
+        "type": "video-chat",
+        "duration": 1000,
+        "params": {
+          "mask_id": "endWithEyes",
+          "mask_settings": {
+            "show_features": ["leftEye", "rightEye", "mouth", "nose"]
+          },
+          "audio": true,
+          "video": true,
+          "question_type": "icebreaker"
+        }
+      }
+    ]
+  },{
+    "name": "Start BAK",
+    "steps": [
+      {
         "type": "survey",
-        "duration": 1,
+        "duration": 10,
         "params": {
           "param1": ""
         }
@@ -17,7 +34,7 @@
       {
         "name": "Chat",
         "type": "video-chat",
-        "duration": 5,
+        "duration": 500,
         "params": {
           "mask_settings": {
             "show_features": ["leftEye", "rightEye", "mouth", "nose"]

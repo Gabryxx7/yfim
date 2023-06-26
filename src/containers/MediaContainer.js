@@ -63,7 +63,8 @@ class MediaBridge extends Component {
       recording: false,
       time_slot: 0,
       time_diff: 0,
-      process: false,
+      // process: false,
+      process: true,
       sessionId: "",
       stage: 0,
       side_prompt: "",
@@ -90,7 +91,8 @@ class MediaBridge extends Component {
     this.survey_count = 0;
     this.controlParams = props.controlParams;
     this.detections = null;
-    this.process_duration = 10;
+    this.process_duration = 1; // What is the point of this variable if it's never used?
+    this.timeLeft = 1;
     this.endTime = 0;
     this.onRemoteHangup = this.onRemoteHangup.bind(this);
     this.onMessage = this.onMessage.bind(this);
@@ -173,6 +175,10 @@ class MediaBridge extends Component {
         }
       };
     });
+  }
+
+  componentDidUpdate(prevProps) {
+    console.log(`componentDidUpdate: ${this.state.process}`)
   }
   componentWillUnmount() {
     this.props.media(null);
@@ -348,27 +354,38 @@ class MediaBridge extends Component {
       }
       console.log("process start counting");
       this.process_duration = duration;
-      this.endTime = startTime + 1000 * 31;
+      this.timeLeft = this.process_duration;
+      // this.endTime = startTime + 1000 * 31; // GABRY: Why 31??
 
       // set interval
+      console.log("Starting clock")
       this.timmer = setInterval(() => {
-        let nowTime = new Date().getTime();
-        let time_left;
-        if (!this.state.survey_in_progress) {
-          time_left = Math.round((this.endTime - nowTime) / 1000);
+        try{
+          let nowTime = new Date().getTime();
+          this.timeLeft -= 1;
+          // if (!this.state.survey_in_progress) {
+          //   time_left = Math.round((this.endTime - nowTime) / 1000);
+          // }
+          console.log(`Updating clock ${this.state.survey_in_progress}, ${this.timeLeft}`);
+          // What does this mean? Negative 5 seconds? Why?
+          if (this.timeLeft < -5000) {
+            clearInterval(this.timmer);
+            // This was a single & which will never work since it's a bitwise operation, it should be &&, how did this even work before?!
+          } else if (!this.state.survey_in_progress && (this.timeLeft >= 0)) {
+            this.setState({
+              ...this.state,
+              sessionId: startTime,
+              process: true,
+              recording: record_by_user[this.state.user],
+              time_slot: this.state.time_slot + 1,
+              time_diff: this.timeLeft,
+            });
+          }
         }
-        if (time_left < -5000) {
-          clearInterval(this.timmer);
-        } else if (!this.state.survey_in_progress & (time_left >= 0)) {
-          this.setState({
-            ...this.state,
-            sessionId: startTime,
-            process: true,
-            recording: record_by_user[this.state.user],
-            time_slot: this.state.time_slot + 1,
-            time_diff: time_left,
-          });
+        catch(err){
+          console.error(`Error running timer`, err);
         }
+        return true;
       }, 1000);
     } else {
     }
@@ -546,7 +563,7 @@ class MediaBridge extends Component {
 
   // if losing promote user's face, send socket message to server
   onFaceDetect() {
-    console.info("+ Face detected");
+    // console.info("+ Face detected");
     // console.log(faceapi.nets);
     let user;
     if (this.state.user == "guest") {
@@ -647,7 +664,7 @@ class MediaBridge extends Component {
   async faceDetectionCallback() {
     let lose_face_f = false;
     if (!this.faceDetectionInProgress) {
-      console.log("Triggering face detection..");
+      // console.log("Triggering face detection..");
       this.faceDetectionInProgress = true;
 
       try {

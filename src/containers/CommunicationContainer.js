@@ -39,7 +39,9 @@ class CommunicationContainer extends React.Component {
     })
 
     socket.onAny((eventName, ...args) => {
-      console.log(`Received event ${eventName}`)
+      if(eventName !== SOCKET_CMDS.FACE_DETECTED.cmd){
+        console.log(`Received event ${eventName}`)
+      }
     });
 
     socket.on(SOCKET_CMDS.CONNECT_ERROR.cmd, (err) => {

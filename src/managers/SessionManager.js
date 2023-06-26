@@ -97,31 +97,32 @@ class SessionManager {
         }
       }
       this.currentStage = this.stages[this.currentStageIdx];
-      this.currentStage.initalize();
+      if(this.currentStageIdx <= 0){
+        this.currentStage.initalize();
+        const duration = this.currentStage.duration;
+        const startTime = this.startTime;
+        const sessionId = this.sessionId;
+        const record_by_user = {
+          host: false,
+          guest: false,
+        };
+        this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
+          startTime,
+          duration,
+          record_by_user,
+          sessionId
+        });
+
+        this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
+          startTime,
+          duration,
+          record_by_user,
+          sessionId
+        });
+      }
       this.update();
+
       // processStart(roomId, startTime, config);
-
-      const { duration } = config["setting"][0];
-      const startTime = this.startTime;
-      const sessionId = this.sessionId;
-      const record_by_user = {
-        host: false,
-        guest: false,
-      };
-      this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
-        startTime,
-        duration,
-        record_by_user,
-        sessionId
-      });
-
-      this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
-        startTime,
-        duration,
-        record_by_user,
-        sessionId
-      });
-
       console.info("- resetting ready_user_by_room for next survey (?)");
       // this.resetRoom(roomId);
     } catch (err) {
@@ -136,7 +137,6 @@ class SessionManager {
 
   onProcessReady(data){
     const { roomId, userId, rating, record } = data;
-    // this.socket.broadcast.to(room).emit(SOCKET_CMDS.PROCESS_START.cmd);
     console.info(`+ ${userId} in room ${roomId} is ready to record: `, record);
 
     var user = this.rooms[roomId].getUser(userId);
@@ -146,10 +146,6 @@ class SessionManager {
     if(this.rooms[roomId].allUsersReady()){
       console.info("- process start, both users are ready");
       this.startSession();
-      
-
-      // this.socket.broadcast.to(room).emit(SOCKET_CMDS.PROCESS_START.cmd);
-      // this.socket.emit(SOCKET_CMDS.PROCESS_START.cmd);
     } else {
       console.info("- not all users ready yet");
     }

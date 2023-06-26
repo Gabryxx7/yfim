@@ -18,7 +18,7 @@ class Stage {
     this.prefix = parent != null ? "\t" : "";
     this.id = idx;
     this.type = this.config.type;
-    this.duration = this.config.duration ? this.config.duration : -1;
+    this.duration = this.config.duration ? this.config.duration : 0;
     this.params = this.config.params;
     this.currentStepIdx = -1;
     this.currentStep = null;
@@ -40,37 +40,43 @@ class Stage {
   initalize() {
     this.startTime = new Date().getTime();
     this.elapsed = 0;
-    console.log(`${this.prefix}Starting ${this.name} (${this.type} - ${this.duration}s)`);
+    console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
     if (this.steps.length > 0) {
       this.currentStepIdx = 0;
       this.currentStep = this.steps[this.currentStepIdx];
       this.currentStep.initalize();
       this.status = STATUS.IN_PROGRESS;
+      this.duration = 0;
+      for (let i = 0; i < this.config.steps.length; i++) {
+        this.duration += this.steps[i].duration;
+      }
       return;
     }
-    let stage = this.parent.index;
+    // let stage = this.parent.id;
+    // GABRY: TESTING... Using stage = 3 and mask_setting["setting"][2] I was able to test the mask 
+    let stage = 3;
     if (this.type == "video-chat") {
       let mask_setting = this.session.masksConfig[this.params.mask_id];
+      mask_setting = mask_setting["setting"][2];
       let prompts = this.session.topics[this.params.question_type];
       const rindex = Math.floor(Math.random() * prompts.length);
       let topic = prompts[rindex];
 
-      this.session.topic_selected.push(topic);
-      console.info("- sending update to projection in room: " + this.room.id);
-      if(this.session.chatsManager.nsio){
-        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
-            mask: mask_setting,
-            topic: [topic],
-            stage,
-        });
-    }
-    if(this.session.projectio){
-      this.session.projectio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+      const stage_data = {
         mask: mask_setting,
         topic: [topic],
         stage,
-      });
-    }
+      };
+
+      this.session.topic_selected.push(topic);
+      console.info("- sending update to projection in room: " + this.room.id);
+      console.info(stage_data);
+      if(this.session.chatsManager.nsio){
+        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, stage_data);
+      }
+      if(this.session.projectio){
+        this.session.projectio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, stage_data);
+      }
     } else if (this.type == "survey") {
         this.session.chatsManager.nsio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
         this.session.controlManager.nsio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
