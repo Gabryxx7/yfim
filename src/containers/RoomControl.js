@@ -149,13 +149,13 @@ export default function RoomControl(props) {
     console.log(`Connecting to socket ${socket_url}`)
     socket.connect();
     console.log(socket)
-    socket.emit(SOCKET_CMDS.CONTROL_ROOM.cmd, { room: room });
+    socket.emit(SOCKET_CMDS.CONTROL_ROOM, { room: room });
     socket.on("process-in-progress", (data) => {
       console.log(data);
       let time_diff = data.time_diff;
       alert(`process in ongoing, ${time_diff} seconds left`);
     });
-    socket.on(SOCKET_CMDS.PROCESS_STOP.cmd, () => {
+    socket.on(SOCKET_CMDS.PROCESS_STOP, () => {
       alert("process stop");
     });
   }, []);
@@ -194,7 +194,7 @@ export default function RoomControl(props) {
       },
     };
     console.log(data);
-    socket.emit(SOCKET_CMDS.CONTROL.cmd, data);
+    socket.emit(SOCKET_CMDS.CONTROL, data);
   }
 
   function onProcessStart() {
@@ -207,7 +207,7 @@ export default function RoomControl(props) {
     }
     console.log(cfg);
     if (maskOption != null && selectedOption != null) {
-      socket.emit(SOCKET_CMDS.PROCESS_CONTROL.cmd, {
+      socket.emit(SOCKET_CMDS.PROCESS_CONTROL, {
         room: room,
         cfg: cfg,
         topic: selectedOption.value,
@@ -219,13 +219,13 @@ export default function RoomControl(props) {
 
   function onForceStart() {
     console.log("force process start, asking for ready");
-    socket.emit(SOCKET_CMDS.PROCESS_READY.cmd, {
+    socket.emit(SOCKET_CMDS.PROCESS_READY, {
       room: room,
       user: 'host',
       // rating: rating,
       // record: record
     });
-    socket.emit(SOCKET_CMDS.PROCESS_READY.cmd, {
+    socket.emit(SOCKET_CMDS.PROCESS_READY, {
       room: room,
       user: 'guest',
       // rating: rating,

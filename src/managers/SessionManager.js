@@ -36,8 +36,8 @@ class SessionManager {
     this.chatsManager = new NamespaceManager(this.sio, "Chat", NAMESPACES.CHAT, this, User);
     this.controlManager = new NamespaceManager(this.sio, "Control", NAMESPACES.CONTROL, this, ControlUser);
     this.projectionManager = new NamespaceManager(this.sio, "Projection", NAMESPACES.PROJECTION, this, null, (socket) => {
-        socket.join(SOCKET_CMDS.PROJECTION_TEST.cmd);
-        socket.on(SOCKET_CMDS.PROJECTION_CONNECT.cmd, (data) => {
+        socket.join(SOCKET_CMDS.PROJECTION_TEST);
+        socket.on(SOCKET_CMDS.PROJECTION_CONNECT, (data) => {
           const { room, user } = data;
           // socket.join("projection-" + room);
           console.log(    '+ a projection was connected in room: " ' + room + ", user: " + user
@@ -77,8 +77,24 @@ class SessionManager {
 
       let mask_id = Math.floor(Math.random() * 3);
       let config = require(`../MaskSetting/endWithEyes.json`);
-      let host = room.getUserbyId(User.TYPE.HOST);
-      let guest = room.getUserbyId(User.TYPE.GUEST);
+      let host = room.getUsersByType(User.TYPE.HOST);
+      if(host.length > 0){
+        if(host.length > 1) console.warn(`Warning: More than one host found! ${host} Selecting the first one: ${host[0]}`);
+        host = host[0];
+      }
+      else{
+        console.warn(`Warning: No hosts found!`)
+      }
+      let guest = room.getUsersByType(User.TYPE.GUEST);
+      if(guest.length > 0){
+        if(guest.length > 1) console.warn(`Warning: More than one guest found! ${guest} Selecting the first one: ${guest[0]}`);
+        guest = guest[0];
+      }
+      else{
+        console.warn(`Warning: No guests found!`)
+      }
+
+      // What is this? Why?!
       let rating = "general";
       if (host.rating == guest.rating) {
         rating = host.rating;
@@ -106,14 +122,14 @@ class SessionManager {
           host: false,
           guest: false,
         };
-        this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
+        this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
           startTime,
           duration,
           record_by_user,
           sessionId
         });
 
-        this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START.cmd, {
+        this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
           startTime,
           duration,
           record_by_user,
@@ -156,9 +172,9 @@ class SessionManager {
     if(this.timer != null){
       clearInterval(this.timer);
     }
-    this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-    this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-    // this.projectionManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
+    this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP, { accident_stop });
+    this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP, { accident_stop });
+    // this.projectionManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP, { accident_stop });
   }
 
   async storeData(room) {

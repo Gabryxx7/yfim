@@ -22,6 +22,14 @@ class Room{
     this.onUserEnter = (user) => {};
   }
 
+  get [Symbol.toStringTag]() {
+    let overTotal = ""
+    if(this.maxSize > 0){
+      overTotal = "/"+this.maxSize
+    }
+    return `${this.id} (${this.size}${overTotal})`;
+  }
+
   allUsersReady(){
     count = 0;
     total = 0;
@@ -60,7 +68,7 @@ class Room{
   }
 
   removeUser(user){
-    const removed = delete this.users[user.userId];
+    const removed = delete this.users[user.id];
     if(removed){
       this.size -= 1;
       this.onUserLeave(user);
@@ -70,32 +78,23 @@ class Room{
   }
 
   addUser(user){
-    const res = {code: 1, msg: `User ${user.userId} succesfully added to room ${this.id}`}
-    if(user.userType == User.TYPE.NONE){
+    const res = {code: 1, msg: `User ${user.id} succesfully added to room ${this.id}`}
+    if(user === null || user === undefined){
       res.code = -2;
-      res.msg = `Attempted to add a ${User.TYPE.NONE} user to room ${this.id}`;
+      res.msg = `Attempted to add a ${user} user to room ${this.id}`;
       return res;
     }
     if(this.maxSize > 0 && this.size >= this.maxSize){
       res.code = -1;
-      res.msg = `Room ${this.id} is full (size ${this.size} >= ${this.maxSize}. Failed to add user ${user.userId}`;
+      res.msg = `Room ${this.id} is full (size ${this.size} >= ${this.maxSize}. Failed to add user ${user.id}`;
       return res;
     }
-    if(this.users.hasOwnProperty(user.userId)){
+    if(this.users.hasOwnProperty(user.id)){
       res.code = 0;
-      res.msg = `User ${user.userId} already in room ${this.id}`;
+      res.msg = `User ${user.id} already in room ${this.id}`;
       return res;
     }
-    this.users[user.userId] = user;
-    if(this.size <= 0){
-      // If this is the first user then this will be the host which created the room
-      console.log(`User ${user.userId} emitting cteate room`);
-      user.socket.emit(SOCKET_CMDS.CREATE_ROOM.cmd);
-    } else {
-      // Only emit "JOIN_ROOM" if this is not the first user, so not the host
-      console.log(`User ${user.userId} emitting join room`);
-      user.socket.emit(SOCKET_CMDS.JOIN_ROOM.cmd);
-    }
+    this.users[user.id] = user;
     user.socket.join(this.id);
     this.adapter = this.nsio.adapter.rooms.get(this.id);
     this.size += 1;
@@ -114,11 +113,21 @@ class Room{
   }
 
   getUser(user){
-    return this.getUserbyId(user.userId);
+    return this.getUserById(user.id);
   }
 
-  getUserbyId(userId){
+  getUserById(userId){
     return this.users[userId];
+  }
+
+  getUsersByType(userType){
+    const users = [];
+    for (let key in this.users) {
+      if(this.users[key].type === userType){
+        users.push(this.users[key]);
+      }
+    }
+    return users;
   }
 }
   

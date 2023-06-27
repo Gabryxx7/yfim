@@ -18,10 +18,10 @@ render(
     <BrowserRouter>
       <Switch>
         <Route exact path="/" component={Home} />
-        <Route exact path="/r/:room/:user" component={Room} />
+        <Route exact path="/room/:room/" component={Room} />
         {/* <Route path="*" component={NotFound} /> */}
         <Route exact path="/control/:room" component={RoomControl} />
-        <Route exact path="/s/:room/:user" component={SurveyPage} />
+        <Route exact path="/survey/:room/:user" component={SurveyPage} />
         <Route
           exact
           path="/projection/:room/:user"

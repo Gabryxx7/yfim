@@ -72,15 +72,15 @@ class Stage {
       console.info("- sending update to projection in room: " + this.room.id);
       console.info(stage_data);
       if(this.session.chatsManager.nsio){
-        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, stage_data);
+        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL, stage_data);
       }
       if(this.session.projectio){
-        this.session.projectio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, stage_data);
+        this.session.projectio.emit(SOCKET_CMDS.STAGE_CONTROL, stage_data);
       }
     } else if (this.type == "survey") {
-        this.session.chatsManager.nsio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-        this.session.controlManager.nsio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-      // console.info(`- sending survey start to room: ${this.room.id} (stage: ${stage})`);
+        this.session.chatsManager.nsio.emit(SOCKET_CMDS.SURVEY_START, { stage: stage });
+        this.session.controlManager.nsio.emit(SOCKET_CMDS.SURVEY_START, { stage: stage });
+      // console.info(`- sending survey start to room: ${this.room} (stage: ${stage})`);
     }
     this.status = STATUS.IN_PROGRESS;
   }

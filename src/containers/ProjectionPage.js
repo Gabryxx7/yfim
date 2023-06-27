@@ -21,14 +21,14 @@ export default function ProjectionPage(props) {
 
   useEffect(() => {
     const socket = io.connect("/projection");
-    socket.emit(SOCKET_CMDS.PROJECTION_CONNECT.cmd, {
+    socket.emit(SOCKET_CMDS.PROJECTION_CONNECT, {
       room: props.match.params.room,
       user: props.match.params.user,
     });
-    socket.on(SOCKET_CMDS.PROCESS_STOP.cmd, () => {
+    socket.on(SOCKET_CMDS.PROCESS_STOP, () => {
       setVideoid(0);
     });
-    socket.on(SOCKET_CMDS.STAGE_CONTROL.cmd, (data) => {
+    socket.on(SOCKET_CMDS.STAGE_CONTROL, (data) => {
       const { stage } = data;
       console.log("stage ", stage);
       if (stage < 4) {

@@ -133,20 +133,20 @@ class MediaBridge extends Component {
       (stream) => (this.localVideo.srcObject = this.localStream = stream)
     );
 
-    this.props.socket.on(SOCKET_CMDS.PROCESS_START.cmd, this.onProcessStart);
-    this.props.socket.on(SOCKET_CMDS.PROCESS_STOP.cmd, this.onProcessStop);
-    this.props.socket.on(SOCKET_CMDS.PROCESS_CONTROL.cmd, this.onProcessControl);
-    this.props.socket.on(SOCKET_CMDS.RESET.cmd, this.onReset);
-    this.props.socket.on(SOCKET_CMDS.STAGE_CONTROL.cmd, this.onStageControl);
-    this.props.socket.on(SOCKET_CMDS.UPLOAD_FINISH.cmd, this.onUploadingFinish);
-    this.props.socket.on(SOCKET_CMDS.SURVEY_START.cmd, this.onSurveyStart);
-    this.props.socket.on(SOCKET_CMDS.SURVEY_END.cmd, this.onSurveyEnd);
-    this.props.socket.on(SOCKET_CMDS.FACE_DETECTED.cmd, this.onFace);
+    this.props.socket.on(SOCKET_CMDS.PROCESS_START, this.onProcessStart);
+    this.props.socket.on(SOCKET_CMDS.PROCESS_STOP, this.onProcessStop);
+    this.props.socket.on(SOCKET_CMDS.PROCESS_CONTROL, this.onProcessControl);
+    this.props.socket.on(SOCKET_CMDS.RESET, this.onReset);
+    this.props.socket.on(SOCKET_CMDS.STAGE_CONTROL, this.onStageControl);
+    this.props.socket.on(SOCKET_CMDS.UPLOAD_FINISH, this.onUploadingFinish);
+    this.props.socket.on(SOCKET_CMDS.SURVEY_START, this.onSurveyStart);
+    this.props.socket.on(SOCKET_CMDS.SURVEY_END, this.onSurveyEnd);
+    this.props.socket.on(SOCKET_CMDS.FACE_DETECTED, this.onFace);
 
-    this.props.socket.on(SOCKET_CMDS.MESSAGE.cmd, this.onMessage);
-    this.props.socket.on(SOCKET_CMDS.HANGUP.cmd, this.onRemoteHangup);
-    this.props.socket.on(SOCKET_CMDS.CONTROL.cmd, this.onControl);
-    this.props.socket.on(SOCKET_CMDS.RECORDING.cmd, this.startRecording);
+    this.props.socket.on(SOCKET_CMDS.MESSAGE, this.onMessage);
+    this.props.socket.on(SOCKET_CMDS.HANGUP, this.onRemoteHangup);
+    this.props.socket.on(SOCKET_CMDS.CONTROL, this.onControl);
+    this.props.socket.on(SOCKET_CMDS.RECORDING, this.startRecording);
     this.remoteVideo.addEventListener("play", () => {
       console.log("Remote Video Play");
       // start detect remote's face and process
@@ -180,13 +180,14 @@ class MediaBridge extends Component {
   componentDidUpdate(prevProps) {
     console.log(`componentDidUpdate: ${this.state.process}`)
   }
+
   componentWillUnmount() {
     this.props.media(null);
     if (this.localStream !== undefined) {
       this.localStream.getVideoTracks()[0].stop();
     }
-    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE.cmd, { room: this.props.room });
-    this.props.socket.emit("leave");
+    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
+    this.props.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
     clearInterval(this.timmer);
   }
 
@@ -264,7 +265,7 @@ class MediaBridge extends Component {
     } else {
       new_topic = topic[this.state.user == "host" ? 0 : 1];
     }
-    console.log(SOCKET_CMDS.SURVEY_END.cmd, stage);
+    console.log(SOCKET_CMDS.SURVEY_END, stage);
     if (stage != 4 && this.survey_count < 3) {
       this.setState({
         ...this.state,
@@ -300,7 +301,7 @@ class MediaBridge extends Component {
     }
     this.props.updateAll(controlData);
 
-    console.log(SOCKET_CMDS.SURVEY_END.cmd, data, this.endTime);
+    console.log(SOCKET_CMDS.SURVEY_END, data, this.endTime);
   }
 
   // update sidebar prompt when survey start
@@ -392,7 +393,7 @@ class MediaBridge extends Component {
   }
 
   onReset() {
-    this.props.socket.emit(SOCKET_CMDS.RESET.cmd, { room: this.props.room });
+    this.props.socket.emit(SOCKET_CMDS.RESET, { room: this.props.room });
   }
   // reset all parameters when process stop
   onProcessStop(data) {
@@ -571,7 +572,7 @@ class MediaBridge extends Component {
     } else {
       user = "guest";
     }
-    this.props.socket.emit(SOCKET_CMDS.FACE_DETECTED.cmd, {
+    this.props.socket.emit(SOCKET_CMDS.FACE_DETECTED, {
       room: this.props.room,
       user,
     });
@@ -710,7 +711,7 @@ class MediaBridge extends Component {
           } else {
             if (!lose_face_f) {
               lose_face_f = true;
-              this.sendData(SOCKET_CMDS.ROOM_IDLE.cmd);
+              this.sendData(SOCKET_CMDS.ROOM_IDLE);
             }
           }
 
@@ -728,7 +729,7 @@ class MediaBridge extends Component {
           !this.state.ready
         ) {
           // Restart whole process
-          this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE.cmd, { room: this.props.room });
+          this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
           console.log("The room seems to be idle.");
         }
 
@@ -916,7 +917,7 @@ class MediaBridge extends Component {
           ready: true,
         });
       }
-      if (msg == SOCKET_CMDS.ROOM_IDLE.cmd) {
+      if (msg == SOCKET_CMDS.ROOM_IDLE) {
         this.setState({
           ...this.state,
           ready: false,
@@ -939,8 +940,8 @@ class MediaBridge extends Component {
   hangup() {
     this.setState({ ...this.state, bridge: "guest-hangup" });
     this.pc.close();
-    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE.cmd, { room: this.props.room });
-    this.props.socket.emit("leave");
+    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
+    this.props.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
   }
   handleError(e) {
     console.log(e);
@@ -953,7 +954,7 @@ class MediaBridge extends Component {
     console.log("sending data to server ",
       JSON.parse(JSON.stringify(emo_record))
     );
-    this.props.socket.emit(SOCKET_CMDS.DATA_SEND.cmd, {
+    this.props.socket.emit(SOCKET_CMDS.DATA_SEND, {
       room: this.props.room,
       data_type: DATA_TYPES.EMOTION,
       user: this.state.user,

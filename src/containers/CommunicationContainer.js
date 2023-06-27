@@ -33,19 +33,19 @@ class CommunicationContainer extends React.Component {
   componentDidMount() {
     const socket = this.props.socket;
 
-    socket.on(SOCKET_CMDS.HELLO.cmd, () => {
+    socket.on(SOCKET_CMDS.HELLO, () => {
       console.log(`SOCKET CONNECTED (hello received): ${this.props?.socket?.id} ${this.props?.socket?.nsp}`)
       // console.log(`SOCKET CONNECTED (hello received): ${socket?.id} ${socket?.nsp}`)
     })
 
     socket.onAny((eventName, ...args) => {
-      if(eventName !== SOCKET_CMDS.FACE_DETECTED.cmd){
+      if(eventName !== SOCKET_CMDS.FACE_DETECTED){
         console.log(`Received event ${eventName}`)
       }
     });
 
-    socket.on(SOCKET_CMDS.CONNECT_ERROR.cmd, (err) => {
-      console.log(`connect_error on ${this.socketId} due to ${err.message}`);
+    socket.on(SOCKET_CMDS.CONNECT_ERROR, (err) => {
+      console.log(`connect_error on ${this} due to ${err.message}`);
     });
     this.setState({
       video: this.props.video,
@@ -54,29 +54,28 @@ class CommunicationContainer extends React.Component {
     });
     console.log(this.props);
 
-    socket.on(SOCKET_CMDS.CREATE_ROOM.cmd, () =>{
-        console.log(`Creating room`);
-        this.props.media.setState({ user: "host", bridge: "create" })
-    });
-    socket.on(SOCKET_CMDS.ROOM_FULL.cmd, this.full);
-    socket.on(SOCKET_CMDS.BRIDGE.cmd, (role) => {
+    socket.on(SOCKET_CMDS.ROOM_FULL, this.full);
+    socket.on(SOCKET_CMDS.BRIDGE, (role) => {
       console.log("Received bridge");
       this.props.media.init();
     });
-    socket.on(SOCKET_CMDS.JOIN_ROOM.cmd, () => {
-      this.props.media.setState({ user: "guest", bridge: "join" });
-      this.props.socket.emit(SOCKET_CMDS.AUTH.cmd, this.state);
-      this.hideAuth();
-      console.log('Emitting Auth');
+    socket.on(SOCKET_CMDS.ASSIGN_ROLE, (data) => {
+      console.log(`Role assigned ${JSON.stringify(data)}`);
+      this.props.media.setState({ user: data.userRole, bridge: data.bridge });
+      if(data.bridge == "join"){
+        this.props.socket.emit(SOCKET_CMDS.AUTH, this.state);
+        this.hideAuth();
+        console.log('Emitting Auth');
+      }
     });
-    socket.on(SOCKET_CMDS.APPROVE.cmd, ({ message, sid }) => {
+    socket.on(SOCKET_CMDS.APPROVE, ({ message, sid }) => {
       console.log(`Received approve from ${sid}: ${message}`)
       this.props.media.setState({ bridge: "approve" });
       this.setState({ message, sid });
       setTimeout(() => {
-        console.log(`Emitting ${SOCKET_CMDS.ACCEPT.cmd} ${sid}`)
+        console.log(`Emitting ${SOCKET_CMDS.ACCEPT} ${sid}`)
         try{
-          this.props.socket.emit(SOCKET_CMDS.ACCEPT.cmd, sid);
+          this.props.socket.emit(SOCKET_CMDS.ACCEPT, sid);
           this.hideAuth();
         }catch(error){
           console.error(`Error emitting accept `, error)
@@ -84,7 +83,7 @@ class CommunicationContainer extends React.Component {
       }, 5000);
     });
 
-    socket.emit(SOCKET_CMDS.FIND_ROOM.cmd);
+    socket.emit(SOCKET_CMDS.JOIN_ROOM);
     this.props.getUserMedia.then((stream) => {
       this.localStream = stream;
       const videoTracks = stream.getVideoTracks();
@@ -119,7 +118,7 @@ class CommunicationContainer extends React.Component {
   }
   send(e) {
     e.preventDefault();
-    this.props.socket.emit(SOCKET_CMDS.AUTH.cmd, this.state);
+    this.props.socket.emit(SOCKET_CMDS.AUTH, this.state);
     this.hideAuth();
   }
   handleInvitation(e) {
