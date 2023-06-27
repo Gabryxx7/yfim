@@ -59,7 +59,11 @@ class CommunicationContainer extends React.Component {
       console.log("Received bridge");
       this.props.media.init();
     });
-    socket.on(SOCKET_CMDS.ASSIGN_ROLE, (data) => {
+    socket.on(SOCKET_CMDS.ROOM_JOIN_FEEDBACK, (data) => {
+      if(data.error){
+        console.warn(`Could not join room: ${JSON.stringify(data)}`);
+        return;
+      }
       console.log(`Role assigned ${JSON.stringify(data)}`);
       this.props.media.setState({ user: data.userRole, bridge: data.bridge });
       if(data.bridge == "join"){

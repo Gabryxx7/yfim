@@ -69,9 +69,9 @@ class User {
       this.socket.on(SOCKET_CMDS.ACCEPT, (id) => this.accept(id));
       this.socket.on(SOCKET_CMDS.REJECT, (id) => this.reject(id));
       this.socket.on(SOCKET_CMDS.CONTROL_ROOM, (data) => this.controlRoom(data));
-      this.socket.on(SOCKET_CMDS.ROOM_IDLE, (data) => this.room.idle(data));
+      this.socket.on(SOCKET_CMDS.ROOM_IDLE, (data) => this.roomInIdle(data));
     }
-  
+
     // sending to all clients in the room (channel) except sender
     broadcastMessage(cmd, message=null){
       const dbg_msg = message?.type ? `Type: ${message?.type}` : `${message}`
@@ -161,34 +161,44 @@ class User {
       if(userRoom === null){
         userRoom = this.manager.createRoom(roomId);
       }
+      let userRoomId = '';
       if(userRoom.size <= 0){
-        this.id = `HOST (${this.socket.id})`;
+        userRoomId = `HOST`;
         this.type = User.TYPE.HOST;
       }
       else{
-        this.id = `Guest_${userRoom.size} (${this.socket.id})`
+        userRoomId = `Guest_${userRoom.size}`
         this.type = User.TYPE.GUEST;
       }
-      const added = userRoom.addUser(this);
-      console.warn(`Adding user ${this.id} to room ${roomId}: ${added.code} = '${added.msg}`);
+      this.id = `${userRoomId} (${this.socket.id})`
+      const joinFeedback = userRoom.addUser(this);
+      console.warn(`Adding user ${this.id} to room ${roomId}: ${joinFeedback.code} = '${joinFeedback.msg}`);
       console.warn(userRoom.toString());
-      if(added.code <= 0){
+      joinFeedback.room = roomId;
+      if(joinFeedback.code <= 0){
         this.type = User.TYPE.NONE;
         this.id = this.type;
+        joinFeedback.error = true;
       }
       else{
+        joinFeedback.error = false;
         this.room = userRoom;
         if(userRoom.size <= 1){
           // If this is the first user then this will be the host which created the room
           console.log(`User ${this.id} is the host and created the room ${roomId}`);
-          this.socket.emit(SOCKET_CMDS.ASSIGN_ROLE, { userRole: User.TYPE.HOST, bridge: "create"});
+          joinFeedback.userRole = User.TYPE.HOST;
+          joinFeedback.userRoomId = userRoomId;
+          joinFeedback.bridge = "create";
         }
         else{
-          // Only emit "ASSIGN_ROLE" if this is not the first user, so not the host
+          // Only emit "ROOM_JOIN_FEEDBACK" if this is not the first user, so not the host
           console.log(`User ${this.id} is a guest and created the room ${roomId}`);
-          this.socket.emit(SOCKET_CMDS.ASSIGN_ROLE, { userRole: User.TYPE.GUEST, bridge: "join"});
+          joinFeedback.userRole = User.TYPE.GUEST;
+          joinFeedback.userRoomId = userRoomId;
+          joinFeedback.bridge = "join";
         }
       }
+      this.socket.emit(SOCKET_CMDS.ROOM_JOIN_FEEDBACK, joinFeedback);
       console.log(`Socket ID: ${this} \t URL: ${url}`)
     }
   
@@ -200,12 +210,12 @@ class User {
     }
   
   
-    roomIdle(data){
+    roomInIdle(data){
       const { room } = data;
       // console.log(`room ${room} is idle now`);
-      controlio.emit(SOCKET_CMDS.ROOM_IDLE);
+      this.sessionManager.controlManager.nsio.emit(SOCKET_CMDS.ROOM_IDLE);
       console.info("- room idle: " + this.room + " -> initiate process stop");
-      this.sessionManager.onProcessStop(room, `${this} RoomIdle`);
+      // this.sessionManager.onProcessStop(room, `${this} RoomIdle`);
     }
   
     surveyConnect(data){

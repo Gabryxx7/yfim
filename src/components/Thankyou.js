@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 
 export default function Thankyou(props) {
   const { result } = props;
+  const userRole = props.userRole != undefined ? props.userRole : "";
   return (
-    <div className="topic  thankyou-topic">
+    <div className="topic thankyou-topic">
       <p className="topic_head">THANK YOU</p>
       <p className="topic_text">
         <br />
@@ -19,6 +20,7 @@ export default function Thankyou(props) {
         <br />
         you can visit <span style={{ color: "red" }}>yourfaceismuted.com</span>
       </p>
+      <p className="topic_info">{userRole}</p>
     </div>
   );
 }

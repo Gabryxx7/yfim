@@ -68,6 +68,7 @@ class MediaBridge extends Component {
       sessionId: "",
       stage: 0,
       side_prompt: "",
+      user_role: "",
       process_cfg: null,
       attention:
         "Ooops! We can not detect your face, please look at the screen during\
@@ -133,20 +134,21 @@ class MediaBridge extends Component {
       (stream) => (this.localVideo.srcObject = this.localStream = stream)
     );
 
-    this.props.socket.on(SOCKET_CMDS.PROCESS_START, this.onProcessStart);
-    this.props.socket.on(SOCKET_CMDS.PROCESS_STOP, this.onProcessStop);
-    this.props.socket.on(SOCKET_CMDS.PROCESS_CONTROL, this.onProcessControl);
-    this.props.socket.on(SOCKET_CMDS.RESET, this.onReset);
-    this.props.socket.on(SOCKET_CMDS.STAGE_CONTROL, this.onStageControl);
-    this.props.socket.on(SOCKET_CMDS.UPLOAD_FINISH, this.onUploadingFinish);
-    this.props.socket.on(SOCKET_CMDS.SURVEY_START, this.onSurveyStart);
-    this.props.socket.on(SOCKET_CMDS.SURVEY_END, this.onSurveyEnd);
-    this.props.socket.on(SOCKET_CMDS.FACE_DETECTED, this.onFace);
+    this.props.socket.on(SOCKET_CMDS.ROOM_JOIN_FEEDBACK, (data) => this.onJoinFeedback(data));
+    this.props.socket.on(SOCKET_CMDS.PROCESS_START, (data) => this.onProcessStart(data));
+    this.props.socket.on(SOCKET_CMDS.PROCESS_STOP, (data) => this.onProcessStop(data));
+    this.props.socket.on(SOCKET_CMDS.PROCESS_CONTROL, (data) => this.onProcessControl(data));
+    this.props.socket.on(SOCKET_CMDS.RESET, (data) => this.onReset(data));
+    this.props.socket.on(SOCKET_CMDS.STAGE_CONTROL, (data) => this.onStageControl(data));
+    this.props.socket.on(SOCKET_CMDS.UPLOAD_FINISH, (data) => this.onUploadingFinish(data));
+    this.props.socket.on(SOCKET_CMDS.SURVEY_START, (data) => this.onSurveyStart(data));
+    this.props.socket.on(SOCKET_CMDS.SURVEY_END, (data) => this.onSurveyEnd(data));
+    this.props.socket.on(SOCKET_CMDS.FACE_DETECTED, (data) => this.onFace(data));
 
-    this.props.socket.on(SOCKET_CMDS.MESSAGE, this.onMessage);
-    this.props.socket.on(SOCKET_CMDS.HANGUP, this.onRemoteHangup);
-    this.props.socket.on(SOCKET_CMDS.CONTROL, this.onControl);
-    this.props.socket.on(SOCKET_CMDS.RECORDING, this.startRecording);
+    this.props.socket.on(SOCKET_CMDS.MESSAGE, (data) => this.onMessage(data));
+    this.props.socket.on(SOCKET_CMDS.HANGUP, (data) => this.onRemoteHangup(data));
+    this.props.socket.on(SOCKET_CMDS.CONTROL, (data) => this.onControl(data));
+    this.props.socket.on(SOCKET_CMDS.RECORDING, (data) => this.startRecording(data));
     this.remoteVideo.addEventListener("play", () => {
       console.log("Remote Video Play");
       // start detect remote's face and process
@@ -312,6 +314,16 @@ class MediaBridge extends Component {
       side_prompt: "We have some questions for you on Ipad",
     });
   }
+
+  onJoinFeedback(data){
+    if(data.error)
+      return;
+    this.setState({
+      ...this.state,
+      user_role: data.userRoomId,
+    });
+  }
+
   // configure process setting
   onProcessControl() {
     if (!this.state.process) {
@@ -1080,22 +1092,17 @@ class MediaBridge extends Component {
           <SideBar
             stage={this.state.stage}
             side_prompt={this.state.side_prompt}
+            user_role={this.state.user_role}
+            time_diff={this.state.time_diff}
+            end={this.state.survey_in_progress}
+            state_process={this.state.process}
           />
         )}
         {/* No face detected, showing introduction */}
-        {!this.state.intro.visible && !this.state.process && <Introduction />}
+        {!this.state.intro.visible && !this.state.process && <Introduction userRole={this.state.user_role}/>}
         {/* Face detected before process showing details */}
-        {this.state.intro.visible && !this.state.process && <IntroFaceDetect />}
-        {this.state.loading && <Thankyou result={this.state.result} />}
-
-        {this.state.process && (
-          <div className="clock">
-            <Clock
-              time_diff={this.state.time_diff}
-              end={this.state.survey_in_progress}
-            ></Clock>
-          </div>
-        )}
+        {this.state.intro.visible && !this.state.process && <IntroFaceDetect userRole={this.state.user_role} />}
+        {this.state.loading && <Thankyou result={this.state.result} userRole={this.state.user_role} />}
 
         <GYModal title="Attention" visible={this.state.visible}>
           <h1 style={{ color: "white" }}>{this.state.attention}</h1>

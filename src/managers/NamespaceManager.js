@@ -38,7 +38,8 @@ class NamespaceManager {
     }
 
     createRoom(roomId){
-        this.rooms[roomId] = new Room(roomId, this.nsio, 2);
+        // this.rooms[roomId] = new Room(roomId, this.nsio, 2);
+        this.rooms[roomId] = new Room(roomId, this.nsio);
         this.rooms[roomId].onRoomFull = (room) => {
             // console.info(`Starting session on room ${room.id}`);
             // this.sessionManager.startSession(room);

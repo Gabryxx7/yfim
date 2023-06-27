@@ -25,7 +25,7 @@ export default function Clock(props) {
   }
 
   return (
-    <div>
+    <div className="clock">
       <text> {showtime} </text>
     </div>
   );

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-export default function IntroFaceDetect() {
+export default function IntroFaceDetect(props) {
+  const userRole = props.userRole != undefined ? props.userRole : "";
   return (
-    <div className="topic  introfacedetect-topic">
+    <div className="topic introfacedetect-topic">
       <p className="topic_head">YOUR FACE IS MUTED</p>
       <p className="topic_text">
         This is a three-part experience that will take 3 minutes.
@@ -19,6 +20,7 @@ export default function IntroFaceDetect() {
         <br />
         Tap ‘Start’ on the iPad to begin the experience.
       </p>
+      <p className="topic_info">{userRole}</p>
     </div>
   );
 }

@@ -8,7 +8,7 @@ const SOCKET_CMDS = {
   REJECT:               "reject",
   AUTH:                 "auth",
   JOIN_ROOM:            "join-room",
-  ASSIGN_ROLE:          "assign-role-room",
+  ROOM_JOIN_FEEDBACK:   "join_room_feedback",
   LEAVE_ROOM:           "leave-room",
   ROOM_FULL:            "room-full",
   ROOM_IDLE:            "room-idle",
