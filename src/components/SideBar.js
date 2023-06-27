@@ -12,7 +12,10 @@ const percentage = {
   3: "78%",
 };
 export default function SideBar(props) {
-  const { stage, side_prompt, user_role, time_diff, end, state_process } = props;
+  const { stagesData, side_prompt, user_role, time_diff, end, state_process } = props;
+  const currentStageIdx = stagesData != null ? stagesData.currentIdx : 0;
+  const totalStages = stagesData != null ? stagesData.total : 0;
+  const currentStageName = stagesData != null ? stagesData.name : 0;
   return (
     <div className="sidebar_container">
       <div className="info">
@@ -26,7 +29,7 @@ export default function SideBar(props) {
       </div>
       <p className="sidebar_prompt">{side_prompt}</p>
       <div className="sidebar_foot">
-        <p>PART {stage} OF 3 <br /> {stage_name[stage]} </p>
+        <p>PART {currentStageIdx+1} OF {totalStages} <br /> {currentStageName} </p>
         <hr
           style={{
             position: "absolute",
@@ -34,7 +37,7 @@ export default function SideBar(props) {
             color: "white",
             background: "white",
             height: "4px",
-            width: percentage[stage],
+            width: `${(currentStageIdx+1)/totalStages*100}%`,
             zIndex: 20,
             left: "11%",
           }}

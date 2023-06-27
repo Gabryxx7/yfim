@@ -93,11 +93,13 @@ class User {
     }
   
     accept(id){
-      console.info("- accept client in room " + this.room);
-      this.socket.join(this.room.id);
-      // sending to all clients in 'game' room(channel), include sender
-      this.manager.nsio.emit(SOCKET_CMDS.BRIDGE);
-      this.sessionManager.startSession(this.manager.rooms[this.room.id]);
+      if(this.room != null){
+        console.info("- accept client in room " + this.room);
+        this.socket.join(this.room.id);
+        // sending to all clients in 'game' room(channel), include sender
+        this.manager.nsio.emit(SOCKET_CMDS.BRIDGE);
+        this.sessionManager.startSession(this.manager.rooms[this.room.id]);
+      }
     }
   
     reject(id){

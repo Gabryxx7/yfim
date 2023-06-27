@@ -24,6 +24,7 @@ const SOCKET_CMDS = {
   DATA_CONNECT:         "data-connect",
   PROCESS_READY:        "process-ready",
   PROCESS_START:        "process-start",
+  PROCESS_STARTED:        "process-started",
   PROCESS_CONTROL:      "process-control",
   PROCESS_STOP:         "process-stop",
   DATA_SEND:            "data-send",

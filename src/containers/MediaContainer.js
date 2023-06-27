@@ -63,9 +63,9 @@ class MediaBridge extends Component {
       recording: false,
       time_slot: 0,
       time_diff: 0,
-      // process: false,
-      process: true,
+      process: false,
       sessionId: "",
+      stagesData: null,
       stage: 0,
       side_prompt: "",
       user_role: "",
@@ -351,10 +351,14 @@ class MediaBridge extends Component {
   onProcessStart(data) {
     // hier weitermachen: find the main screen and figure out why it's not triggered by this
 
-    const { startTime, duration, record_by_user, sessionId } = data;
+    const { stagesData, startTime, duration, record_by_user, sessionId } = data;
     console.log("set intro invisible");
     console.log("process start", startTime, duration, sessionId);
     console.log("record", record_by_user, record_by_user[this.state.user]);
+    this.setState({
+      ...this.state,
+      stagesData: stagesData
+    });
     if (!this.state.process) {
       //init
       this.record = {
@@ -1090,7 +1094,7 @@ class MediaBridge extends Component {
         <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
         {this.state.process && (
           <SideBar
-            stage={this.state.stage}
+            stagesData={this.state.stagesData}
             side_prompt={this.state.side_prompt}
             user_role={this.state.user_role}
             time_diff={this.state.time_diff}

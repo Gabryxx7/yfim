@@ -115,6 +115,7 @@ class SessionManager {
       this.currentStage = this.stages[this.currentStageIdx];
       if(this.currentStageIdx <= 0){
         this.currentStage.initalize();
+        const stagesData = {name: this.currentStage.name, currentIdx: this.currentStageIdx, total: Object.keys(this.stages).length};
         const duration = this.currentStage.duration;
         const startTime = this.startTime;
         const sessionId = this.sessionId;
@@ -123,6 +124,7 @@ class SessionManager {
           guest: false,
         };
         this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
+          stagesData,
           startTime,
           duration,
           record_by_user,
@@ -130,6 +132,7 @@ class SessionManager {
         });
 
         this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
+          stagesData,
           startTime,
           duration,
           record_by_user,
