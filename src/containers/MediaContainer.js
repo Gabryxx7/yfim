@@ -180,7 +180,7 @@ class MediaBridge extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(`componentDidUpdate: ${this.state.process}`)
+    // console.log(`componentDidUpdate: ${this.state.process}`)
   }
 
   componentWillUnmount() {
@@ -383,7 +383,7 @@ class MediaBridge extends Component {
           // if (!this.state.survey_in_progress) {
           //   time_left = Math.round((this.endTime - nowTime) / 1000);
           // }
-          console.log(`Updating clock ${this.state.survey_in_progress}, ${this.timeLeft}`);
+          // console.log(`Updating clock ${this.state.survey_in_progress}, ${this.timeLeft}`);
           // What does this mean? Negative 5 seconds? Why?
           if (this.timeLeft < -5000) {
             clearInterval(this.timmer);
@@ -784,6 +784,35 @@ class MediaBridge extends Component {
     }
     setTimeout(async () => await this.faceDetectionCallback(), 200);
   }
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Compositing
+  // https://www.w3schools.com/jsref/tryit.asp?filename=tryhtml5_canvas_globalcompop_all
+  /**
+   * The canvas is actually just an overlay
+   * The image of the video itself is a <video> HTML component underneath
+   * What we need to do is to draw a full black rectangle and cutting out the areas where the landmarks are
+   * In this case we can draw a full black rectangle with "fillRect" and then cut out the "holes" with "destination-out"
+   */
+  drawLandmarkMask(landmarkName, landmarkPositions, pointSize, pointColor, ctx, width, height, clipping=true, debug=false){
+    if(debug){
+      console.log(landmarkName, landmarkPositions)
+    }
+    for(let p of landmarkPositions){
+      if(debug){
+        console.log(landmarkName, p.x, p.y, clipping)
+      }
+      if(clipping){
+        ctx.globalCompositeOperation = 'destination-out';
+      }
+      ctx.beginPath();
+      ctx.fillStyle = pointColor;
+      ctx.arc(p.x, p.y, pointSize, 0, 2 * Math.PI);
+      ctx.fill();
+      if(clipping){
+        ctx.globalCompositeOperation = 'source-over';
+      }
+    }
+  }
   // Draw a mask over face/screen
   drawCanvas(drawable) {
     const ctx = this.canvasRef.getContext("2d");
@@ -798,94 +827,55 @@ class MediaBridge extends Component {
     } else {
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, this.canvasRef.width, this.canvasRef.height);
-      const {
-        leftEyeAttributes,
-        rightEyeAttributes,
-        mouthAttributes,
-        noseAttributes,
-      } = this.faceAttributes;
-      // ctx.clearRect(0, 0, this.canvasRef.width, this.canvasRef.height);
-      if (eyesCtrl.toggle) {
-        const leftCenter = {
-          x: (leftEyeAttributes.x + leftEyeAttributes.x_max) / 2,
-          y: (leftEyeAttributes.y + leftEyeAttributes.y_max) / 2,
-        };
-        const leftWidth =
-          (eyesCtrl.sliderIndex *
-            (leftEyeAttributes.x_max - leftEyeAttributes.x)) /
-          2;
-        const leftHeight =
-          (eyesCtrl.sliderIndex *
-            (leftEyeAttributes.y_max - leftEyeAttributes.y)) /
-          2;
+      if(this.detections != null){
+        let detections = this.detections;
+        // let height = this.detections.detection.imageHeight;
+        // let width = this.detections.detection.imageWidth;
+        // let height = ctx.canvas.clientHeight;
+        // let width = ctx.canvas.clientWidth;
+        let height = ctx.canvas.getBoundingClientRect().height;
+        let width = ctx.canvas.getBoundingClientRect().width;
+        detections = faceapi.resizeResults(detections, { width: width*1.1, height: height*0.75 }) // For some reason it's not quite centered
+        // detections = faceapi.resizeResults(detections, { width: ctx.canvas.clientWidth, height: ctx.canvas.clientHeight })
+        const landmarks = detections.landmarks;
+        const landmarkPositions = landmarks.positions;
+        // console.log(`Drawing ${landmarkPositions.length} landmarks`)
+        const jawOutline = landmarks.getJawOutline();
+        const nose = landmarks.getNose();
+        const mouth = landmarks.getMouth();
+        const leftEye = landmarks.getLeftEye();
+        const rightEye = landmarks.getRightEye();
+        const leftEyeBbrow = landmarks.getLeftEyeBrow();
+        const rightEyeBrow = landmarks.getRightEyeBrow();
 
-        ctx.clearRect(
-          leftCenter.x - leftWidth / 2,
-          leftCenter.y - leftHeight / 2,
-          leftWidth,
-          leftHeight
-        );
+        //Draw cutouts
+        this.drawLandmarkMask("leftEye", leftEye, 20, "#f00", ctx, width, height, true, false);
+        this.drawLandmarkMask("leftEyeBbrow", leftEyeBbrow, 20, "#f00", ctx, width, height, true, false);
+        this.drawLandmarkMask("rightEye", rightEye, 20, "#f00", ctx, width, height, true, false);
+        this.drawLandmarkMask("rightEyeBrow", rightEyeBrow, 20, "#f00", ctx, width, height, true, false);
+        this.drawLandmarkMask("mouth", mouth, 20, "#f00", ctx, width, height, true, false);
+        this.drawLandmarkMask("nose", mouth, 20, "#f00", ctx, width, height, true, false);
 
-        const rightCenter = {
-          x: (rightEyeAttributes.x + rightEyeAttributes.x_max) / 2,
-          y: (rightEyeAttributes.y + rightEyeAttributes.y_max) / 2,
-        };
-        const rightWidth =
-          (eyesCtrl.sliderIndex *
-            (rightEyeAttributes.x_max - rightEyeAttributes.x)) /
-          2;
-        const rightHeight =
-          (eyesCtrl.sliderIndex *
-            (rightEyeAttributes.y_max - rightEyeAttributes.y)) /
-          2;
+        // Draw landmark points
 
-        ctx.clearRect(
-          rightCenter.x - rightWidth / 2,
-          rightCenter.y - rightHeight / 2,
-          rightWidth,
-          rightHeight
-        );
-      }
-
-      if (mouthCtrl.toggle) {
-        const center = {
-          x: (mouthAttributes.x + mouthAttributes.x_max) / 2,
-          y: (mouthAttributes.y + mouthAttributes.y_max) / 2,
-        };
-        const width =
-          (mouthCtrl.sliderIndex *
-            (mouthAttributes.x_max - mouthAttributes.x)) /
-          2;
-        const height =
-          (mouthCtrl.sliderIndex *
-            (mouthAttributes.y_max - mouthAttributes.y)) /
-          2;
-
-        ctx.clearRect(
-          center.x - width / 2,
-          center.y - height / 2,
-          width,
-          height
-        );
-      }
-      if (barCtrl.toggle) {
-        let spanx = this.canvasRef.width / 10;
-        let spany = this.canvasRef.height / 10;
-        if (barCtrl.direction) {
-          ctx.clearRect(
-            barCtrl.position * spanx,
-            0,
-            spanx * barCtrl.sliderIndex,
-            this.canvasRef.height
-          );
-        } else {
-          ctx.clearRect(
-            0,
-            barCtrl.position * spany,
-            this.canvasRef.width,
-            spany * barCtrl.sliderIndex
-          );
-        }
+        this.drawLandmarkMask("leftEye", leftEye, 5, "#f00", ctx, width, height, false, false);
+        this.drawLandmarkMask("leftEyeBbrow", leftEyeBbrow, 5, "#f00", ctx, width, height, false, false);
+        this.drawLandmarkMask("rightEye", rightEye, 5, "#f00", ctx, width, height, false, false);
+        this.drawLandmarkMask("rightEyeBrow", rightEyeBrow, 5, "#f00", ctx, width, height, false, false);
+        this.drawLandmarkMask("mouth", mouth, 5, "#f00", ctx, width, height, false, false);
+        this.drawLandmarkMask("nose", nose, 5, "#f00", ctx, width, height, false, false);
+        // this.drawLandmarkMask("center", [{x: ctx.canvas.clientWidth * 0.50, y: ctx.canvas.clientHeight * 0.40}], 50, "#f00", ctx, width, height, true, true);
+        // this.drawLandmarkMask("center", [{x: ctx.canvas.clientWidth * 0.50, y: ctx.canvas.clientHeight * 0.60}], 50, "#00f", ctx, width, height, false, true);
+        // console.log("Left eye", leftEye);
+        // for(let p of landmarkPositions){
+        //   ctx.beginPath();
+        //   ctx.arc(p.x-width, p.y-height, 5, 0, 2 * Math.PI);
+        //   ctx.fillStyle = "red";
+        //   ctx.fill();
+        //   ctx.closePath();
+        // }
+      // ctx.fillStyle = "black";
+      // ctx.fillRect(0, 0, this.canvasRef.width, this.canvasRef.height);
       }
     }
   }
@@ -1091,7 +1081,8 @@ class MediaBridge extends Component {
   render() {
     return (
       <div className={`media-bridge ${this.state.bridge}`}>
-        <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
+      <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
+      {/* <canvas className="canvas" ref={(ref) => (this.maskCanvasRef = ref)} /> */}
         {this.state.process && (
           <SideBar
             stagesData={this.state.stagesData}

@@ -273,9 +273,11 @@ class User {
     };
   
     reset(data){
-      const { room } = data;
-      console.info("- resetting room: " + this.room);
-      this.manager.onProcessStop(room, `${this} RESET`);
+      if(this.room != null){
+        const { room } = data;
+        console.info("- resetting room: " + this.room);
+        this.manager.onProcessStop(room, `${this} RESET`);
+      }
     };
   
     onFaceDetected(data){
