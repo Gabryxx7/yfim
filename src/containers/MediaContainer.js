@@ -84,10 +84,13 @@ class MediaBridge extends Component {
       controlData: {},
       survey_in_progress: false,
     };
+    this.socket = this.props.socket != undefined ? this.props.socket : null;
     this.record = {
       record_count: 0,
       record_detail: [],
     };
+    this.currentVideoSource = null;
+    this.remoteVideo = null;
     this.emo_result = [];
     this.survey_count = 0;
     this.controlParams = props.controlParams;
@@ -118,11 +121,6 @@ class MediaBridge extends Component {
     this.onStageControl = this.onStageControl.bind(this);
     this.onProcessStop = this.onProcessStop.bind(this);
     this.onUploadingFinish = this.onUploadingFinish.bind(this);
-    this.onFaceDetect = this.onFaceDetect.bind(this);
-    this.onReset = this.onReset.bind(this);
-    this.onSurveyEnd = this.onSurveyEnd.bind(this);
-    this.onSurveyStart = this.onSurveyStart.bind(this);
-    this.onFace = this.onFace.bind(this);
     this.mask_configuration = [];
     this.losingface = 0;
     // this.setControlParams = this.setControlParams.bind(this);
@@ -133,29 +131,33 @@ class MediaBridge extends Component {
     this.props.getUserMedia.then(
       (stream) => (this.localVideo.srcObject = this.localStream = stream)
     );
+    
+    if(this.socket != null){
+      this.socket.on(SOCKET_CMDS.ROOM_JOIN_FEEDBACK, (data) => this.onJoinFeedback(data));
+      this.socket.on(SOCKET_CMDS.PROCESS_START, (data) => this.onProcessStart(data));
+      this.socket.on(SOCKET_CMDS.PROCESS_STOP, (data) => this.onProcessStop(data));
+      this.socket.on(SOCKET_CMDS.PROCESS_CONTROL, (data) => this.onProcessControl(data));
+      this.socket.on(SOCKET_CMDS.RESET, (data) => this.onReset(data));
+      this.socket.on(SOCKET_CMDS.STAGE_CONTROL, (data) => this.onStageControl(data));
+      this.socket.on(SOCKET_CMDS.UPLOAD_FINISH, (data) => this.onUploadingFinish(data));
+      this.socket.on(SOCKET_CMDS.SURVEY_START, (data) => this.onSurveyStart(data));
+      this.socket.on(SOCKET_CMDS.SURVEY_END, (data) => this.onSurveyEnd(data));
+      this.socket.on(SOCKET_CMDS.FACE_DETECTED, (data) => this.onFace(data));
 
-    this.props.socket.on(SOCKET_CMDS.ROOM_JOIN_FEEDBACK, (data) => this.onJoinFeedback(data));
-    this.props.socket.on(SOCKET_CMDS.PROCESS_START, (data) => this.onProcessStart(data));
-    this.props.socket.on(SOCKET_CMDS.PROCESS_STOP, (data) => this.onProcessStop(data));
-    this.props.socket.on(SOCKET_CMDS.PROCESS_CONTROL, (data) => this.onProcessControl(data));
-    this.props.socket.on(SOCKET_CMDS.RESET, (data) => this.onReset(data));
-    this.props.socket.on(SOCKET_CMDS.STAGE_CONTROL, (data) => this.onStageControl(data));
-    this.props.socket.on(SOCKET_CMDS.UPLOAD_FINISH, (data) => this.onUploadingFinish(data));
-    this.props.socket.on(SOCKET_CMDS.SURVEY_START, (data) => this.onSurveyStart(data));
-    this.props.socket.on(SOCKET_CMDS.SURVEY_END, (data) => this.onSurveyEnd(data));
-    this.props.socket.on(SOCKET_CMDS.FACE_DETECTED, (data) => this.onFace(data));
-
-    this.props.socket.on(SOCKET_CMDS.MESSAGE, (data) => this.onMessage(data));
-    this.props.socket.on(SOCKET_CMDS.HANGUP, (data) => this.onRemoteHangup(data));
-    this.props.socket.on(SOCKET_CMDS.CONTROL, (data) => this.onControl(data));
-    this.props.socket.on(SOCKET_CMDS.RECORDING, (data) => this.startRecording(data));
-    this.remoteVideo.addEventListener("play", () => {
-      console.log("Remote Video Play");
-      // start detect remote's face and process
-      this.showEmotion().catch((error) => {
-        console.warn(`Error showing emotion: ${error}`)
+      this.socket.on(SOCKET_CMDS.MESSAGE, (data) => this.onMessage(data));
+      this.socket.on(SOCKET_CMDS.HANGUP, (data) => this.onRemoteHangup(data));
+      this.socket.on(SOCKET_CMDS.CONTROL, (data) => this.onControl(data));
+      this.socket.on(SOCKET_CMDS.RECORDING, (data) => this.startRecording(data));
+    }
+    if(this.remoteVideo != null){
+      this.remoteVideo.addEventListener("play", () => {
+        console.log("Remote Video Play");
+        // start detect remote's face and process
+        this.showEmotion().catch((error) => {
+          console.warn(`Error showing emotion: ${error}`)
+        });
       });
-    });
+    }
 
     // audio recorder initialize
     this.localVideo.addEventListener("play", () => {
@@ -176,6 +178,11 @@ class MediaBridge extends Component {
           this.chunks.push(e.data);
         }
       };
+      if(this.socket == null){
+        this.showEmotion().catch((error) => {
+          console.warn(`Error showing emotion: ${error}`)
+        });
+      }
     });
   }
 
@@ -188,8 +195,10 @@ class MediaBridge extends Component {
     if (this.localStream !== undefined) {
       this.localStream.getVideoTracks()[0].stop();
     }
-    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
-    this.props.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
+    if(this.socket != null){
+      this.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
+      this.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
+    }
     clearInterval(this.timmer);
   }
 
@@ -307,7 +316,7 @@ class MediaBridge extends Component {
   }
 
   // update sidebar prompt when survey start
-  onSurveyStart() {
+  onSurveyStart(data) {
     this.setState({
       ...this.state,
       survey_in_progress: true,
@@ -409,7 +418,9 @@ class MediaBridge extends Component {
   }
 
   onReset() {
-    this.props.socket.emit(SOCKET_CMDS.RESET, { room: this.props.room });
+    if(this.socket != null){
+      this.socket.emit(SOCKET_CMDS.RESET, { room: this.props.room });
+    }
   }
   // reset all parameters when process stop
   onProcessStop(data) {
@@ -569,12 +580,18 @@ class MediaBridge extends Component {
       //   this.localVideo.muted = true;
       // } else this.localVideo.muted = false;
     } else {
-      if (controlData.video == false) {
-        this.remoteVideo.pause();
-      } else this.remoteVideo.play();
-      if (controlData.audio == false) {
-        this.remoteVideo.muted = true;
-      } else this.remoteVideo.muted = false;
+      if(this.remoteVideo != null){
+        if (controlData.video == false) {
+          this.remoteVideo.pause();
+        } else{
+          this.remoteVideo.play();
+        }
+        if (controlData.audio == false) {
+          this.remoteVideo.muted = true;
+        } else {
+          this.remoteVideo.muted = false;
+        }
+      }
     }
   }
 
@@ -582,22 +599,23 @@ class MediaBridge extends Component {
   onFaceDetect() {
     // console.info("+ Face detected");
     // console.log(faceapi.nets);
-    let user;
-    if (this.state.user == "guest") {
-      user = "host"; //why?
-    } else {
-      user = "guest";
+    if(this.socket != null){
+      let user;
+      if (this.state.user == "guest") {
+        user = "host"; //why?
+      } else {
+        user = "guest";
+      }
+      this.socket.emit(SOCKET_CMDS.FACE_DETECTED, {
+        room: this.props.room,
+        user,
+      });
     }
-    this.props.socket.emit(SOCKET_CMDS.FACE_DETECTED, {
-      room: this.props.room,
-      user,
-    });
   }
 
   // face detected event listener
   onFace(data) {
     // console.info("- onFace()");
-
     if (this.state.user == data && !this.state.process) {
       this.setState({
         ...this.state,
@@ -663,12 +681,16 @@ class MediaBridge extends Component {
   // 2. create canvas based on remote video size
   // 3.
   startFaceDetection() {
-    const canvasTmp = faceapi.createCanvasFromMedia(this.remoteVideo);
-    const canvasTmp2 = faceapi.createCanvasFromMedia(this.localVideo);
-    console.log("compare", canvasTmp, canvasTmp2);
+    const canvasTmpLocal = faceapi.createCanvasFromMedia(this.localVideo);
+
+    if(this.remoteVideo != null){
+      const canvasTmpRemote = faceapi.createCanvasFromMedia(this.remoteVideo);
+      console.log("compare", canvasTmpRemote, canvasTmpLocal);
+    }
+
     const displaySize = {
-      width: canvasTmp2.width,
-      height: canvasTmp2.height,
+      width: canvasTmpLocal.width,
+      height: canvasTmpLocal.height,
     };
     faceapi.matchDimensions(this.canvasRef, displaySize);
     console.log(this.canvasRef.width, this.canvasRef.height);
@@ -685,9 +707,19 @@ class MediaBridge extends Component {
       this.faceDetectionInProgress = true;
 
       try {
+        if(this.currentVideoSource == null){
+          if(this.remoteVideo == null){
+            this.currentVideoSource = this.localVideo;
+            console.warn("No remote video source, using local video for face api detection");
+          }
+          else{
+            this.currentVideoSource = this.remoteVideo;
+          }
+          console.log(`Using Video Source: ${this.currentVideoSource.id}`, this.currentVideoSource)
+        }
         this.detections = await faceapi
           .detectSingleFace(
-            this.remoteVideo,
+            this.currentVideoSource,
             new faceapi.TinyFaceDetectorOptions()
           )
           .withFaceLandmarks()
@@ -745,13 +777,13 @@ class MediaBridge extends Component {
           !this.state.ready
         ) {
           // Restart whole process
-          this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
+          if(this.socket != null){
+            this.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
+          }
           console.log("The room seems to be idle.");
         }
 
-        console.log(          "WARNING: Can't detect face on remote side",
-          this.losingface
-        );
+        console.log("WARNING: Can't detect face on remote side",this.losingface);
       }
 
       // console.log(`Updating survey or state progress?!`);
@@ -770,19 +802,41 @@ class MediaBridge extends Component {
       }
 
       // console.log(`Drawing on canvas`);
-      if (this.props.controlParams.occlusion_mask){
         this.drawCanvas(true);
-      }
-      else{
-        this.drawCanvas(false);
-      }
+      // if (this.props.controlParams.occlusion_mask){
+      //   this.drawCanvas(true);
+      // }
+      // else{
+      //   this.drawCanvas(false);
+      // }
 
       // console.log('setting detection in progress to false');
       this.faceDetectionInProgress = false;
     } else {
       console.info("-- skipped. Face detection in progress");
     }
-    setTimeout(async () => await this.faceDetectionCallback(), 200);
+    setTimeout(async () => await this.faceDetectionCallback(), 16);
+  }
+
+  getDistance(x1, y1, x2, y2){
+    let y = y2 - y1;
+    let x = x2 - x1;
+    return Math.sqrt(x * x + y * y);
+  }
+
+
+  getCenterPoint(p){
+    //Set initial min and max values
+    var minX=p[0].x, maxX=p[0].x, minY=p[0].y, maxY=p[0].y;
+
+    for(var i=0;i<p.length; i++){
+      if(p[i].x < minX){minX=p[i].x;}
+      if(p[i].x > maxX){maxX=p[i].x;}
+      if(p[i].y < minY){minY=p[i].y;}
+      if(p[i].y > maxY){maxY=p[i].y;}
+    }
+    var maxDist = this.getDistance(maxX, maxY, minX, minY);
+    return {x: (maxX + minX)/2, y: (maxY + minY)/2, radius: maxDist};
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Compositing
@@ -793,24 +847,58 @@ class MediaBridge extends Component {
    * What we need to do is to draw a full black rectangle and cutting out the areas where the landmarks are
    * In this case we can draw a full black rectangle with "fillRect" and then cut out the "holes" with "destination-out"
    */
-  drawLandmarkMask(landmarkName, landmarkPositions, pointSize, pointColor, ctx, width, height, clipping=true, debug=false){
+  drawLandmarkMask(ctx, landmarkName, landmarkPoints, pointSize, pointColor, scaleX, scaleY, rotation, width, height, xOffset, yOffset, shape="poly", clipping=true, debug=false){
     if(debug){
-      console.log(landmarkName, landmarkPositions)
+      console.log(landmarkName, landmarkPoints)
     }
-    for(let p of landmarkPositions){
-      if(debug){
-        console.log(landmarkName, p.x, p.y, clipping)
-      }
-      if(clipping){
-        ctx.globalCompositeOperation = 'destination-out';
+    if(clipping){
+      ctx.globalCompositeOperation = 'destination-out';
+    }
+    let rotationRad =  rotation * (Math.PI/180);
+    /**
+     * To draw AROUND the eyes, I'm first scaling up the eye polygon shape by changing the canvas transform
+     * Then I'm drawing the clipping mask with the new expanded shape and finally changing back to the default canvas transform and deault composite operation
+     */
+    let pStart = landmarkPoints[0];
+    let pCenter = this.getCenterPoint(landmarkPoints);
+    if(shape == "poly"){
+      // console.log(`${landmarkName}: [${pCenter.x}, ${pCenter.y}], radius: ${pCenter.radius}` );
+
+      ctx.beginPath();
+
+      // ctx.moveTo((pStart.x) + xOffset, (pStart.y) + yOffset);
+      // landmarkPoints.forEach((p) => {
+      //   ctx.lineTo((p.x) + xOffset, (p.y) + yOffset);
+      // });
+
+      /**
+       * So I've tried to use the angle given by face api, Roll seems to be the one that detects the face rotating on the screen
+       * However, that gave weird results with the ellipse, so I changed it to calculating the ellipse width and height according to that rotation instead
+       */
+      let ellipseRadiusX = (pCenter.radius * 0.5) * scaleX * (Math.cos(rotationRad)+1);
+      let ellipseRadiusY = (pCenter.radius * 0.5) * scaleY * (Math.sin(rotationRad)+1);
+      ctx.ellipse(pCenter.x, pCenter.y, ellipseRadiusX, ellipseRadiusY, 0, 0, 2 * Math.PI);
+      ctx.fill(); // Could be called outside
+      ctx.stroke(); // Could be called outside
+
+      ctx.closePath();
+    }
+    else{
+      ctx.fillStyle = pointColor;
+      for(let p of landmarkPoints){
+        ctx.beginPath();
+        ctx.arc(p.x + xOffset, p.y + yOffset, pointSize, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
       }
       ctx.beginPath();
-      ctx.fillStyle = pointColor;
-      ctx.arc(p.x, p.y, pointSize, 0, 2 * Math.PI);
+      ctx.fillStyle = "blue";
+      ctx.arc(pCenter.x + xOffset, pCenter.y + yOffset, pointSize, 0, 2 * Math.PI);
       ctx.fill();
-      if(clipping){
-        ctx.globalCompositeOperation = 'source-over';
-      }
+      ctx.closePath();
+    }
+    if(clipping){
+      ctx.globalCompositeOperation = 'source-over';
     }
   }
   // Draw a mask over face/screen
@@ -829,15 +917,23 @@ class MediaBridge extends Component {
       ctx.fillRect(0, 0, this.canvasRef.width, this.canvasRef.height);
       if(this.detections != null){
         let detections = this.detections;
-        // let height = this.detections.detection.imageHeight;
-        // let width = this.detections.detection.imageWidth;
-        // let height = ctx.canvas.clientHeight;
-        // let width = ctx.canvas.clientWidth;
-        let height = ctx.canvas.getBoundingClientRect().height;
-        let width = ctx.canvas.getBoundingClientRect().width;
-        detections = faceapi.resizeResults(detections, { width: width*1.1, height: height*0.75 }) // For some reason it's not quite centered
+        let imHeight = this.detections.detection.imageHeight;
+        let imWidth = this.detections.detection.imageWidth;
+        let cHeight = ctx.canvas.clientHeight;
+        let cWidth = ctx.canvas.clientWidth;
+        let ctxHeight = ctx.canvas.height;
+        let ctxWidth = ctx.canvas.width;
+        let bHeight = ctx.canvas.getBoundingClientRect().height;
+        let bWidth = ctx.canvas.getBoundingClientRect().width;
+
+        detections = faceapi.resizeResults(detections, { width: ctxWidth, height: ctxHeight }) // For some reason it's not quite centered
+        let imHeightR = detections.detection.imageHeight;
+        let imWidthR = detections.detection.imageWidth;
+
+        console.log(`Image: ${imWidth} x ${imHeight}\nImage Resized: ${imWidthR} x ${imHeightR}\nClient: ${cWidth} x ${cHeight}\nBounding: ${bWidth} x ${bHeight}`)
         // detections = faceapi.resizeResults(detections, { width: ctx.canvas.clientWidth, height: ctx.canvas.clientHeight })
         const landmarks = detections.landmarks;
+        const angle = detections.angle;
         const landmarkPositions = landmarks.positions;
         // console.log(`Drawing ${landmarkPositions.length} landmarks`)
         const jawOutline = landmarks.getJawOutline();
@@ -848,34 +944,34 @@ class MediaBridge extends Component {
         const leftEyeBbrow = landmarks.getLeftEyeBrow();
         const rightEyeBrow = landmarks.getRightEyeBrow();
 
-        //Draw cutouts
-        this.drawLandmarkMask("leftEye", leftEye, 20, "#f00", ctx, width, height, true, false);
-        this.drawLandmarkMask("leftEyeBbrow", leftEyeBbrow, 20, "#f00", ctx, width, height, true, false);
-        this.drawLandmarkMask("rightEye", rightEye, 20, "#f00", ctx, width, height, true, false);
-        this.drawLandmarkMask("rightEyeBrow", rightEyeBrow, 20, "#f00", ctx, width, height, true, false);
-        this.drawLandmarkMask("mouth", mouth, 20, "#f00", ctx, width, height, true, false);
-        this.drawLandmarkMask("nose", mouth, 20, "#f00", ctx, width, height, true, false);
-
-        // Draw landmark points
-
-        this.drawLandmarkMask("leftEye", leftEye, 5, "#f00", ctx, width, height, false, false);
-        this.drawLandmarkMask("leftEyeBbrow", leftEyeBbrow, 5, "#f00", ctx, width, height, false, false);
-        this.drawLandmarkMask("rightEye", rightEye, 5, "#f00", ctx, width, height, false, false);
-        this.drawLandmarkMask("rightEyeBrow", rightEyeBrow, 5, "#f00", ctx, width, height, false, false);
-        this.drawLandmarkMask("mouth", mouth, 5, "#f00", ctx, width, height, false, false);
-        this.drawLandmarkMask("nose", nose, 5, "#f00", ctx, width, height, false, false);
-        // this.drawLandmarkMask("center", [{x: ctx.canvas.clientWidth * 0.50, y: ctx.canvas.clientHeight * 0.40}], 50, "#f00", ctx, width, height, true, true);
-        // this.drawLandmarkMask("center", [{x: ctx.canvas.clientWidth * 0.50, y: ctx.canvas.clientHeight * 0.60}], 50, "#00f", ctx, width, height, false, true);
-        // console.log("Left eye", leftEye);
-        // for(let p of landmarkPositions){
-        //   ctx.beginPath();
-        //   ctx.arc(p.x-width, p.y-height, 5, 0, 2 * Math.PI);
-        //   ctx.fillStyle = "red";
-        //   ctx.fill();
-        //   ctx.closePath();
+        let width = imWidthR;
+        let height = imHeightR;
+        const landmarksToDraw = [
+          {points: landmarks.getLeftEye(), name: "Left Eye", scaleX: 1.5, scaleY: 1.25, visible: true, pointSize: 20,  color: "#f00", drawMask: true},
+          {points: landmarks.getRightEye(), name: "Right Eye", scaleX: 1.5, scaleY: 1.25, visible: true, pointSize: 20, color: "#f00", drawMask: true},
+          // {points: landmarks.getLeftEyeBrow(), name: "Left Eyebrow", scaleX: 1, scaleY: 1, visible: true, pointSize: 20, color: "#f00", drawMask: true},
+          // {points: landmarks.getRightEyeBrow(), name: "Right Eyebrow", scaleX: 1, scaleY: 1, visible: true, pointSize: 20, color: "#f00", drawMask: true},
+          {points: landmarks.getNose(), name: "Nose", scaleX: 0.5, scaleY: 1,visible: true, pointSize: 20, color: "#f00", drawMask: true},
+          {points: landmarks.getMouth(), name: "Mouth", scaleX: 1, scaleY: 0.8, visible: true, pointSize: 20, color: "#f00", drawMask: true},
+          // {points: landmarks.getJawOutline(), name: "JawOutline", scaleX: 1, scaleY: 1, visible: true, pointSize: 20, color: "#f00", drawMask: true},
+          {points: [{x: width * 0.5, y: height * 0.5}], name: "Center", scaleX: 1, scaleY: 1, visible: true, pointSize: 40, color: "#f00", drawMask: false}
+        ]
+        let xOffset = 0;
+        let yOffset = 0;
+        let rotation = angle.roll;
+        console.log(angle);
+        // xOffset = (imWidth - imWidthR) * 0.5;
+        // yOffset = (imHeight - imHeightR) * 0.5;
+        // I need to draw the cutout/clipping maskes first and then draw the landmarks on top, i can't do both in the same loop as the clipping masks of the next
+        // Points would override the previous landmark points
+        for(let l of landmarksToDraw){
+          if(l.drawMask){
+            this.drawLandmarkMask(ctx, l.name, l.points, l.pointSize, l.color, l.scaleX, l.scaleY, rotation, width, height, xOffset, yOffset, "poly", true, false); // Draw cutouts
+          }
+        }
+        // for(let l of landmarksToDraw){
+        //   this.drawLandmarkMask(ctx, l.name, l.points, l.pointSize*0.1, l.color, l.scaleX, l.scaleY, rotation, width, height, xOffset, yOffset, "point", false, false); // Draw landmark points
         // }
-      // ctx.fillStyle = "black";
-      // ctx.fillRect(0, 0, this.canvasRef.width, this.canvasRef.height);
       }
     }
   }
@@ -901,7 +997,9 @@ class MediaBridge extends Component {
     }
   }
   sendData(msg) {
-    this.dc.send(JSON.stringify(msg));
+    if(this.dc != undefined && this.dc != null){
+      this.dc.send(JSON.stringify(msg));
+    }
   }
 
   // Set up the data channel message handler
@@ -941,13 +1039,17 @@ class MediaBridge extends Component {
   }
   // send the offer to a server to be forwarded to the other peer
   sendDescription() {
-    this.props.socket.send(this.pc.localDescription);
+    if(this.socket != null){
+      this.socket.send(this.pc.localDescription);
+    }
   }
   hangup() {
     this.setState({ ...this.state, bridge: "guest-hangup" });
     this.pc.close();
-    this.props.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
-    this.props.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
+    if(this.socket != null){
+      this.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
+      this.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
+    }
   }
   handleError(e) {
     console.log(e);
@@ -957,18 +1059,19 @@ class MediaBridge extends Component {
     this.emo_result.push(this.record.record_detail);
     console.info("+ finish, sending data, ", this.emo_result, eresult);
     const emo_record = this.emo_result;
-    console.log("sending data to server ",
-      JSON.parse(JSON.stringify(emo_record))
-    );
-    this.props.socket.emit(SOCKET_CMDS.DATA_SEND, {
-      room: this.props.room,
-      data_type: DATA_TYPES.EMOTION,
-      user: this.state.user,
-      data: emo_record,
-    });
-    this.record.record_detail = [];
-    this.record.record_count = 0;
+    if(this.socket != null){
+      console.log("sending data to server ",JSON.parse(JSON.stringify(emo_record)));
+      this.socket.emit(SOCKET_CMDS.DATA_SEND, {
+        room: this.props.room,
+        data_type: DATA_TYPES.EMOTION,
+        user: this.state.user,
+        data: emo_record,
+      });
+      this.record.record_detail = [];
+      this.record.record_count = 0;
+    }
   }
+
   init() {
     console.log('Initializing Media');
     try {
@@ -1027,10 +1130,12 @@ class MediaBridge extends Component {
       this.pc.onicecandidate = (e) => {
         console.log("onicecandidate", e);
         if (e.candidate) {
-          this.props.socket.send({
-            type: "candidate",
-            candidate: e.candidate,
-          });
+          if(this.socket != null){
+            this.socket.send({
+              type: "candidate",
+              candidate: e.candidate,
+            });
+          }
         }
       };
 
@@ -1040,9 +1145,11 @@ class MediaBridge extends Component {
       // when the other side added a media stream, show it on screen
       this.pc.onaddstream = (e) => {
         console.log("onaddstream", e);
-        this.remoteStream = e.stream;
-        this.remoteVideo.srcObject = this.remoteStream = e.stream;
-        this.setState({ ...this.state, bridge: "established" });
+        if(this.remoteVideo != null){
+          this.remoteStream = e.stream;
+          this.remoteVideo.srcObject = this.remoteStream = e.stream;
+          this.setState({ ...this.state, bridge: "established" });
+        }
       };
       this.pc.ondatachannel = (e) => {
         console.log('ondatachannel', e);
@@ -1082,7 +1189,6 @@ class MediaBridge extends Component {
     return (
       <div className={`media-bridge ${this.state.bridge}`}>
       <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
-      {/* <canvas className="canvas" ref={(ref) => (this.maskCanvasRef = ref)} /> */}
         {this.state.process && (
           <SideBar
             stagesData={this.state.stagesData}
@@ -1093,27 +1199,36 @@ class MediaBridge extends Component {
             state_process={this.state.process}
           />
         )}
-        {/* No face detected, showing introduction */}
-        {!this.state.intro.visible && !this.state.process && <Introduction userRole={this.state.user_role}/>}
-        {/* Face detected before process showing details */}
-        {this.state.intro.visible && !this.state.process && <IntroFaceDetect userRole={this.state.user_role} />}
+        {(() => {
+          if(this.socket == null) return <></>;
+          if(!this.state.process){
+            if(this.state.intro.visible)
+              return <IntroFaceDetect userRole={this.state.user_role} />; /* Face detected before process showing details */
+            return <Introduction userRole={this.state.user_role}/>; /* No face detected, showing introduction */
+          }
+        })()}
+
         {this.state.loading && <Thankyou result={this.state.result} userRole={this.state.user_role} />}
 
         <GYModal title="Attention" visible={this.state.visible}>
           <h1 style={{ color: "white" }}>{this.state.attention}</h1>
         </GYModal>
-
-        <video
-          className="remote-video"
-          ref={(ref) => (this.remoteVideo = ref)}
-          autoPlay
-        ></video>
+        
+        {this.socket != null &&
+          <video
+            className="remote-video"
+            id="remote-video"
+            ref={(ref) => (this.remoteVideo = ref)}
+            autoPlay>
+          </video>
+        }
         <video
           className="local-video"
+          id="local-video"
           ref={(ref) => (this.localVideo = ref)}
           autoPlay
-          muted
-        ></video>
+          muted>
+        </video>
       </div>
     );
   }

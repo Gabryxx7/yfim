@@ -15,8 +15,8 @@ class RoomPage extends Component {
       .getUserMedia({
         audio: true,
         video: {
-          width: { min: 640, ideal: 1280 },
-          height: { min: 400, ideal: 720 },
+          width: { min: 1280, ideal: 1280 },
+          height: { min: 720, ideal: 720 },
           zoom: true,
         },
       })
