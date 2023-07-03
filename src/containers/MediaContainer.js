@@ -14,6 +14,7 @@ import Thankyou from "../components/Thankyou";
 import SideBar from "../components/SideBar";
 import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
 import { DrawableLandmark, INTERP_FUNCTIONS } from "../components/DrawableLandmark";
+import { TIMES } from "../managers/TimesDefinitions";
 var FileSaver = require("file-saver");
 
 const RECORD_AUDIO = true;
@@ -305,7 +306,7 @@ class MediaBridge extends Component {
         visible: false,
         attention: loseface_notify,
       });
-    }, 5000);
+    }, TIMES.LOSING_FACE_NOTIFY);
     if (topic.length == 1) {
       this.setState({
         ...this.state,
@@ -426,7 +427,7 @@ class MediaBridge extends Component {
           console.error(`Error running timer`, err);
         }
         return true;
-      }, 1000);
+      }, TIMES.PROCESS_UPDATE_INTERVAL);
     } else {
     }
   }
@@ -482,7 +483,7 @@ class MediaBridge extends Component {
           ...this.state,
           loading: false,
         });
-      }, 20000);
+      }, TIMES.PROCESS_STOP_WAIT);
       this.record = {
         record_count: 0,
         record_detail: [],
@@ -559,7 +560,7 @@ class MediaBridge extends Component {
             visible: false,
             attention: loseface_notify,
           });
-        }, 5000);
+        }, TIMES.LOSING_FACE_NOTIFY);
       }
       this.props.updateAll(controlData);
     }
@@ -697,7 +698,7 @@ class MediaBridge extends Component {
   async tryStartFaceDetection(){
     if(!this.faceApiLoaded){
       console.warn("Waiting for face api models to load...");
-      setTimeout(async () => await this.tryStartFaceDetection(), 200);
+      setTimeout(async () => await this.tryStartFaceDetection(), TIMES.FACE_DETECTION_RETRY);
       return;
     }
 
@@ -716,7 +717,7 @@ class MediaBridge extends Component {
     console.log(this.canvasRef.width, this.canvasRef.height);
 
     console.log("Triggering face detection..");
-    setTimeout(async () => await this.faceDetectionCallback(), 0);
+    setTimeout(async () => await this.faceDetectionCallback(), TIMES.FACE_DETECTION_DELAY);
     window.requestAnimationFrame(this.drawCanvas);
   }
 
@@ -828,7 +829,7 @@ class MediaBridge extends Component {
       }
     }
 
-    setTimeout(async () => await this.faceDetectionCallback(), 0);
+    setTimeout(async () => await this.faceDetectionCallback(), TIMES.FACE_DETECTION_DELAY);
   }
 
   // Draw a mask over face/screen
@@ -1030,7 +1031,7 @@ class MediaBridge extends Component {
           this.reconnecttimer = setInterval(() => {
             console.log("iceconnection trying to reconnect");
             location.reload();
-          }, 5000);
+          }, TIMES.ICE_RECONNECTION_INTERVAL);
         } else {
           clearInterval(this.reconnecttimer);
         }

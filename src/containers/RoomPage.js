@@ -33,8 +33,7 @@ class RoomPage extends Component {
   }
   render() {
     return (
-      <div>
-        <div>
+        <div class="main-call-container">
           <MediaContainer
             room={this.props.match.params.room}
             media={(media) => (this.media = media)}
@@ -48,7 +47,6 @@ class RoomPage extends Component {
             getUserMedia={this.getUserMedia}
           />
         </div>
-      </div>
     );
   }
 }

@@ -10,6 +10,7 @@ import SurveyOngoing from "../components/SurveyOngoing";
 import SurveyReady from "../components/SurveyReady";
 import SurveyThankyou from "../components/SurveyThankyou";
 import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
+import { TIMES } from '../managers/TimesDefinitions'
 // survey-react : https://www.npmjs.com/package/survey-react
 
 function SurveyPage(props) {
@@ -70,7 +71,7 @@ function SurveyPage(props) {
         setLoading(true);
         setTimeout(() => {
           setLoading(false);
-        }, 20000);
+        }, TIMES.PROCESS_STOP_WAIT);
       }
 
       setAnswer([]);

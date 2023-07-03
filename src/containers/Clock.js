@@ -21,7 +21,7 @@ export default function Clock(props) {
   if (end) {
     showtime = "TIME'S UP";
   } else {
-    showtime = minstr + " : " + secstr;
+    showtime = minstr + ":" + secstr;
   }
 
   return (

@@ -5,6 +5,7 @@ import Communication from "../components/Communication";
 import store from "../store";
 import { connect } from "react-redux";
 import { SOCKET_CMDS } from '../managers/SocketCommands'
+import { TIMES } from '../managers/TimesDefinitions'
 
 
 class CommunicationContainer extends React.Component {
@@ -84,7 +85,7 @@ class CommunicationContainer extends React.Component {
         }catch(error){
           console.error(`Error emitting accept `, error)
         }
-      }, 5000);
+      }, TIMES.AUTOACCEPT_WAIT);
     });
 
     socket.emit(SOCKET_CMDS.JOIN_ROOM);

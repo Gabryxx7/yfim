@@ -6,6 +6,7 @@ const { Room } = require('../managers/Room')
 const { User } = require('../managers/User')
 const { ControlUser } = require('./ControlUser')
 const { console  } = require("../utils/colouredLogger")
+const { TIMES } = require('../managers/TimesDefinitions')
 
 class SessionManager {
   constructor(sio, stagesConfig, masksConfig, questionset) {
@@ -63,7 +64,7 @@ class SessionManager {
     }
     this.timer = setTimeout(() => {
       this.update();
-    }, 1000)
+    }, TIMES.SESSION_UPDATE_INTERVAL)
   }
   
 

@@ -47,7 +47,7 @@ export default function SideBar(props) {
             <span class="progress-text">{currentStageIdx+1}/{totalStages}</span>
             </div>
           </div>
-       <p className="sidebar_user_role">{user_role}</p>
+       <span className="sidebar_user_role">{user_role}</span>
       </div>
       <div className="sidebar_prompt">{side_prompt}</div>
     </div>

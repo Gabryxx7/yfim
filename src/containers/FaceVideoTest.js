@@ -18,12 +18,10 @@ class FaceVideoTest extends Component {
   }
   render() {
     return (
-        <div>
           <MediaContainer
             media={(media) => (this.media = media)}
             getUserMedia={this.getUserMedia}
           />
-        </div>
     );
   }
 }

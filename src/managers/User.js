@@ -1,5 +1,6 @@
 const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('./SocketCommands')
 const { console  } = require("../utils/colouredLogger");
+const { TIMES } = require('../managers/TimesDefinitions')
 const e = require('express');
 
 
@@ -327,7 +328,7 @@ class User {
           console.info("- call store data");
           storeData(room);
         }
-      }, 5000);
+      }, TIMES.DATA_UPLOAD_WAIT);
     };
   
     onControl(data){
