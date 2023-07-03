@@ -13,10 +13,12 @@ import IntroFaceDetect from "../components/IntroFaceDetect";
 import Thankyou from "../components/Thankyou";
 import SideBar from "../components/SideBar";
 import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
+import { DrawableLandmark, INTERP_FUNCTIONS } from "../components/DrawableLandmark";
 var FileSaver = require("file-saver");
 
 const RECORD_AUDIO = true;
 const RECORD_VIDEO = true;
+
 
 const introduction =
   "Welcome to `Your Face is Muted`! This experience consists of three stages. In each, the screen in front of you will show a prompt with a topic to discuss with your conversation partner.\
@@ -26,6 +28,25 @@ Then click the start button on the iPad and converse away!";
 const loseface_notify =
   "Ooops! We can not detect your face, please make sure to look at the screen during\
 the experience. Otherwise, the conversation may be terminated.";
+
+// Points positions are defined here: https://github.com/justadudewhohacks/face-api.js/blob/master/src/classes/FaceLandmarks68.ts
+// Alternatively, one could use reflection to just call the function by name. I just find it easier to pass the list of points and let the landmark object updates itself
+// PointsRange refers to which points belong to the landmark in the list of landmark positions so pointsRange=[i,j] would use the points positions.slice(i, j)
+// If pointsRange is [] or [0,0] or in general i and j are such that j <= i, the whole list of given positions will be used
+const defLandData = { name:"Test", pointsRange:[0, 0], scale:[1, 1], visible:true, pointSize:2, pointColor:"#f00", drawMask:true, interpFun: INTERP_FUNCTIONS.easeInOut, interpTime: 0.15 };
+const landmarksData = [
+  new DrawableLandmark({...defLandData, name:"JawOutline", pointsRange:[0, 17], scale:[1, 1], visible:false }),
+  new DrawableLandmark({...defLandData, name:"LeftEyeBrow", pointsRange:[17, 22], scale:[1, 1], visible:false }),
+  new DrawableLandmark({...defLandData, name:"RightEyeBrow", pointsRange:[22, 27], scale:[1, 1], visible:false }),
+  new DrawableLandmark({...defLandData, name:"Nose", pointsRange:[27, 36], scale:[0.5, 1], visible:false }),
+  new DrawableLandmark({...defLandData, name:"LeftEye", pointsRange:[36, 42], scale:[1.5, 1.35] }),
+  new DrawableLandmark({...defLandData, name:"RightEye", pointsRange:[42, 48], scale:[1.5, 1.35] }),
+  new DrawableLandmark({...defLandData, name:"Mouth", pointsRange:[48, 68], scale:[0.8, 0.8] })
+]
+const centerLandmarkPoint = new DrawableLandmark({...defLandData, name:"Center", pointsRange:[], scale:[1, 1], pointSize:10, pointColor:"#ff0", drawMask:false });
+let centerOffset = 0;
+const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+let updateCenterOffsetInterval = null;
 
 const init_mask = {
   occlusion_mask: false, //Switch
@@ -94,7 +115,9 @@ class MediaBridge extends Component {
     this.emo_result = [];
     this.survey_count = 0;
     this.controlParams = props.controlParams;
+    this.faceApiLoaded = true;
     this.detections = null;
+    this.detectionsUpdated = true;
     this.process_duration = 1; // What is the point of this variable if it's never used?
     this.timeLeft = 1;
     this.endTime = 0;
@@ -107,8 +130,6 @@ class MediaBridge extends Component {
     this.hangup = this.hangup.bind(this);
     this.init = this.init.bind(this);
     this.setDescription = this.setDescription.bind(this);
-    this.showEmotion = this.showEmotion.bind(this);
-    this.startFaceDetection = this.startFaceDetection.bind(this);
     this.loadModel = this.loadModel.bind(this);
     this.drawCanvas = this.drawCanvas.bind(this);
     this.onControl = this.onControl.bind(this);
@@ -153,8 +174,8 @@ class MediaBridge extends Component {
       this.remoteVideo.addEventListener("play", () => {
         console.log("Remote Video Play");
         // start detect remote's face and process
-        this.showEmotion().catch((error) => {
-          console.warn(`Error showing emotion: ${error}`)
+        this.tryStartFaceDetection().catch((error) => {
+          console.warn(`Error attempting to start face detection emotion: ${error}`)
         });
       });
     }
@@ -179,8 +200,8 @@ class MediaBridge extends Component {
         }
       };
       if(this.socket == null){
-        this.showEmotion().catch((error) => {
-          console.warn(`Error showing emotion: ${error}`)
+        this.tryStartFaceDetection().catch((error) => {
+          console.warn(`Error attempting to start face detection: ${error}`)
         });
       }
     });
@@ -202,17 +223,9 @@ class MediaBridge extends Component {
     clearInterval(this.timmer);
   }
 
-  async showEmotion() {
-    console.info("++ showEmotion(): start face detection");
-    try{
-      this.startFaceDetection();
-    }
-    catch(err){
-      console.warn(`Error starting face detection: ${err}`);
-    }
-  }
   // load faceapi models for detection
   async loadModel() {
+    this.faceApiLoaded = false;
     console.info("++ loading model");
 
     await faceapi.tf.setBackend("webgl"); // Or 'wasm'
@@ -227,6 +240,7 @@ class MediaBridge extends Component {
     const faceExpressionModel = await faceapi.loadFaceExpressionModel(
       MODEL_URL
     );
+    this.faceApiLoaded = true;
 
     // console.log(faceapi.nets);
 
@@ -680,7 +694,13 @@ class MediaBridge extends Component {
   // 1. faceapi doc: https://justadudewhohacks.github.io/face-api.js/docs/index.html
   // 2. create canvas based on remote video size
   // 3.
-  startFaceDetection() {
+  async tryStartFaceDetection(){
+    if(!this.faceApiLoaded){
+      console.warn("Waiting for face api models to load...");
+      setTimeout(async () => await this.tryStartFaceDetection(), 200);
+      return;
+    }
+
     const canvasTmpLocal = faceapi.createCanvasFromMedia(this.localVideo);
 
     if(this.remoteVideo != null){
@@ -694,53 +714,56 @@ class MediaBridge extends Component {
     };
     faceapi.matchDimensions(this.canvasRef, displaySize);
     console.log(this.canvasRef.width, this.canvasRef.height);
-    this.faceDetectionInProgress = false;
 
-    setTimeout(async () => await this.faceDetectionCallback(), 1000);
+    console.log("Triggering face detection..");
+    setTimeout(async () => await this.faceDetectionCallback(), 0);
+    window.requestAnimationFrame(this.drawCanvas);
   }
-
 
   async faceDetectionCallback() {
     let lose_face_f = false;
-    if (!this.faceDetectionInProgress) {
-      // console.log("Triggering face detection..");
-      this.faceDetectionInProgress = true;
 
-      try {
-        if(this.currentVideoSource == null){
-          if(this.remoteVideo == null){
-            this.currentVideoSource = this.localVideo;
-            console.warn("No remote video source, using local video for face api detection");
-          }
-          else{
-            this.currentVideoSource = this.remoteVideo;
-          }
-          console.log(`Using Video Source: ${this.currentVideoSource.id}`, this.currentVideoSource)
+    try {
+      if(this.currentVideoSource == null){
+        if(this.remoteVideo == null){
+          this.currentVideoSource = this.localVideo;
+          console.warn("No remote video source, using local video for face api detection");
         }
-        this.detections = await faceapi
-          .detectSingleFace(
-            this.currentVideoSource,
-            new faceapi.TinyFaceDetectorOptions()
-          )
-          .withFaceLandmarks()
-          .withFaceExpressions();
-        // console.log("detections", this.detections);
-      }catch (err) {
-        console.error(`ERROR detecting single face ${err}`);
+        else{
+          this.currentVideoSource = this.remoteVideo;
+        }
+        console.log(`Using Video Source: ${this.currentVideoSource.id}`, this.currentVideoSource)
       }
-      // console.log(`Getting face attributes`);
-      let utc = new Date().getTime();
-      try {
-        this.faceAttributes = getFeatureAttributes(this.detections);
-        if (!this.state.process) {
-          this.onFaceDetect();
-        }
-        this.losingface = 0;
-        if (lose_face_f) {
-          this.sendData("recover");
-          lose_face_f = false;
-        }
-      } catch (err) {
+      const newDetections = await faceapi
+        .detectSingleFace(
+          this.currentVideoSource,
+          new faceapi.TinyFaceDetectorOptions()
+        )
+        .withFaceLandmarks()
+        .withFaceExpressions();
+      if(newDetections != undefined && newDetections != null){
+        this.detections = newDetections;
+      }
+      this.detectionsUpdated = true;
+      // console.log("detections", this.detections);
+    }catch (err) {
+      console.error(`ERROR detecting single face ${err}`);
+      this.detectionsUpdated = false;
+    }
+    // console.log(`Getting face attributes`);
+    let utc = new Date().getTime();
+    try {
+      this.faceAttributes = getFeatureAttributes(this.detections);
+      if (!this.state.process) {
+        this.onFaceDetect();
+      }
+      this.losingface = 0;
+      if (lose_face_f) {
+        this.sendData("recover");
+        lose_face_f = false;
+      }
+    } catch (err) {
+      try{
         console.error(`ERROR getting feature attributes ${err}`);
 
         if (this.state.survey_in_progress) {
@@ -785,195 +808,81 @@ class MediaBridge extends Component {
 
         console.log("WARNING: Can't detect face on remote side",this.losingface);
       }
-
-      // console.log(`Updating survey or state progress?!`);
-      if (this.state.process && !this.state.survey_in_progress) {
-        try {
-          const emo_data = {
-            timeStamp: utc,
-            time_slot: this.state.time_slot,
-            emotion: this.detections.expressions,
-          };
-          this.record.record_detail.push(emo_data);
-          this.record.record_count += 1;
-        } catch (err) {
-          console.warn(`Error showing emotion: ${err}`);
-        }
+      catch(error){
+        console.log("Error while losing face: ", error);
       }
-
-      // console.log(`Drawing on canvas`);
-        this.drawCanvas(true);
-      // if (this.props.controlParams.occlusion_mask){
-      //   this.drawCanvas(true);
-      // }
-      // else{
-      //   this.drawCanvas(false);
-      // }
-
-      // console.log('setting detection in progress to false');
-      this.faceDetectionInProgress = false;
-    } else {
-      console.info("-- skipped. Face detection in progress");
     }
-    setTimeout(async () => await this.faceDetectionCallback(), 16);
-  }
 
-  getDistance(x1, y1, x2, y2){
-    let y = y2 - y1;
-    let x = x2 - x1;
-    return Math.sqrt(x * x + y * y);
-  }
-
-
-  getCenterPoint(p){
-    //Set initial min and max values
-    var minX=p[0].x, maxX=p[0].x, minY=p[0].y, maxY=p[0].y;
-
-    for(var i=0;i<p.length; i++){
-      if(p[i].x < minX){minX=p[i].x;}
-      if(p[i].x > maxX){maxX=p[i].x;}
-      if(p[i].y < minY){minY=p[i].y;}
-      if(p[i].y > maxY){maxY=p[i].y;}
-    }
-    var maxDist = this.getDistance(maxX, maxY, minX, minY);
-    return {x: (maxX + minX)/2, y: (maxY + minY)/2, radius: maxDist};
-  }
-
-  // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Compositing
-  // https://www.w3schools.com/jsref/tryit.asp?filename=tryhtml5_canvas_globalcompop_all
-  /**
-   * The canvas is actually just an overlay
-   * The image of the video itself is a <video> HTML component underneath
-   * What we need to do is to draw a full black rectangle and cutting out the areas where the landmarks are
-   * In this case we can draw a full black rectangle with "fillRect" and then cut out the "holes" with "destination-out"
-   */
-  drawLandmarkMask(ctx, landmarkName, landmarkPoints, pointSize, pointColor, scaleX, scaleY, rotation, width, height, xOffset, yOffset, shape="poly", clipping=true, debug=false){
-    if(debug){
-      console.log(landmarkName, landmarkPoints)
-    }
-    if(clipping){
-      ctx.globalCompositeOperation = 'destination-out';
-    }
-    let rotationRad =  rotation * (Math.PI/180);
-    /**
-     * To draw AROUND the eyes, I'm first scaling up the eye polygon shape by changing the canvas transform
-     * Then I'm drawing the clipping mask with the new expanded shape and finally changing back to the default canvas transform and deault composite operation
-     */
-    let pStart = landmarkPoints[0];
-    let pCenter = this.getCenterPoint(landmarkPoints);
-    if(shape == "poly"){
-      // console.log(`${landmarkName}: [${pCenter.x}, ${pCenter.y}], radius: ${pCenter.radius}` );
-
-      ctx.beginPath();
-
-      // ctx.moveTo((pStart.x) + xOffset, (pStart.y) + yOffset);
-      // landmarkPoints.forEach((p) => {
-      //   ctx.lineTo((p.x) + xOffset, (p.y) + yOffset);
-      // });
-
-      /**
-       * So I've tried to use the angle given by face api, Roll seems to be the one that detects the face rotating on the screen
-       * However, that gave weird results with the ellipse, so I changed it to calculating the ellipse width and height according to that rotation instead
-       */
-      let ellipseRadiusX = (pCenter.radius * 0.5) * scaleX * (Math.cos(rotationRad)+1);
-      let ellipseRadiusY = (pCenter.radius * 0.5) * scaleY * (Math.sin(rotationRad)+1);
-      ctx.ellipse(pCenter.x, pCenter.y, ellipseRadiusX, ellipseRadiusY, 0, 0, 2 * Math.PI);
-      ctx.fill(); // Could be called outside
-      ctx.stroke(); // Could be called outside
-
-      ctx.closePath();
-    }
-    else{
-      ctx.fillStyle = pointColor;
-      for(let p of landmarkPoints){
-        ctx.beginPath();
-        ctx.arc(p.x + xOffset, p.y + yOffset, pointSize, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.closePath();
+    // console.log(`Updating survey or state progress?!`);
+    if (this.state.process && !this.state.survey_in_progress) {
+      try {
+        const emo_data = {
+          timeStamp: utc,
+          time_slot: this.state.time_slot,
+          emotion: this.detections.expressions,
+        };
+        this.record.record_detail.push(emo_data);
+        this.record.record_count += 1;
+      } catch (err) {
+        console.warn(`Error showing emotion: ${err}`);
       }
-      ctx.beginPath();
-      ctx.fillStyle = "blue";
-      ctx.arc(pCenter.x + xOffset, pCenter.y + yOffset, pointSize, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.closePath();
     }
-    if(clipping){
-      ctx.globalCompositeOperation = 'source-over';
-    }
+
+    setTimeout(async () => await this.faceDetectionCallback(), 0);
   }
+
   // Draw a mask over face/screen
-  drawCanvas(drawable) {
+  drawCanvas() {
     const ctx = this.canvasRef.getContext("2d");
-    const {
-      eyes: eyesCtrl,
-      mouth: mouthCtrl,
-      nose: noseCtrl,
-      bar: barCtrl,
-    } = this.props.controlParams.feature_show;
-    if (!drawable) {
-      ctx.clearRect(0, 0, this.canvasRef.width, this.canvasRef.height);
-    } else {
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, this.canvasRef.width, this.canvasRef.height);
-      if(this.detections != null){
-        let detections = this.detections;
-        let imHeight = this.detections.detection.imageHeight;
-        let imWidth = this.detections.detection.imageWidth;
-        let cHeight = ctx.canvas.clientHeight;
-        let cWidth = ctx.canvas.clientWidth;
-        let ctxHeight = ctx.canvas.height;
-        let ctxWidth = ctx.canvas.width;
-        let bHeight = ctx.canvas.getBoundingClientRect().height;
-        let bWidth = ctx.canvas.getBoundingClientRect().width;
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, this.canvasRef.width, this.canvasRef.height);
+    if(this.detections != null){
+      let detections = this.detections;
+      let imHeight = this.detections.detection.imageHeight;
+      let imWidth = this.detections.detection.imageWidth;
+      let cHeight = ctx.canvas.clientHeight;
+      let cWidth = ctx.canvas.clientWidth;
+      let ctxHeight = ctx.canvas.height;
+      let ctxWidth = ctx.canvas.width;
+      let bHeight = ctx.canvas.getBoundingClientRect().height;
+      let bWidth = ctx.canvas.getBoundingClientRect().width;
 
+      let imgWidthR = detections.detection.imageWidth;
+      let imgHeightR = detections.detection.imageHeight;
+      if(this.detectionsUpdated){
         detections = faceapi.resizeResults(detections, { width: ctxWidth, height: ctxHeight }) // For some reason it's not quite centered
-        let imHeightR = detections.detection.imageHeight;
-        let imWidthR = detections.detection.imageWidth;
+        imgWidthR = detections.detection.imageWidth;
+        imgHeightR = detections.detection.imageHeight;
 
-        console.log(`Image: ${imWidth} x ${imHeight}\nImage Resized: ${imWidthR} x ${imHeightR}\nClient: ${cWidth} x ${cHeight}\nBounding: ${bWidth} x ${bHeight}`)
+        // console.log(`Image: ${imWidth} x ${imHeight}\nImage Resized: ${imWidthR} x ${imHeightR}\nClient: ${cWidth} x ${cHeight}\nBounding: ${bWidth} x ${bHeight}`)
         // detections = faceapi.resizeResults(detections, { width: ctx.canvas.clientWidth, height: ctx.canvas.clientHeight })
         const landmarks = detections.landmarks;
-        const angle = detections.angle;
-        const landmarkPositions = landmarks.positions;
-        // console.log(`Drawing ${landmarkPositions.length} landmarks`)
-        const jawOutline = landmarks.getJawOutline();
-        const nose = landmarks.getNose();
-        const mouth = landmarks.getMouth();
-        const leftEye = landmarks.getLeftEye();
-        const rightEye = landmarks.getRightEye();
-        const leftEyeBbrow = landmarks.getLeftEyeBrow();
-        const rightEyeBrow = landmarks.getRightEyeBrow();
-
-        let width = imWidthR;
-        let height = imHeightR;
-        const landmarksToDraw = [
-          {points: landmarks.getLeftEye(), name: "Left Eye", scaleX: 1.5, scaleY: 1.25, visible: true, pointSize: 20,  color: "#f00", drawMask: true},
-          {points: landmarks.getRightEye(), name: "Right Eye", scaleX: 1.5, scaleY: 1.25, visible: true, pointSize: 20, color: "#f00", drawMask: true},
-          // {points: landmarks.getLeftEyeBrow(), name: "Left Eyebrow", scaleX: 1, scaleY: 1, visible: true, pointSize: 20, color: "#f00", drawMask: true},
-          // {points: landmarks.getRightEyeBrow(), name: "Right Eyebrow", scaleX: 1, scaleY: 1, visible: true, pointSize: 20, color: "#f00", drawMask: true},
-          {points: landmarks.getNose(), name: "Nose", scaleX: 0.5, scaleY: 1,visible: true, pointSize: 20, color: "#f00", drawMask: true},
-          {points: landmarks.getMouth(), name: "Mouth", scaleX: 1, scaleY: 0.8, visible: true, pointSize: 20, color: "#f00", drawMask: true},
-          // {points: landmarks.getJawOutline(), name: "JawOutline", scaleX: 1, scaleY: 1, visible: true, pointSize: 20, color: "#f00", drawMask: true},
-          {points: [{x: width * 0.5, y: height * 0.5}], name: "Center", scaleX: 1, scaleY: 1, visible: true, pointSize: 40, color: "#f00", drawMask: false}
-        ]
-        let xOffset = 0;
-        let yOffset = 0;
-        let rotation = angle.roll;
-        console.log(angle);
-        // xOffset = (imWidth - imWidthR) * 0.5;
-        // yOffset = (imHeight - imHeightR) * 0.5;
-        // I need to draw the cutout/clipping maskes first and then draw the landmarks on top, i can't do both in the same loop as the clipping masks of the next
-        // Points would override the previous landmark points
-        for(let l of landmarksToDraw){
-          if(l.drawMask){
-            this.drawLandmarkMask(ctx, l.name, l.points, l.pointSize, l.color, l.scaleX, l.scaleY, rotation, width, height, xOffset, yOffset, "poly", true, false); // Draw cutouts
-          }
+        // console.log("landmarks", landmarks);
+        for(let l of landmarksData){
+          l.updatePointsFromLandmark(landmarks.positions);
+          l.setRotation(detections.angle.roll);
         }
-        // for(let l of landmarksToDraw){
-        //   this.drawLandmarkMask(ctx, l.name, l.points, l.pointSize*0.1, l.color, l.scaleX, l.scaleY, rotation, width, height, xOffset, yOffset, "point", false, false); // Draw landmark points
-        // }
+        this.detectionsUpdated = false;
       }
+
+      // I need to draw the cutout/clipping maskes first and then draw the landmarks on top, i can't do both in the same loop as the clipping masks of the next
+      // Points would override the previous landmark points
+      for(let l of landmarksData){
+        if(l.drawMask){
+          l.drawClippingMask(ctx)
+        }
+      }
+      // for(let l of landmarksData){
+      //   l.drawPoints(ctx)
+      //   l.drawCentroid(ctx, false)
+      // }
+
+      // This is just a quick test to check whether the animated value/points structure works
+      // if(updateCenterOffsetInterval == null) updateCenterOffsetInterval = setInterval(() => {centerOffset = randomInRange(-200, 200)}, 2000);
+      // centerLandmarkPoint.updatePoints([ {x: imgWidthR * 0.5 + centerOffset, y: imgHeightR * 0.5 + centerOffset}]);
+      // centerLandmarkPoint.drawPoints(ctx);
     }
+    window.requestAnimationFrame(this.drawCanvas);
   }
 
   onRemoteHangup() {

@@ -11,7 +11,7 @@ import SurveyPage from "./containers/SurveyPage";
 import NotFound from "./components/NotFound";
 import DataMonitor from "./containers/DataMonitor";
 
-import styles from "./app.css";
+import styles from "./app.scss";
 import ProjectionPage from "./containers/ProjectionPage";
 
 render(

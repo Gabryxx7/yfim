@@ -19,41 +19,37 @@ export default function SideBar(props) {
   return (
     <div className="sidebar_container">
       <div className="info">
-       <p className="sidebar_user_role">{user_role}</p>
             {state_process && (
               <Clock
                 time_diff={time_diff}
                 end={end}
               ></Clock>
           )}
+          <div className="sidebar_foot">
+            <span>{currentStageName}</span>
+            <div class="progress-container">
+              <div class="progress-bar"
+                style={{
+                  background: '#d4eeff',
+                  transition: "all 0.5s",
+                  height: "0.5rem",
+                  width: "100%",
+                  borderRadius: "50px",
+                }}>
+              <div class="progress-bar-completed"
+                style={{
+                  background: "#1da1f2",
+                  height: "100%",
+                  borderRadius: "inherit",
+                  width: `${(currentStageIdx+1)/totalStages*100}%`
+                }}/>
+                </div>
+            <span class="progress-text">{currentStageIdx+1}/{totalStages}</span>
+            </div>
+          </div>
+       <p className="sidebar_user_role">{user_role}</p>
       </div>
-      <p className="sidebar_prompt">{side_prompt}</p>
-      <div className="sidebar_foot">
-        <p>PART {currentStageIdx+1} OF {totalStages} <br /> {currentStageName} </p>
-        <hr
-          style={{
-            position: "absolute",
-            bottom: "5%",
-            color: "white",
-            background: "white",
-            height: "4px",
-            width: `${(currentStageIdx+1)/totalStages*100}%`,
-            zIndex: 20,
-            left: "11%",
-          }}
-        />
-        <hr
-          style={{
-            position: "absolute",
-            bottom: "5%",
-            color: "grey",
-            background: "grey",
-            height: "4px",
-            width: "78%",
-            left: "11%",
-          }}
-        />
-      </div>
+      <div className="sidebar_prompt">{side_prompt}</div>
     </div>
   );
 }
