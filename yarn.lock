@@ -3017,6 +3017,11 @@ iferr@^0.1.5:
   resolved "https://registry.npmjs.org/iferr/-/iferr-0.1.5.tgz"
   integrity sha1-xg7taebY/bazEEofy8ocGS3FtQE= sha512-DUNFN5j7Tln0D+TxzloUjKB+CtVu6myn0JEFak6dG18mNt9YkQ6lzGCdafwofISZ1lLF3xRHJ98VKy9ynkcFaA==
 
+immediate@~3.0.5:
+  version "3.0.6"
+  resolved "https://registry.npmjs.org/immediate/-/immediate-3.0.6.tgz"
+  integrity sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==
+
 immutable@^4.0.0:
   version "4.3.0"
   resolved "https://registry.npmjs.org/immutable/-/immutable-4.3.0.tgz"
@@ -3217,6 +3222,11 @@ is-plain-object@^2.0.3, is-plain-object@^2.0.4:
   dependencies:
     isobject "^3.0.1"
 
+is-promise@^2.1.0:
+  version "2.2.2"
+  resolved "https://registry.npmjs.org/is-promise/-/is-promise-2.2.2.tgz"
+  integrity sha512-+lP4/6lKUBfQjZ2pdxThZvLUAafmZb8OAxFb8XXtiQmS35INgr85hdOGoEs124ez1FCnZJt6jau/T+alh58QFQ==
+
 is-redirect@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/is-redirect/-/is-redirect-1.0.0.tgz"
@@ -3286,6 +3296,11 @@ isomorphic-fetch@^2.1.1:
   dependencies:
     node-fetch "^1.0.1"
     whatwg-fetch ">=0.10.0"
+
+js-cookie@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.npmjs.org/js-cookie/-/js-cookie-2.2.0.tgz"
+  integrity sha512-7YAJP/LPE/MhDjHIdfIiT665HUSumCwPN2hAmO6OJZ8V3o1mtz2HeQ8BKetEjkh+3nqGxYaq1vPMViUR8kaOXw==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
@@ -3430,6 +3445,13 @@ klona@^2.0.4:
   resolved "https://registry.npmjs.org/klona/-/klona-2.0.6.tgz"
   integrity sha512-dhG34DXATL5hSxJbIexCft8FChFXtmskoZYnoPWjXQuebWYCNkVeV3KkGegCK9CP1oswI/vQibS2GY7Em/sJJA==
 
+lie@3.1.1:
+  version "3.1.1"
+  resolved "https://registry.npmjs.org/lie/-/lie-3.1.1.tgz"
+  integrity sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==
+  dependencies:
+    immediate "~3.0.5"
+
 loader-runner@^2.4.0:
   version "2.4.0"
   resolved "https://registry.npmjs.org/loader-runner/-/loader-runner-2.4.0.tgz"
@@ -3452,6 +3474,13 @@ loader-utils@^2.0.0:
     big.js "^5.2.2"
     emojis-list "^3.0.0"
     json5 "^2.1.2"
+
+localforage@1.7.3:
+  version "1.7.3"
+  resolved "https://registry.npmjs.org/localforage/-/localforage-1.7.3.tgz"
+  integrity sha512-1TulyYfc4udS7ECSBT2vwJksWbkwwTX8BzeUIiq8Y07Riy7bDAAnxDaPU/tWyOVmQAcWJIEIFP9lPfBGqVoPgQ==
+  dependencies:
+    lie "3.1.1"
 
 locate-path@^3.0.0:
   version "3.0.0"
@@ -4453,7 +4482,7 @@ react-transition-group@^4.3.0, react-transition-group@^4.4.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-"react@^0.14.0 || ^15.0.0-0 || ^16.0.0-0", "react@^15.0.2 || ^16.0.0 || ^17.0.0", react@^15.3.1, react@^15.7.0, react@^16.0.0, "react@^16.3.0 || ^17.0.0", react@^16.4.0, react@^16.5.0, "react@^16.8.0 || ^17.0.0", "react@^17.0.0 || ^16.3.0 || ^15.5.4", react@>=15, react@>=16.0.0, react@>=16.6.0, react@>=16.8.0:
+"react@^0.14.0 || ^15.0.0 || ^16.0.0", "react@^0.14.0 || ^15.0.0-0 || ^16.0.0-0", "react@^15.0.2 || ^16.0.0 || ^17.0.0", react@^15.3.1, react@^15.7.0, react@^16.0.0, "react@^16.3.0 || ^17.0.0", react@^16.4.0, react@^16.5.0, "react@^16.8.0 || ^17.0.0", "react@^17.0.0 || ^16.3.0 || ^15.5.4", react@>=15, react@>=16.0.0, react@>=16.6.0, react@>=16.8.0:
   version "16.13.0"
   resolved "https://registry.npmjs.org/react/-/react-16.13.0.tgz"
   integrity sha512-TSavZz2iSLkq5/oiE7gnFzmURKZMltmi193rm5HEoUDAXpzT9Kzw6oNZnGoai/4+fUnm7FqS5dwgUL34TujcWQ==
@@ -4507,7 +4536,16 @@ rechoir@^0.7.0:
   dependencies:
     resolve "^1.9.0"
 
-"redux@^2.0.0 || ^3.0.0 || ^4.0.0-0", redux@^4.0.0:
+redux-react-session@^2.6.1:
+  version "2.6.1"
+  resolved "https://registry.npmjs.org/redux-react-session/-/redux-react-session-2.6.1.tgz"
+  integrity sha512-DmNN/msw9l/TIqtrZV87fKWr6hJaBD0T8qN2A2jhVBKuB7fWSYBvnYwsO7zYZ96Tnlpf4pdiS0bAeph0i9DnnQ==
+  dependencies:
+    is-promise "^2.1.0"
+    js-cookie "2.2.0"
+    localforage "1.7.3"
+
+"redux@^2.0.0 || ^3.0.0 || ^4.0.0-0", "redux@^3.0.0 || ^4.0.0", redux@^4.0.0:
   version "4.1.0"
   resolved "https://registry.npmjs.org/redux/-/redux-4.1.0.tgz"
   integrity sha512-uI2dQN43zqLWCt6B/BMGRMY6db7TTY4qeHHfGeKb3EOhmOKjU3KdWvNLJyqaHRksv/ErdNH7cFZWg9jXtewy4g==

@@ -65,6 +65,8 @@ class CommunicationContainer extends React.Component {
         console.warn(`Could not join room: ${JSON.stringify(data)}`);
         return;
       }
+
+      this.props.setRoomData(data);
       console.log(`Role assigned ${JSON.stringify(data)}`);
       this.props.media.setState({ user: data.userRole, bridge: data.bridge });
       if(data.bridge == "join"){
@@ -167,11 +169,13 @@ class CommunicationContainer extends React.Component {
 const mapStateToProps = (store) => ({
   video: store.video,
   audio: store.audio,
+  roomData: store.roomData,
   zoom: store.controlParams.zoom,
 });
 const mapDispatchToProps = (dispatch) => ({
   setVideo: (boo) => store.dispatch({ type: "SET_VIDEO", video: boo }),
   setAudio: (boo) => store.dispatch({ type: "SET_AUDIO", audio: boo }),
+  setRoomData: (roomData) => store.dispatch({ type: "SET_ROOM_DATA", roomData: roomData }),
 });
 
 CommunicationContainer.propTypes = {
@@ -180,6 +184,7 @@ CommunicationContainer.propTypes = {
   audio: PropTypes.bool.isRequired,
   video: PropTypes.bool.isRequired,
   setVideo: PropTypes.func.isRequired,
+  setRoomData: PropTypes.func.isRequired,
   setAudio: PropTypes.func.isRequired,
   media: PropTypes.instanceOf(MediaContainer),
 };

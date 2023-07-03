@@ -290,6 +290,7 @@ input[type="checkbox"] {
   position: absolute;
   font-family: 'Montserrat';
   display: flex;
+  flex-direction: column;
   place-content: center;
   place-items: center;
   width: 80%;

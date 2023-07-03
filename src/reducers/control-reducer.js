@@ -1,4 +1,5 @@
-const initState = {
+
+const initControlParams = {
   zoom: 200,
   occlusion_mask: false, //Switch
   feature_show: {
@@ -23,7 +24,8 @@ const initState = {
   },
 };
 
-const updateControlParams = (state = initState, action) => {
+
+const controlParamsReducer = (state = initControlParams, action) => {
   switch (action.type) {
     case "UPDATE_ALL": {
       console.log(action.payload);
@@ -77,4 +79,5 @@ const updateControlParams = (state = initState, action) => {
       return state;
   }
 };
-export default updateControlParams;
+
+export { initControlParams , controlParamsReducer}

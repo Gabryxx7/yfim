@@ -290,7 +290,7 @@ class DrawableLandmark {
         center2.x = x * invScaleX;
         center2.y = y;
 	}
-    console.log("Radial gradient ", center1.x, center1.y, radius1, center2.x, center2.y, radius2)
+    // console.log("Radial gradient ", center1.x, center1.y, radius1, center2.x, center2.y, radius2)
     const maskGradient = ctx.createRadialGradient(center1.x, center1.y, radius1, center2.x, center2.y, radius2);
     // const maskGradient = ctx.createRadialGradient(x, y, 0, x, y, Math.min(rx, ry));
     // Opaque white in the middle
