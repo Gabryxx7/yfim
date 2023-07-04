@@ -41,7 +41,7 @@ const roomsReducer = (state = [], action) => {
 const roomReducer = (state = {}, action) => {
   switch (action.type) {
     case 'SET_ROOM_DATA':
-      return {...state, ...action.roomData}
+      return action.roomData;
     default:
       return state
   }

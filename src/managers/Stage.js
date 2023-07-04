@@ -22,6 +22,7 @@ class Stage {
     this.params = this.config.params;
     this.currentStepIdx = -1;
     this.currentStep = null;
+    this.startDateTime = -1;
     this.startTime = -1;
     this.endTime = -1;
     this.timeLeft = -1;
@@ -38,7 +39,8 @@ class Stage {
   }
 
   initalize() {
-    this.startTime = new Date().getTime();
+    this.startDateTime = new Date().getTime();
+    this.startTime = performance.now();
     this.elapsed = 0;
     console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
     if (this.steps.length > 0) {
@@ -85,9 +87,26 @@ class Stage {
     this.status = STATUS.IN_PROGRESS;
   }
 
+  getData(){
+    var data = {};
+    try{
+      data = {
+        name: this.name, 
+        id: this.id,
+        startTime: this.startTime,
+        startDateTime: this.startDateTime,
+        duration:this.duration,
+        room: this.room?.id,
+        type: this.type
+      };
+    }catch(error){
+      console.error(`Error getting stage data: `, error);
+    }
+    return data;
+  }
+
   updateProgress() {
-    let nowTime = new Date().getTime();
-    this.elapsed = (nowTime - this.startTime) / 1000;
+    this.elapsed = (performance.now() - this.startTime) / 1000;
     console.log(`${this.prefix}Elapsed ${this.name}: ${this.elapsed}`);
     if (this.duration > 0) {
       this.timeLeft = this.duration - this.elapsed;

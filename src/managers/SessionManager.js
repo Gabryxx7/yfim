@@ -23,7 +23,8 @@ class SessionManager {
       ...this.questionset["quest"]["general"],
     ];
     this.timer = null;
-    this.startTime = -1;
+    this.startDateTime = -1;
+    this.startTime = 0;
     this.elapsed = 0;
     this.currentStage = null;
     this.currentStageIdx = -1;
@@ -50,7 +51,7 @@ class SessionManager {
 
   update(){
     let nowTime = new Date().getTime();
-    this.elapsed = (nowTime - this.startTime)/1000;
+    this.elapsed = (nowTime - this.startDateTime)/1000;
     this.currentStage.update();
     if(this.currentStage.status == STATUS.COMPLETED){
       this.currentStageIdx += 1;
@@ -66,6 +67,24 @@ class SessionManager {
       this.update();
     }, TIMES.SESSION_UPDATE_INTERVAL)
   }
+
+
+  getData(){
+    var data = {};
+    try{
+      data = {
+        id: this.id,
+        startTime: this.startTime,
+        startDateTime: this.startDateTime,
+        totalStages: this.stages.length,
+        currentStage: this.currentStageIdx,
+        stage: this.currentStage?.getData()
+      };
+    }catch(error){
+      console.error(`Error getting session data: `, error);
+    }
+    return data;
+  }
   
 
   startSession(room){
@@ -73,8 +92,8 @@ class SessionManager {
     try {
       console.info("+ both ready: start process");
       console.info(room.toString())
-      this.startTime = new Date().getTime();
-      this.sessionId = this.generateSessionId(this.startTime);
+      this.startDateTime = new Date().getTime();
+      this.id = this.generateSessionId(this.startDateTime);
 
       let mask_id = Math.floor(Math.random() * 3);
       let config = require(`../MaskSetting/endWithEyes.json`);
@@ -106,7 +125,8 @@ class SessionManager {
       if(this.timer != null){
         return;
       }
-      this.startTime = new Date().getTime();
+      this.startDateTime = new Date().getTime();
+      this.startTime = performance.now();
       this.currentStageIdx = 0;
       if(this.stagesConfig) {
         for(let i = 0; i < this.stagesConfig.length; i++){
@@ -116,28 +136,19 @@ class SessionManager {
       this.currentStage = this.stages[this.currentStageIdx];
       if(this.currentStageIdx <= 0){
         this.currentStage.initalize();
-        const stagesData = {name: this.currentStage.name, currentIdx: this.currentStageIdx, total: Object.keys(this.stages).length};
-        const duration = this.currentStage.duration;
-        const startTime = this.startTime;
-        const sessionId = this.sessionId;
+        const sessionData = this.getData();
         const record_by_user = {
           host: false,
           guest: false,
         };
         this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
-          stagesData,
-          startTime,
-          duration,
-          record_by_user,
-          sessionId
+          sessionData,
+          record_by_user
         });
 
         this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
-          stagesData,
-          startTime,
-          duration,
-          record_by_user,
-          sessionId
+          sessionData,
+          record_by_user
         });
       }
       this.update();

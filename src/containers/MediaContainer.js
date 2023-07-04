@@ -4,18 +4,17 @@ import store from "../store";
 // import * as faceapi from "face-api.js"; // Updated face-api, check below
 import * as faceapi from "@vladmandic/face-api"; // https://github.com/justadudewhohacks/face-api.js/issues?q=undefined+backend+#issuecomment-681001997
 import getFeatureAttributes from "../utils/getFeatureAttributes";
-import ToolBar from "../components/ToolBar";
 import { connect } from "react-redux";
-import Clock from "./Clock";
 import GYModal from "../components/Modal";
 import Introduction from "../components/Introduction";
 import IntroFaceDetect from "../components/IntroFaceDetect";
 import Thankyou from "../components/Thankyou";
-import SideBar from "../components/SideBar";
+import Sidebar from "../components/Sidebar";
 import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
 import { DrawableLandmark, INTERP_FUNCTIONS } from "../components/DrawableLandmark";
 import { TIMES } from "../managers/TimesDefinitions";
 var FileSaver = require("file-saver");
+import {TimedEvent} from "../components/TimedEvent";
 
 const RECORD_AUDIO = true;
 const RECORD_VIDEO = true;
@@ -80,15 +79,10 @@ class MediaBridge extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      session: new TimedEvent("MainSession"),
       bridge: "",
       user: props.username,
       recording: false,
-      time_slot: 0,
-      time_diff: 0,
-      process: false,
-      sessionId: "",
-      stagesData: null,
-      stage: 0,
       side_prompt: "",
       user_role: "",
       process_cfg: null,
@@ -111,38 +105,17 @@ class MediaBridge extends Component {
       record_count: 0,
       record_detail: [],
     };
+    this.canvasRef = null;
     this.currentVideoSource = null;
     this.remoteVideo = null;
+    this.remoteStream = null;
     this.emo_result = [];
     this.survey_count = 0;
     this.controlParams = props.controlParams;
     this.faceApiLoaded = true;
     this.detections = null;
     this.detectionsUpdated = true;
-    this.process_duration = 1; // What is the point of this variable if it's never used?
-    this.timeLeft = 1;
     this.endTime = 0;
-    this.onRemoteHangup = this.onRemoteHangup.bind(this);
-    this.onMessage = this.onMessage.bind(this);
-    this.sendData = this.sendData.bind(this);
-    this.setupDataHandlers = this.setupDataHandlers.bind(this);
-    this.setDescription = this.setDescription.bind(this);
-    this.sendDescription = this.sendDescription.bind(this);
-    this.hangup = this.hangup.bind(this);
-    this.init = this.init.bind(this);
-    this.setDescription = this.setDescription.bind(this);
-    this.loadModel = this.loadModel.bind(this);
-    this.drawCanvas = this.drawCanvas.bind(this);
-    this.onControl = this.onControl.bind(this);
-    this.sendDataToServer = this.sendDataToServer.bind(this);
-    this.startRecording = this.startRecording.bind(this);
-    this.stopRecording = this.stopRecording.bind(this);
-    this.saveVideo = this.saveVideo.bind(this);
-    this.onProcessStart = this.onProcessStart.bind(this);
-    this.onProcessControl = this.onProcessControl.bind(this);
-    this.onStageControl = this.onStageControl.bind(this);
-    this.onProcessStop = this.onProcessStop.bind(this);
-    this.onUploadingFinish = this.onUploadingFinish.bind(this);
     this.mask_configuration = [];
     this.losingface = 0;
     // this.setControlParams = this.setControlParams.bind(this);
@@ -209,7 +182,7 @@ class MediaBridge extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // console.log(`componentDidUpdate: ${this.state.process}`)
+    // console.log(`componentDidUpdate: ${this.state.session.running}`)
   }
 
   componentWillUnmount() {
@@ -350,7 +323,7 @@ class MediaBridge extends Component {
 
   // configure process setting
   onProcessControl() {
-    if (!this.state.process) {
+    if (!this.state.session.running) {
       this.setState(
         {
           ...this.state,
@@ -374,64 +347,59 @@ class MediaBridge extends Component {
 
   onProcessStart(data) {
     // hier weitermachen: find the main screen and figure out why it's not triggered by this
-
-    const { stagesData, startTime, duration, record_by_user, sessionId } = data;
+    console.log("---** PROCESS STARTED **---")
+    const { sessionData, record_by_user } = data;
+    this.state.session.id = sessionData.id;
+    this.state.session.data = sessionData;
+    const stageData = sessionData.stage ?? {};
+    const newStage = new TimedEvent(stageData.name ??  "UNKNOWN STAGE");
+    newStage.id = stageData.id ?? -1;
+    newStage.data = stageData;
+    newStage.duration = stageData.duration ?? -1;
+    newStage.start(stageData.startTime ?? 0, stageData.startDateTime ?? 0, stageData.duration ?? 0);
+    this.state.session.addStage(newStage);
     console.log("set intro invisible");
-    console.log("process start", startTime, duration, sessionId);
+    console.log("process start", this.state.session.startDateTime, this.state.session.startTime, this.state.session.duration, this.state.session.id);
     console.log("record", record_by_user, record_by_user[this.state.user]);
     this.setState({
       ...this.state,
-      stagesData: stagesData
+      stageData: stageData,
+      session: this.state.session
     });
-    if (!this.state.process) {
-      //init
-      this.record = {
-        record_count: 0,
-        record_detail: [],
-      };
-      this.emo_result = [];
-      if (record_by_user[this.state.user]) {
-        this.startRecording();
-      }
-      console.log("process start counting");
-      this.process_duration = duration;
-      this.timeLeft = this.process_duration;
-      // this.endTime = startTime + 1000 * 31; // GABRY: Why 31??
-
-      // set interval
-      console.log("Starting clock")
-      this.timmer = setInterval(() => {
-        try{
-          let nowTime = new Date().getTime();
-          this.timeLeft -= 1;
-          // if (!this.state.survey_in_progress) {
-          //   time_left = Math.round((this.endTime - nowTime) / 1000);
-          // }
-          // console.log(`Updating clock ${this.state.survey_in_progress}, ${this.timeLeft}`);
-          // What does this mean? Negative 5 seconds? Why?
-          if (this.timeLeft < -5000) {
-            clearInterval(this.timmer);
-            // This was a single & which will never work since it's a bitwise operation, it should be &&, how did this even work before?!
-          } else if (!this.state.survey_in_progress && (this.timeLeft >= 0)) {
-            this.setState({
-              ...this.state,
-              sessionId: startTime,
-              process: true,
-              recording: record_by_user[this.state.user],
-              time_slot: this.state.time_slot + 1,
-              time_diff: this.timeLeft,
-            });
-          }
-        }
-        catch(err){
-          console.error(`Error running timer`, err);
-        }
-        return true;
-      }, TIMES.PROCESS_UPDATE_INTERVAL);
-    } else {
+    //init
+    this.record = {
+      record_count: 0,
+      record_detail: [],
+    };
+    this.emo_result = [];
+    if (record_by_user[this.state.user]) {
+      this.startRecording();
     }
-  }
+    console.log("process start counting");
+    // this.endTime = startTime + 1000 * 31; // GABRY: Why 31??
 
+    // set interval
+    console.log("Starting: " + this.session);
+    this.state.session.addOnUpdate((session) => {
+      this.setState({
+        ...this.state,
+        session: session
+      })
+      if (!this.state.survey_in_progress && (session.timeRemaining >= 0)){
+        this.setState({
+          ...this.state,
+          sessionId: session.startTime,
+          sessionStarted: true,
+          recording: record_by_user[this.state.user],
+        });
+      }
+    });
+    this.state.session.addOnUpdate((session) => {
+      // console.log("UPDATE: "+session);
+    });
+  
+    this.state.session.start(sessionData.starTime, sessionData.startDateTime);
+  }
   onReset() {
     if(this.socket != null){
       this.socket.emit(SOCKET_CMDS.RESET, { room: this.props.room });
@@ -439,6 +407,7 @@ class MediaBridge extends Component {
   }
   // reset all parameters when process stop
   onProcessStop(data) {
+    this.state.session.stop();
     let { accident_stop } = data;
     if(accident_stop === undefined || accident_stop === null){
       accident_stop = "From Socket";
@@ -452,9 +421,7 @@ class MediaBridge extends Component {
     this.setState({
       ...this.state,
       recording: false,
-      time_slot: 0,
-      time_diff: 0,
-      process: false,
+      sessionStarted: false,
       sessionId: "",
       stage: 0,
       visible: false,
@@ -532,7 +499,7 @@ class MediaBridge extends Component {
   onStageControl(data) {
     console.info("- onStageControl()", data);
 
-    if (this.state.stage != 0) {
+    if (this.state.session.currentStage >= 0) {
       this.emo_result.push(this.record.record_detail);
       console.info("- stage control, ", this.state, this.emo_result);
     }
@@ -543,31 +510,28 @@ class MediaBridge extends Component {
     console.log("stage control receiving", this.emo_result);
     const { mask, topic } = data;
     // update mask when stage change
-    if (this.state.stage == 0) {
-      const controlData = mask[this.state.user];
-      if (topic.length == 1) {
+    const controlData = mask[this.state.user];
+    if (topic.length == 1) {
+      this.setState({
+        ...this.state,
+        side_prompt: topic[0],
+        intro: {
+          content: introduction,
+          visible: false,
+        },
+      });
+      setTimeout(() => {
         this.setState({
           ...this.state,
-          side_prompt: topic[0],
-          intro: {
-            content: introduction,
-            visible: false,
-          },
+          visible: false,
+          attention: loseface_notify,
         });
-        setTimeout(() => {
-          this.setState({
-            ...this.state,
-            visible: false,
-            attention: loseface_notify,
-          });
-        }, TIMES.LOSING_FACE_NOTIFY);
-      }
-      this.props.updateAll(controlData);
+      }, TIMES.LOSING_FACE_NOTIFY);
     }
+    this.props.updateAll(controlData);
     this.setState({
       ...this.state,
       stage: 1,
-      time_slot: 0,
       controlData: {
         mask: mask[this.state.user],
         topic: topic,
@@ -631,7 +595,7 @@ class MediaBridge extends Component {
   // face detected event listener
   onFace(data) {
     // console.info("- onFace()");
-    if (this.state.user == data && !this.state.process) {
+    if (this.state.user == data && !this.state.session.running) {
       this.setState({
         ...this.state,
         ready: true,
@@ -682,7 +646,7 @@ class MediaBridge extends Component {
       // generate video url from blob
       // const videoURL = window.URL.createObjectURL(blob);
       // append videoURL to list of saved videos for rendering
-      let filename = this.state.sessionId + "_" + this.state.user;
+      let filename = this.sessionId + "_" + this.state.user;
       FileSaver.saveAs(blob, filename);
       // const videos = this.state.videos.concat([videoURL]);
       // this.setState({ videos });
@@ -718,7 +682,7 @@ class MediaBridge extends Component {
 
     console.log("Triggering face detection..");
     setTimeout(async () => await this.faceDetectionCallback(), TIMES.FACE_DETECTION_DELAY);
-    window.requestAnimationFrame(this.drawCanvas);
+    window.requestAnimationFrame(() => this.drawCanvas());
   }
 
   async faceDetectionCallback() {
@@ -755,7 +719,7 @@ class MediaBridge extends Component {
     let utc = new Date().getTime();
     try {
       this.faceAttributes = getFeatureAttributes(this.detections);
-      if (!this.state.process) {
+      if (!this.state.session.running) {
         this.onFaceDetect();
       }
       this.losingface = 0;
@@ -774,7 +738,7 @@ class MediaBridge extends Component {
         }
         this.losingface %= 22; // why? // GABRY: Yeah why?
         if (this.losingface >= 10 && this.losingface < 20) {
-          if (this.state.process) {
+          if (this.state.session.running) {
             // Restart whole process
             if (!lose_face_f) {
               lose_face_f = true;
@@ -790,14 +754,14 @@ class MediaBridge extends Component {
           console.log(            "WARNING: Lost face tracking for more than 10 secs."
           );
         }
-        if (this.losingface >= 20 && this.state.process) {
+        if (this.losingface >= 20 && this.state.session.running) {
           // Restart whole process
           this.onReset();
           console.log("WARNING: Your partner seems to have left.");
         }
         if (
           this.losingface >= 20 &&
-          !this.state.process &&
+          !this.state.session.running &&
           !this.state.ready
         ) {
           // Restart whole process
@@ -815,11 +779,12 @@ class MediaBridge extends Component {
     }
 
     // console.log(`Updating survey or state progress?!`);
-    if (this.state.process && !this.state.survey_in_progress) {
+    if (this.state.session.running && !this.state.survey_in_progress) {
       try {
         const emo_data = {
           timeStamp: utc,
-          time_slot: this.state.time_slot,
+          elapsedStage: 0,
+          elapsedSession: 0,
           emotion: this.detections.expressions,
         };
         this.record.record_detail.push(emo_data);
@@ -883,7 +848,7 @@ class MediaBridge extends Component {
       // centerLandmarkPoint.updatePoints([ {x: imgWidthR * 0.5 + centerOffset, y: imgHeightR * 0.5 + centerOffset}]);
       // centerLandmarkPoint.drawPoints(ctx);
     }
-    window.requestAnimationFrame(this.drawCanvas);
+    window.requestAnimationFrame(() => this.drawCanvas());
   }
 
   onRemoteHangup() {
@@ -895,9 +860,9 @@ class MediaBridge extends Component {
       this.pc
         .setRemoteDescription(new RTCSessionDescription(message))
         .then(() => this.pc.createAnswer())
-        .then(this.setDescription)
-        .then(this.sendDescription)
-        .catch(this.handleError); // An error occurred, so handle the failure to connect
+        .then(() => this.setDescription())
+        .then(() => this.sendDescription())
+        .catch(() => this.handleError()); // An error occurred, so handle the failure to connect
     } else if (message.type === "answer") {
       // set remote description
       this.pc.setRemoteDescription(new RTCSessionDescription(message));
@@ -921,7 +886,7 @@ class MediaBridge extends Component {
         this.setState({
           ...this.state,
           visible: true,
-          ready: this.state.process,
+          ready: this.state.session.running,
         });
       }
       if (msg == "recover") {
@@ -993,9 +958,9 @@ class MediaBridge extends Component {
         console.log("attachMediaIfReady");
         this.pc
           .createOffer({ iceRestart: true })
-          .then(this.setDescription)
-          .then(this.sendDescription)
-          .catch(this.handleError); // An error occurred, so handle the failure to connect
+          .then(() => this.setDescription())
+          .then(() => this.sendDescription())
+          .catch(() => this.handleError()); // An error occurred, so handle the failure to connect
       };
       // set up the peer connection
       // this is one of Google's public STUN servers
@@ -1038,7 +1003,7 @@ class MediaBridge extends Component {
       });
       // when our browser gets a candidate, send it to the peer
       this.pc.onicecandidate = (e) => {
-        console.log("onicecandidate", e);
+        // console.log("onicecandidate", e);
         if (e.candidate) {
           if(this.socket != null){
             this.socket.send({
@@ -1062,7 +1027,7 @@ class MediaBridge extends Component {
         }
       };
       this.pc.ondatachannel = (e) => {
-        console.log('ondatachannel', e);
+        // console.log('ondatachannel', e);
         // data channel
         this.dc = e.channel;
         this.setupDataHandlers();
@@ -1099,19 +1064,13 @@ class MediaBridge extends Component {
     return (
       <div className={`media-bridge ${this.state.bridge}`}>
       <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
-        {this.state.process && (
-          <SideBar
-            stagesData={this.state.stagesData}
-            side_prompt={this.state.side_prompt}
-            user_role={this.state.user_role}
-            time_diff={this.state.time_diff}
-            end={this.state.survey_in_progress}
-            state_process={this.state.process}
+           <Sidebar
+            state={this.state}
+            session={this.session}
           />
-        )}
         {(() => {
           if(this.socket == null) return <></>;
-          if(!this.state.process){
+          if(!this.state.session.running){
             if(this.state.intro.visible)
               return <IntroFaceDetect userRole={this.state.user_role} />; /* Face detected before process showing details */
             return <Introduction userRole={this.state.user_role}/>; /* No face detected, showing introduction */

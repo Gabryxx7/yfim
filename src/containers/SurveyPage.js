@@ -132,8 +132,7 @@ function SurveyPage(props) {
       style={{
         backgroundColor: "black",
         height: "100%",
-      }}
-    >
+      }}>
       {!faceOn && !process && !surveyOn && !loading && <SurveyIntro />}
 
       {faceOn && !process && !surveyOn && !loading && !ready && (
