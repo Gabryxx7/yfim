@@ -16,7 +16,7 @@ const Home = (props) => (
         pattern="^\w+$"
         maxLength="10"
         required
-        autoFocus
+        // autoFocus
         title="Room name should only contain letters or numbers."
       />
       <Link className="primary-button" to={"/r/" + props.roomId}>

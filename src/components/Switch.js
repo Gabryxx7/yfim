@@ -1,5 +1,4 @@
 import React from "react";
-import { makeStyles, useStyles } from "@material-ui/core/styles";
 
 const Switch = (props) => {
   return (

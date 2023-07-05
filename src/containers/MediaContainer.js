@@ -15,10 +15,11 @@ import { DrawableLandmark, INTERP_FUNCTIONS } from "../components/DrawableLandma
 import { TIMES } from "../managers/TimesDefinitions";
 var FileSaver = require("file-saver");
 import {TimedEvent} from "../components/TimedEvent";
+import SurveyPage from "./SurveyPage";
+import SurveyComponent from "../components/SurveyComponent";
 
 const RECORD_AUDIO = true;
 const RECORD_VIDEO = true;
-
 
 const introduction =
   "Welcome to `Your Face is Muted`! This experience consists of three stages. In each, the screen in front of you will show a prompt with a topic to discuss with your conversation partner.\
@@ -80,6 +81,7 @@ class MediaBridge extends Component {
     super(props);
     this.state = {
       session: new TimedEvent("MainSession"),
+      statusRef: {update: "NONE", data: {}},
       bridge: "",
       user: props.username,
       recording: false,
@@ -135,7 +137,7 @@ class MediaBridge extends Component {
       this.socket.on(SOCKET_CMDS.RESET, (data) => this.onReset(data));
       this.socket.on(SOCKET_CMDS.STAGE_CONTROL, (data) => this.onStageControl(data));
       this.socket.on(SOCKET_CMDS.UPLOAD_FINISH, (data) => this.onUploadingFinish(data));
-      this.socket.on(SOCKET_CMDS.SURVEY_START, (data) => this.onSurveyStart(data));
+      this.socket.on(SOCKET_CMDS.SESSION_UPDATE, (data) => this.onSessionUpdate(data));
       this.socket.on(SOCKET_CMDS.SURVEY_END, (data) => this.onSurveyEnd(data));
       this.socket.on(SOCKET_CMDS.FACE_DETECTED, (data) => this.onFace(data));
 
@@ -194,7 +196,16 @@ class MediaBridge extends Component {
       this.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
       this.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
     }
-    clearInterval(this.timmer);
+  }
+
+  // update sidebar prompt when survey start
+  onSessionUpdate(data){
+    this.setState({
+      ...this.state,
+      survey_in_progress: true,
+      side_prompt: "We have some questions for you on Ipad",
+      statusRef: {update: SOCKET_CMDS.SURVEY_START, data: data}
+    });
   }
 
   // load faceapi models for detection
@@ -303,15 +314,6 @@ class MediaBridge extends Component {
     console.log(SOCKET_CMDS.SURVEY_END, data, this.endTime);
   }
 
-  // update sidebar prompt when survey start
-  onSurveyStart(data) {
-    this.setState({
-      ...this.state,
-      survey_in_progress: true,
-      side_prompt: "We have some questions for you on Ipad",
-    });
-  }
-
   onJoinFeedback(data){
     if(data.error)
       return;
@@ -391,6 +393,7 @@ class MediaBridge extends Component {
           sessionId: session.startTime,
           sessionStarted: true,
           recording: record_by_user[this.state.user],
+          statusRef: {update: SOCKET_CMDS.PROCESS_START, data: data}
         });
       }
     });
@@ -401,6 +404,10 @@ class MediaBridge extends Component {
     this.state.session.start(sessionData.starTime, sessionData.startDateTime);
   }
   onReset() {
+    this.setState({
+      ...this.state,
+      statusRef: {update: SOCKET_CMDS.RESET, data: data}
+    });
     if(this.socket != null){
       this.socket.emit(SOCKET_CMDS.RESET, { room: this.props.room });
     }
@@ -417,7 +424,6 @@ class MediaBridge extends Component {
     }
 
     console.log("media process stop. Accident: ", accident_stop);
-    clearInterval(this.timmer);
     this.setState({
       ...this.state,
       recording: false,
@@ -436,6 +442,7 @@ class MediaBridge extends Component {
         visible: false,
       },
       survey_in_progress: false,
+      statusRef: {update: SOCKET_CMDS.PROCESS_STOP, data: data}
     });
     this.survey_count = 0;
     this.props.updateAll(init_mask);
@@ -603,6 +610,7 @@ class MediaBridge extends Component {
           ...this.state.intro,
           visible: true,
         },
+        statusRef: {update: SOCKET_CMDS.FACE_DETECTED, data: data}
       });
     }
   }
@@ -1062,7 +1070,8 @@ class MediaBridge extends Component {
   // components: SideBar, Clock, GYModal(popup window, loseface attention), Introduction, Introduction when face detected, Thankyou, local and remote video
   render() {
     return (
-      <div className={`media-bridge ${this.state.bridge}`}>
+      <div className={`main-room-container ${this.state.bridge}`}>
+      <div className={`media-bridge`}>
       <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
            <Sidebar
             state={this.state}
@@ -1098,6 +1107,11 @@ class MediaBridge extends Component {
           autoPlay
           muted>
         </video>
+        </div>
+        <SurveyComponent />
+       {/* <SurveyPage sessionStatusRef={this.state.statusRef} />  */}
+       {/* GABRY: This stupid survey component causes the page to scroll up top at every render... */}
+      {/* <div style={{backgroundColor: "white", height: "50vh", width: "100vw"}}/> */}
       </div>
     );
   }

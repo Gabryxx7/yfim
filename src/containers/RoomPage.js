@@ -7,10 +7,44 @@ import io from "socket.io-client";
 import { surveyJSON } from "../components/Survey_JSON";
 import * as Survey from "survey-react";
 const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands')
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+const Msg = ({ closeToast, toastProps }) => (
+  <div className="grant-acceasfss">
+      <p>A peer has sent you a message to join the room:</p>
+      <div>{"HEYYY"}</div>
+      <button
+        onClick={() => {console.log("REJECT")}}
+        data-ref="reject"
+        className="primary-button"
+      >
+        Reject
+      </button>
+      <button
+        onClick={() => {console.log("ACCEPT")}}
+        data-ref="accept"
+        className="primary-button"
+      >
+        Accept
+      </button>
+    </div>
+)
+
+const notify = () => toast(<Msg/>,{
+  position: "bottom-right",
+  autoClose: 10000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: false,
+  progress: undefined,
+  theme: "colored",
+});
 class RoomPage extends Component {
   constructor(props) {
     super(props);
+
     this.getUserMedia = navigator.mediaDevices
       .getUserMedia({
         audio: true,
@@ -34,6 +68,18 @@ class RoomPage extends Component {
   render() {
     return (
         <div class="main-call-container">
+        {/* <button onClick={notify}>Notify!</button>
+        <ToastContainer
+            position="bottom-right"
+            autoClose={100000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"/> */}
           <MediaContainer
             room={this.props.match.params.room}
             media={(media) => (this.media = media)}

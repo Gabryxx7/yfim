@@ -56,34 +56,32 @@ class Stage {
     }
     // let stage = this.parent.id;
     // GABRY: TESTING... Using stage = 3 and mask_setting["setting"][2] I was able to test the mask 
-    let stage = 3;
+    // let stage = 3;
+    const stageData = {
+      stage: this.currentStepIdx,
+      stage_data: this.currentStep?.getData(),
+      config: this.config,
+      data: this.getData()
+    }
     if (this.type == "video-chat") {
       let mask_setting = this.session.masksConfig[this.params.mask_id];
-      mask_setting = mask_setting["setting"][2];
+      mask_setting = mask_setting?.setting ? mask_setting.setting[2] : {};
       let prompts = this.session.topics[this.params.question_type];
       const rindex = Math.floor(Math.random() * prompts.length);
       let topic = prompts[rindex];
-
-      const stage_data = {
-        mask: mask_setting,
-        topic: [topic],
-        stage,
-      };
+      stageData['mask'] = mask_setting;
+      stageData['topic'] = [topic];
 
       this.session.topic_selected.push(topic);
-      console.info("- sending update to projection in room: " + this.room.id);
-      console.info(stage_data);
       if(this.session.chatsManager.nsio){
-        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL, stage_data);
+        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL, stageData);
       }
       if(this.session.projectio){
-        this.session.projectio.emit(SOCKET_CMDS.STAGE_CONTROL, stage_data);
+        this.session.projectio.emit(SOCKET_CMDS.STAGE_CONTROL, stageData);
       }
-    } else if (this.type == "survey") {
-        this.session.chatsManager.nsio.emit(SOCKET_CMDS.SURVEY_START, { stage: stage });
-        this.session.controlManager.nsio.emit(SOCKET_CMDS.SURVEY_START, { stage: stage });
-      // console.info(`- sending survey start to room: ${this.room} (stage: ${stage})`);
     }
+    this.session.chatsManager.nsio.emit(SOCKET_CMDS.SESSION_UPDATE, stageData)
+    this.session.controlManager.nsio.emit(SOCKET_CMDS.SESSION_UPDATE, stageData)
     this.status = STATUS.IN_PROGRESS;
   }
 
@@ -125,7 +123,7 @@ class Stage {
           return;
         }
         this.currentStep = this.steps[this.currentStepIdx];
-        this.currentStep.initalize();
+        this.currentStep?.initalize();
       }
     }
     // If there is not set duration and it's not a multi-step stage

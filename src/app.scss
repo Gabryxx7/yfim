@@ -4,7 +4,7 @@ button {
   font-size: 1.6vw;
   margin: 0;
   font-family: Sans-Serif;
-  background-color: black;
+  background-color: #111;
 }
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Montserrat:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
 
@@ -241,7 +241,7 @@ input[type="checkbox"] {
   font-size: 20px;
 }
 .survey_topic {
-  overflow: scroll;
+  // overflow: scroll;
   position: absolute;
   height: 100%;
   width: 100%;
@@ -426,6 +426,14 @@ input[type="checkbox"] {
   }
 }
 
+.main-call-container,
+.main-room-container{
+  display: block;
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
 .media-bridge{
   position: relative;
   display: flex;
@@ -469,7 +477,7 @@ input[type="checkbox"] {
   background-color: #4285f4;
   border: none;
   color: white;
-  font-size: 0.6em;
+  font-size: 0.9em;
   margin: 0 5px 20px 5px;
   width: 8em;
   line-height: 3ex;
@@ -478,6 +486,12 @@ input[type="checkbox"] {
   -webkit-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
+  &.confirm{
+    background-color: mediumseagreen;
+  }
+  &.reject{
+    background-color: tomato;
+  }
 }
 .media-controls {
   display: flex;
@@ -503,7 +517,6 @@ input[type="checkbox"] {
   /* Initially we don't want any height, and we want the contents to be hidden */
   max-height: 0;
   transition: max-height 0.3s ease;
-  font-size: 0.8rem;
 }
 .full + .auth .room-occupied,
 .guest-hangup + .auth .request-access,
@@ -569,4 +582,8 @@ input[type="checkbox"] {
   place-content: center;
   place-items: center;
   width: 100%;
+}
+
+.sd-imagepicker{
+  flex-wrap: nowrap;
 }

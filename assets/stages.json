@@ -4,7 +4,7 @@
     "steps": [
       {
         "type": "video-chat",
-        "duration": 1000,
+        "duration": 10,
         "params": {
           "mask_id": "endWithEyes",
           "mask_settings": {

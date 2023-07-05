@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { Link } from "react-router-dom";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import Switch from "../components/Switch";
-import { Slider } from "@material-ui/core";
+import { Slider } from "@mui/material";
 import ReactFileReader from "react-file-reader";
 import GYModal from "../components/Modal";
 import Select from "react-select";

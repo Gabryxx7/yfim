@@ -30,7 +30,7 @@ function Announcement(props) {
         height: "100%",
         width: "100%",
         position: "fixed",
-        overflow: "scroll",
+        // overflow: "scroll",
       }}
     >
       <h

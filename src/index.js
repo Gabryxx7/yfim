@@ -5,7 +5,7 @@ import store from "./store";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Home from "./containers/HomePage";
 import Room from "./containers/RoomPage";
-import FaceVideoTest from "./containers/FaceVideoTest";
+import { FaceVideoTest, SurveyTest } from "./containers/TestContainers";
 import RoomControl from "./containers/RoomControl";
 import SurveyPage from "./containers/SurveyPage";
 import NotFound from "./components/NotFound";
@@ -20,6 +20,7 @@ render(
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/faceTest/" component={FaceVideoTest} />
+        <Route exact path="/surveyTest/" component={SurveyTest} />
         <Route exact path="/room/:room/" component={Room} />
         {/* <Route path="*" component={NotFound} /> */}
         <Route exact path="/control/:room" component={RoomControl} />

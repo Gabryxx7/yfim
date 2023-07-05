@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { PropTypes } from "prop-types";
 import store from "../store";
 import { connect } from "react-redux";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import Switch from "./Switch";
-import { Typography, Slider } from "@material-ui/core";
+import { Typography, Slider } from "@mui/material";
 const useStyles = makeStyles((theme) => ({
   toolBar: {
     zIndex: 20,

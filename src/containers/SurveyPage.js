@@ -13,77 +13,78 @@ import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
 import { TIMES } from '../managers/TimesDefinitions'
 // survey-react : https://www.npmjs.com/package/survey-react
 
-function SurveyPage(props) {
+export default function SurveyPage(props) {
+  const embedded = props.embedded ?? true; // Whether the events come from a root page (such as the media container) or directly from the socket
+  const sessionStatusRef = props.sessionStatusRef ?? "NONE";
   const [surveyOn, setSurveyOn] = useState(false);
   const [faceOn, setFaceOn] = useState(false);
   const [ready, setReady] = useState(false);
   const [stage, setStage] = useState(1);
   const [final_stage, setFinalStage] = useState(false);
-  const { room, user } = props.match.params;
+  const room = props.room ?? "NO ROOM";
+  const user = props.match ?? "NO USER";
   const [answer, setAnswer] = useState([]);
-  const [socket_s, setSocket] = useState();
+  const [socket, setSocket] = useState();
   const [process, setProcess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // socket event, room-idle, survey start and ending, process start and stop
-  useEffect(() => {
+  const setupSocket = () => {
     const socket = io.connect(`/${NAMESPACES.CONTROL}`);
     console.log(`SURVEY PAGE HERE, connecting to ${socket?.nsp}`)
     socket.emit(SOCKET_CMDS.SURVEY_CONNECT, {
-      room: props.match.params.room,
-      user: props.match.params.user,
+      room: room,
+      user: user,
     });
-    socket.on(SOCKET_CMDS.ROOM_IDLE, () => {
-      console.log("room is idle now");
-      resetParams();
-    });
-    socket.on(SOCKET_CMDS.SURVEY_START, (data) => {
-      const { stage } = data;
-
-      if (stage == 3 || stage == 4) {
-        setSurveyOn(true);
-        setFinalStage(true);
-      } else {
-        setSurveyOn(true);
-      }
-      setStage(stage + 1);
-    });
-    socket.on(SOCKET_CMDS.FACE_DETECTED, () => {
-      console.log("face detected");
-      setFaceOn(true);
-    });
-    socket.on(SOCKET_CMDS.PROCESS_START, () => {
-      console.log("process start");
-      setReady(false);
-      setProcess(true);
-    });
-    socket.on(SOCKET_CMDS.PROCESS_STOP, (data) => {
-      const { accident_stop } = data;
-      console.info("- Survey page process-stop", accident_stop);
-      if (!accident_stop) {
-        console.log(SOCKET_CMDS.PROCESS_STOP, answer);
-        socket.emit(SOCKET_CMDS.DATA_SEND, {
-          data_type: DATA_TYPES.QUESTION,
-          room,
-          user,
-          data: answer,
-        });
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-        }, TIMES.PROCESS_STOP_WAIT);
-      }
-
-      setAnswer([]);
-      resetParams();
-    });
-    socket.on(SOCKET_CMDS.RESET, () => {
-      resetParams();
-    });
+    socket.on(SOCKET_CMDS.ROOM_IDLE, () => resetParams());
+    socket.on(SOCKET_CMDS.SURVEY_START, (data) => onSurveyStart(data));
+    socket.on(SOCKET_CMDS.FACE_DETECTED, () => setFaceOn(true));
+    socket.on(SOCKET_CMDS.PROCESS_START, () => onProcessStart());
+    socket.on(SOCKET_CMDS.PROCESS_STOP, (data) => onProcessStop(data));
+    socket.on(SOCKET_CMDS.RESET, () => resetParams());
     setSocket(socket);
-  }, []);
+  }
 
-  function resetParams() {
+  const onProcessStart = () => {
+    console.log("process start");
+    setReady(false);
+    setProcess(true);
+  }
+
+  const onSurveyStart = (data) => {
+    const { stage } = data;
+
+    if (stage == 3 || stage == 4) {
+      setSurveyOn(true);
+      setFinalStage(true);
+    } else {
+      setSurveyOn(true);
+    }
+    setStage(stage + 1);
+  }
+
+
+  const onProcessStop = (data) => {
+    const { accident_stop } = data;
+    console.info("- Survey page process-stop", accident_stop);
+    if (!accident_stop) {
+      console.log(SOCKET_CMDS.PROCESS_STOP, answer);
+      socket.emit(SOCKET_CMDS.DATA_SEND, {
+        data_type: DATA_TYPES.QUESTION,
+        room,
+        user,
+        data: answer,
+      });
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+      }, TIMES.PROCESS_STOP_WAIT);
+    }
+
+    setAnswer([]);
+    resetParams();
+  }
+
+  const resetParams = () => {
     setStage(1);
     setSurveyOn(false);
     setFinalStage(false);
@@ -92,11 +93,11 @@ function SurveyPage(props) {
     setReady(false);
   }
 
-  function sendReadyToServer(data) {
+  const sendReadyToServer = (data) => {
     const { rating, record } = data;
     console.log("select rating, ", rating);
     console.log("select record", record);
-    socket_s.emit(SOCKET_CMDS.PROCESS_READY, { room, user, rating, record });
+    socket.emit(SOCKET_CMDS.PROCESS_READY, { room, user, rating, record });
     setReady(true);
   }
   // socket.join(props.match.params.room);
@@ -106,12 +107,12 @@ function SurveyPage(props) {
   const model = new Survey.Model(survey_Final);
   const final_model = new Survey.Model(survey_Final);
 
-  function sendDataToServer(survey) {
+  const sendDataToServer = (survey) => {
     //   callback function
 
     setSurveyOn(false);
     setFinalStage(false);
-    socket_s.emit(SOCKET_CMDS.SURVEY_END, {
+    socket.emit(SOCKET_CMDS.SURVEY_END, {
       room,
       user,
       survey,
@@ -126,6 +127,43 @@ function SurveyPage(props) {
     setAnswer(curr_answer);
     console.log("get answer, ", answer, survey.data);
   }
+
+  // socket event, room-idle, survey start and ending, process start and stop
+  useEffect(() => {
+    if(!embedded){
+      setupSocket();
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("SESION STATUS REF UPDATE: ", sessionStatusRef);
+    switch(sessionStatusRef.update){
+      case SOCKET_CMDS.ROOM_IDLE: {
+        resetParams();
+        break;
+      }
+      case SOCKET_CMDS.SURVEY_START: {
+        onSurveyStart(sessionStatusRef.data);
+        break;
+      }
+      case SOCKET_CMDS.FACE_DETECTED: {
+        setFaceOn(true);
+        break;
+      }
+      case SOCKET_CMDS.PROCESS_START: {
+        onProcessStart();
+        break;
+      }
+      case SOCKET_CMDS.PROCESS_STOP: {
+          onProcessStop(sessionStatusRef.data);
+        break;
+      }
+      case SOCKET_CMDS.RESET: {
+        resetParams();
+        break;
+      }
+      }
+  }, [sessionStatusRef]);
 
   return (
     <div
@@ -159,4 +197,4 @@ function SurveyPage(props) {
     </div>
   );
 }
-export default SurveyPage;
+

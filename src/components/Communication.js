@@ -101,7 +101,7 @@ const Communication = (props) => (
       <form onSubmit={props.send}>
         <input
           type="text"
-          autoFocus
+          // autoFocus
           onChange={props.handleInput}
           data-ref="message"
           maxLength="30"
@@ -118,14 +118,14 @@ const Communication = (props) => (
       <button
         onClick={props.handleInvitation}
         data-ref="reject"
-        className="primary-button"
+        className="primary-button reject"
       >
         Reject
       </button>
       <button
         onClick={props.handleInvitation}
         data-ref="accept"
-        className="primary-button"
+        className="primary-button confirm"
       >
         Accept
       </button>

@@ -26,9 +26,11 @@ export default function Timer(props){
       }
       updateColor(remaining)
     }
-    const mins = `${Math.floor((totalTime / 60) % 60)}`.padStart(2, "0");
-    const secs = `${Math.floor((totalTime) % 60)}`.padStart(2, "0");
-    setTimeString(`${mins}:${secs}`)
+    if(totalTime >= 0){
+      const mins = `${Math.floor((totalTime / 60) % 60)}`.padStart(2, "0");
+      const secs = `${Math.floor((totalTime) % 60)}`.padStart(2, "0");
+      setTimeString(`${mins}:${secs}`)
+    }
   };
 
   useEffect(() => {

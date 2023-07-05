@@ -17,6 +17,7 @@ class CommunicationContainer extends React.Component {
       audio: true,
       video: true,
     };
+    this.autoacceptTimer = null;
     this.handleInvitation = this.handleInvitation.bind(this);
     this.handleHangup = this.handleHangup.bind(this);
     this.handleInput = this.handleInput.bind(this);
@@ -41,7 +42,7 @@ class CommunicationContainer extends React.Component {
 
     socket.onAny((eventName, ...args) => {
       if(eventName !== SOCKET_CMDS.FACE_DETECTED){
-        console.log(`Received event ${eventName}`)
+        console.log(`Received event ${eventName}`, args)
       }
     });
 
@@ -79,7 +80,7 @@ class CommunicationContainer extends React.Component {
       console.log(`Received approve from ${sid}: ${message}`)
       this.props.media.setState({ bridge: "approve" });
       this.setState({ message, sid });
-      setTimeout(() => {
+      this.autoacceptTimer = setTimeout(() => {
         console.log(`Emitting ${SOCKET_CMDS.ACCEPT} ${sid}`)
         try{
           this.props.socket.emit(SOCKET_CMDS.ACCEPT, sid);
@@ -130,6 +131,7 @@ class CommunicationContainer extends React.Component {
   }
   handleInvitation(e) {
     e.preventDefault();
+    if(this.autoacceptTimer != null) clearTimeout(this.autoacceptTimer);
     console.log(`Emitting Invitation accept ${e.target.dataset.ref}: ${this.state.sid}`)
     this.props.socket.emit(e.target.dataset.ref, this.state.sid); // I'm not sure why so many emit() had an array [cmd] as command
     this.hideAuth();

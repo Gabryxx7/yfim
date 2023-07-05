@@ -17,6 +17,7 @@ const SOCKET_CMDS = {
   BRIDGE:               "bridge",
   HANGUP:               "hangup",
   CONTROL_ROOM:         "control-room",
+  SESSION_UPDATE:       "session-update",
   SURVEY_CONNECT:       "survey-connect",
   SURVEY_START:         "survey-start",
   SURVEY_END:           "survey-end",

@@ -52,7 +52,7 @@ class User {
       this.socket.on(SOCKET_CMDS.CONNECT_ERROR, () => this.connectError());
       this.socket.on(SOCKET_CMDS.SURVEY_CONNECT, (data) => this.surveyConnect(data));
       this.socket.on(SOCKET_CMDS.DATA_CONNECT, () => this.dataConnect());
-      this.socket.on(SOCKET_CMDS.SURVEY_START, (data) => this.surveyStart(data));
+      // this.socket.on(SOCKET_CMDS.SURVEY_START, (data) => this.surveyStart(data));
       this.socket.on(SOCKET_CMDS.SURVEY_END, (data) => this.surveyEnd(data));
       this.socket.on(SOCKET_CMDS.RESET, (data) => this.reset(data));
       this.socket.on(SOCKET_CMDS.FACE_DETECTED, (data) => this.onFaceDetected(data));
