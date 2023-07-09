@@ -12,6 +12,10 @@ export default function SideBar(props) {
     currentStageName: props.state?.session?.data?.stage?.name,
     totalStages: props.state?.session?.data?.stage?.totalStages,
   })
+
+  props.state?.session?.addOnUpdate((session) => {
+    setTimeElapsed(session.timeElapsed)
+  });
   var sidePadding = "11rem";
   var remoteVideoSide = "right";
   const barPadding = `1rem ${remoteVideoSide == 'right' ? sidePadding : '0.5rem'} 0.5rem ${remoteVideoSide != "right" ? sidePadding : '0.5rem'}`

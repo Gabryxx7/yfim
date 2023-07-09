@@ -80,12 +80,9 @@ class MediaBridge extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      session: new TimedEvent("MainSession"),
       statusRef: {update: "NONE", data: {}},
       user: props.username,
       recording: false,
-      side_prompt: "",
-      user_role: "",
       process_cfg: null,
       attention:
         "Ooops! We can not detect your face, please look at the screen during\
@@ -183,7 +180,7 @@ class MediaBridge extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // console.log(`componentDidUpdate: ${this.state.session.running}`)
+    // console.log(`componentDidUpdate: ${this.props.roomPage.state.session.running}`)
   }
 
   componentWillUnmount() {
@@ -202,9 +199,12 @@ class MediaBridge extends Component {
     this.setState({
       ...this.state,
       survey_in_progress: true,
-      side_prompt: "We have some questions for you on Ipad",
       statusRef: {update: SOCKET_CMDS.SURVEY_START, data: data}
     });
+    this.props.roomPage.setState({
+      stageType: data.data.type,
+      side_prompt: "We have some questions for you...",
+    })
   }
 
   // load faceapi models for detection
@@ -278,9 +278,11 @@ class MediaBridge extends Component {
     if (stage != 4 && this.survey_count < 3) {
       this.setState({
         ...this.state,
-        side_prompt: new_topic,
         stage: stage,
       });
+      this.props.roomPage.setState({
+        side_prompt: new_topic
+      })
     }
 
     setTimeout(() => {
@@ -316,15 +318,14 @@ class MediaBridge extends Component {
   onJoinFeedback(data){
     if(data.error)
       return;
-    this.setState({
-      ...this.state,
+    this.props.roomPage.setState({
       user_role: data.userRoomId,
     });
   }
 
   // configure process setting
   onProcessControl() {
-    if (!this.state.session.running) {
+    if (!this.props.roomPage.state.session.running) {
       this.setState(
         {
           ...this.state,
@@ -350,22 +351,24 @@ class MediaBridge extends Component {
     // hier weitermachen: find the main screen and figure out why it's not triggered by this
     console.log("---** PROCESS STARTED **---")
     const { sessionData, record_by_user } = data;
-    this.state.session.id = sessionData.id;
-    this.state.session.data = sessionData;
+    this.props.roomPage.state.session.id = sessionData.id;
+    this.props.roomPage.state.session.data = sessionData;
     const stageData = sessionData.stage ?? {};
     const newStage = new TimedEvent(stageData.name ??  "UNKNOWN STAGE");
     newStage.id = stageData.id ?? -1;
     newStage.data = stageData;
     newStage.duration = stageData.duration ?? -1;
     newStage.start(stageData.startTime ?? 0, stageData.startDateTime ?? 0, stageData.duration ?? 0);
-    this.state.session.addStage(newStage);
+    this.props.roomPage.state.session.addStage(newStage);
     console.log("set intro invisible");
-    console.log("process start", this.state.session.startDateTime, this.state.session.startTime, this.state.session.duration, this.state.session.id);
+    console.log("process start", this.props.roomPage.state.session.startDateTime, this.props.roomPage.state.session.startTime, this.props.roomPage.state.session.duration, this.props.roomPage.state.session.id);
     console.log("record", record_by_user, record_by_user[this.state.user]);
     this.setState({
       ...this.state,
       stageData: stageData,
-      session: this.state.session
+    });
+    this.props.roomPage.setState({
+      session: this.props.roomPage.state.session
     });
     //init
     this.record = {
@@ -380,12 +383,11 @@ class MediaBridge extends Component {
     // this.endTime = startTime + 1000 * 31; // GABRY: Why 31??
 
     // set interval
-    console.log("Starting: " + this.session);
-    this.state.session.addOnUpdate((session) => {
-      this.setState({
-        ...this.state,
-        session: session
-      })
+    console.log("Starting: " + this.props.roomPage.state.session);
+    this.props.roomPage.state.session.addOnUpdate((session) => {
+      // this.props.roomPage.setState({
+      //   session: session
+      // });
       if (!this.state.survey_in_progress && (session.timeRemaining >= 0)){
         this.setState({
           ...this.state,
@@ -396,11 +398,8 @@ class MediaBridge extends Component {
         });
       }
     });
-    this.state.session.addOnUpdate((session) => {
-      // console.log("UPDATE: "+session);
-    });
   
-    this.state.session.start(sessionData.starTime, sessionData.startDateTime);
+    this.props.roomPage.state.session.start(sessionData.starTime, sessionData.startDateTime);
   }
   onReset() {
     this.setState({
@@ -413,7 +412,7 @@ class MediaBridge extends Component {
   }
   // reset all parameters when process stop
   onProcessStop(data) {
-    this.state.session.stop();
+    this.props.roomPage.state.session.stop();
     let { accident_stop } = data;
     if(accident_stop === undefined || accident_stop === null){
       accident_stop = "From Socket";
@@ -505,7 +504,7 @@ class MediaBridge extends Component {
   onStageControl(data) {
     console.info("- onStageControl()", data);
 
-    if (this.state.session.currentStage >= 0) {
+    if (this.props.roomPage.state.session.currentStage >= 0) {
       this.emo_result.push(this.record.record_detail);
       console.info("- stage control, ", this.state, this.emo_result);
     }
@@ -520,12 +519,14 @@ class MediaBridge extends Component {
     if (topic.length == 1) {
       this.setState({
         ...this.state,
-        side_prompt: topic[0],
         intro: {
           content: introduction,
           visible: false,
         },
       });
+      this.props.roomPage.setState({
+        side_prompt: topic[0]
+      })
       setTimeout(() => {
         this.setState({
           ...this.state,
@@ -566,7 +567,7 @@ class MediaBridge extends Component {
   // face detected event listener
   onFace(data) {
     // console.info("- onFace()");
-    if (this.state.user == data && !this.state.session.running) {
+    if (this.state.user == data && !this.props.roomPage.state.session.running) {
       this.setState({
         ...this.state,
         ready: true,
@@ -691,7 +692,7 @@ class MediaBridge extends Component {
     let utc = new Date().getTime();
     try {
       this.faceAttributes = getFeatureAttributes(this.detections);
-      if (!this.state.session.running) {
+      if (!this.props.roomPage.state.session.running) {
         this.onFaceDetect();
       }
       this.losingface = 0;
@@ -710,7 +711,7 @@ class MediaBridge extends Component {
         }
         this.losingface %= 22; // why? // GABRY: Yeah why?
         if (this.losingface >= 10 && this.losingface < 20) {
-          if (this.state.session.running) {
+          if (this.props.roomPage.state.session.running) {
             // Restart whole process
             if (!lose_face_f) {
               lose_face_f = true;
@@ -726,14 +727,14 @@ class MediaBridge extends Component {
           console.log(            "WARNING: Lost face tracking for more than 10 secs."
           );
         }
-        if (this.losingface >= 20 && this.state.session.running) {
+        if (this.losingface >= 20 && this.props.roomPage.state.session.running) {
           // Restart whole process
           this.onReset();
           console.log("WARNING: Your partner seems to have left.");
         }
         if (
           this.losingface >= 20 &&
-          !this.state.session.running &&
+          !this.props.roomPage.state.session.running &&
           !this.state.ready
         ) {
           // Restart whole process
@@ -751,7 +752,7 @@ class MediaBridge extends Component {
     }
 
     // console.log(`Updating survey or state progress?!`);
-    if (this.state.session.running && !this.state.survey_in_progress) {
+    if (this.props.roomPage.state.session.running && !this.state.survey_in_progress) {
       try {
         const emo_data = {
           timeStamp: utc,
@@ -853,20 +854,16 @@ class MediaBridge extends Component {
       <div className={`main-room-container`}>
       <div className={`media-bridge`}>
       <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
-           <Sidebar
-            state={this.state}
-            session={this.session}
-          />
         {(() => {
           if(this.socket == null) return <></>;
-          if(!this.state.session.running){
+          if(!this.props.roomPage.state.session.running){
             if(this.state.intro.visible)
-              return <IntroFaceDetect userRole={this.state.user_role} />; /* Face detected before process showing details */
-            return <Introduction userRole={this.state.user_role}/>; /* No face detected, showing introduction */
+              return <IntroFaceDetect userRole={this.props.roomPage.state.user_role} />; /* Face detected before process showing details */
+            return <Introduction userRole={this.props.roomPage.state.user_role}/>; /* No face detected, showing introduction */
           }
         })()}
 
-        {this.state.loading && <Thankyou result={this.state.result} userRole={this.state.user_role} />}
+        {this.state.loading && <Thankyou result={this.state.result} userRole={this.props.roomPage.state.user_role} />}
 
         <GYModal title="Attention" visible={this.state.visible}>
           <h1 style={{ color: "white" }}>{this.state.attention}</h1>

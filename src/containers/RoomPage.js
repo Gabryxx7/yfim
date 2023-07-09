@@ -10,6 +10,8 @@ const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketComma
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SurveyComponent from "../components/SurveyComponent";
+import {TimedEvent} from "../components/TimedEvent";
+import Sidebar from "../components/Sidebar";
 
 const Msg = ({ closeToast, toastProps }) => (
   <div className="grant-acceasfss">
@@ -57,6 +59,10 @@ class RoomPage extends Component {
       })
       .catch((e) => alert("getUserMedia() error: " + e.name));
     this.state = {
+      session: new TimedEvent("MainSession"),
+      stageType: "video-chat",
+      side_prompt: "",
+      user_role: "",
       bridge: "",
       survey: false,
       user: ""
@@ -296,15 +302,24 @@ class RoomPage extends Component {
       this.pc.addIceCandidate(message.candidate);
     }
   }
+
+  componentDidUpdate(){
+    console.log("Room Page Update");
+  }
   componentDidMount() {
     this.socket.on(SOCKET_CMDS.MESSAGE, (data) => this.onMessage(data));
     this.socket.on(SOCKET_CMDS.HANGUP, (data) => this.onRemoteHangup(data));
     this.socket.on(SOCKET_CMDS.CONTROL, (data) => this.onControl(data));
     this.props.createRoom();
   }
+
+  
   render() {
     return (
-        <div class={`main-call-container ${this.state.bridge}`}>
+        <div class={`main-call-container ${this.state.bridge} stage-${this.state.stageType}`}>
+          <Sidebar
+          state={this.state}
+        />
         {/* <button onClick={notify}>Notify!</button>
         <ToastContainer
             position="bottom-right"
@@ -319,18 +334,20 @@ class RoomPage extends Component {
             theme="colored"/> */}
           <MediaContainer
             room={this.props.match.params.room}
+            roomPage={this}
+            session={this.state.session}
             media={(media) => (this.media = media)}
             socket={this.socket}
             getUserMedia={this.getUserMedia}
             username={this.props.match.params.room}
           />
+          <SurveyComponent />
           <CommunicationContainer
             socket={this.socket}
             media={this.media}
             room={this}
             getUserMedia={this.getUserMedia}
           />
-          <SurveyComponent />
         </div>
     );
   }

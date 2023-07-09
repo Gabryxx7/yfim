@@ -13,7 +13,7 @@ function SurveyComponent() {
     survey.onComplete.add((sender, options) => {
         console.log(JSON.stringify(sender.data, null, 3));
     });
-    return (<Survey model={survey} />);
+    return (<Survey className="survey-container" model={survey} />);
 }
 
 export default SurveyComponent;
