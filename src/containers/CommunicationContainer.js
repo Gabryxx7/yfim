@@ -18,19 +18,13 @@ class CommunicationContainer extends React.Component {
       video: true,
     };
     this.autoacceptTimer = null;
-    this.handleInvitation = this.handleInvitation.bind(this);
-    this.handleHangup = this.handleHangup.bind(this);
-    this.handleInput = this.handleInput.bind(this);
-    this.toggleVideo = this.toggleVideo.bind(this);
-    this.toggleAudio = this.toggleAudio.bind(this);
-    this.send = this.send.bind(this);
   }
   hideAuth() {
-    this.props.media.setState({ bridge: "connecting" });
+    this.props.room.setState({ bridge: "connecting" });
   }
   full() {
     console.log(`Room is full!`)
-    this.props.media.setState({ bridge: "full" });
+    this.props.room.setState({ bridge: "full" });
   }
   componentDidMount() {
     const socket = this.props.socket;
@@ -59,7 +53,7 @@ class CommunicationContainer extends React.Component {
     socket.on(SOCKET_CMDS.ROOM_FULL, this.full);
     socket.on(SOCKET_CMDS.BRIDGE, (role) => {
       console.log("Received bridge");
-      this.props.media.init();
+      this.props.room.init();
     });
     socket.on(SOCKET_CMDS.ROOM_JOIN_FEEDBACK, (data) => {
       if(data.error){
@@ -69,7 +63,7 @@ class CommunicationContainer extends React.Component {
 
       this.props.setRoomData(data);
       console.log(`Role assigned ${JSON.stringify(data)}`);
-      this.props.media.setState({ user: data.userRole, bridge: data.bridge });
+      this.props.room.setState({ bridge: data.bridge, user: data.userRoomId });
       if(data.bridge == "join"){
         this.props.socket.emit(SOCKET_CMDS.AUTH, this.state);
         this.hideAuth();
@@ -78,7 +72,7 @@ class CommunicationContainer extends React.Component {
     });
     socket.on(SOCKET_CMDS.APPROVE, ({ message, sid }) => {
       console.log(`Received approve from ${sid}: ${message}`)
-      this.props.media.setState({ bridge: "approve" });
+      this.props.room.setState({ bridge: "approve" });
       this.setState({ message, sid });
       this.autoacceptTimer = setTimeout(() => {
         console.log(`Emitting ${SOCKET_CMDS.ACCEPT} ${sid}`)
@@ -133,7 +127,8 @@ class CommunicationContainer extends React.Component {
     e.preventDefault();
     if(this.autoacceptTimer != null) clearTimeout(this.autoacceptTimer);
     console.log(`Emitting Invitation accept ${e.target.dataset.ref}: ${this.state.sid}`)
-    this.props.socket.emit(e.target.dataset.ref, this.state.sid); // I'm not sure why so many emit() had an array [cmd] as command
+    this.props.socket.emit(SOCKET_CMDS.ACCEPT, this.state.sid);
+    // this.props.socket.emit(e.target.dataset.ref, this.state.sid); // I'm not sure why so many emit() calls had an array [cmd] as command
     this.hideAuth();
   }
   toggleVideo() {
@@ -149,7 +144,7 @@ class CommunicationContainer extends React.Component {
     this.props.setAudio(audio);
   }
   handleHangup() {
-    this.props.media.hangup();
+    this.props.room.hangup();
   }
   render() {
     // this.track.applyConstraints({
@@ -158,12 +153,12 @@ class CommunicationContainer extends React.Component {
     return (
       <Communication
         {...this.state}
-        toggleVideo={this.toggleVideo}
-        toggleAudio={this.toggleAudio}
-        send={this.send}
-        handleHangup={this.handleHangup}
-        handleInput={this.handleInput}
-        handleInvitation={this.handleInvitation}
+        toggleVideo={() => this.toggleVideo()}
+        toggleAudio={() => this.toggleAudio()}
+        send={() => this.send()}
+        handleHangup={(e) => this.handleHangup(e)}
+        handleInput={(e) => this.handleInput(e)}
+        handleInvitation={(e) => this.handleInvitation(e)}
       />
     );
   }

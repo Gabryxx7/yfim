@@ -1,101 +1,123 @@
-const clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
-const linear = (x) => x;
-const lerp = (start, end, d) => (start + (end - start) * d);
-const ease = (x) => ((Math.cos(Math.PI * x) + 1) / 2);
-const easeIn = (x) => (x*x);
-const flip = (x) => (1 - x);
-const easeOut = (x) => flip(flip(x) * flip(x));
-const easeInOut = (x) => lerp(easeIn(x), easeOut(x), x);
-const spikeInterpolation = function(x){
-    if (x <= 0.5){
-        return easeIn(x / 0.5);
-    }
-    return x;
-};
-const easeOutBounce = (x) => {
-    const n1 = 7.5625;
-    const d1 = 2.75;
-    
-    if (x < 1 / d1) {
-        return n1 * x * x;
-    } else if (x < 2 / d1) {
-        return n1 * (x -= 1.5 / d1) * x + 0.75;
-    } else if (x < 2.5 / d1) {
-        return n1 * (x -= 2.25 / d1) * x + 0.9375;
-    } else {
-        return n1 * (x -= 2.625 / d1) * x + 0.984375;
-    }
-}
-const invlerp =(from, to, a) => clamp((a - from) / (to - from));
-const range =(from, to, a) => lerp(to[0], to[1], invlerp(from[0], from[1], a));
-const rangeXY =(fromX, fromY, toX, toY, a) => lerp(toX, toY, invlerp(fromX, fromY, a));
 
+class Interpolation{
+    static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
+    static linear = (x) => x;
+    static lerp = (start, end, d) => (start + (end - start) * d);
+    static ease = (x) => ((Math.cos(Math.PI * x) + 1) / 2);
+    static easeIn = (x) => (x*x);
+    static flip = (x) => (1 - x);
+    static easeOut = (x) => Interpolation.flip(Interpolation.flip(x) * Interpolation.flip(x));
+    static easeInOut = (x) => Interpolation.lerp(Interpolation.easeIn(x), Interpolation.easeOut(x), x);
+    static spikeInterpolation = function(x){
+        if (x <= 0.5){
+            return Interpolation.easeIn(x / 0.5);
+        }
+        return x;
+    };
+    static easeOutBounce = (x) => {
+        const n1 = 7.5625;
+        const d1 = 2.75;
+        
+        if (x < 1 / d1) {
+            return n1 * x * x;
+        } else if (x < 2 / d1) {
+            return n1 * (x -= 1.5 / d1) * x + 0.75;
+        } else if (x < 2.5 / d1) {
+            return n1 * (x -= 2.25 / d1) * x + 0.9375;
+        } else {
+            return n1 * (x -= 2.625 / d1) * x + 0.984375;
+        }
+    }
+    static invlerp = (from, to, a) => Interpolation.clamp((a - from) / (to - from));
+    static range = (from, to, a) => Interpolation.lerp(to[0], to[1], Interpolation.invlerp(from[0], from[1], a));
+    static rangeXY = (fromX, fromY, toX, toY, a) => Interpolation.lerp(toX, toY, Interpolation.invlerp(fromX, fromY, a));
+  }
+  
 // https://gizma.com/easing/
-const INTERP_FUNCTIONS = {
-    linear: {name: "Linear", fun: linear},
-    ease: {name: "Ease", fun: ease},
-    invlerp: {name: "Inverse Linear", invlerp},
-    range: {name: "Range", fun: range},
-    rangeXY: {name: "rangeXY", fun: rangeXY},
-    ease: {name: "Ease", fun: ease},
-    easeIn: {name: "Ease-In", fun: easeIn},
-    flip: {name: "Flip", fun: rangeXY},
-    easeOut: {name: "Ease-Out", fun: easeOut},
-    easeInOut: {name: "Ease In and Out", fun: easeInOut},
-    easeOutBounce: {name: "easeOutBounce", fun: easeOutBounce},
-    spike: {name: "Spike Interpolation", fun: spikeInterpolation},
-}
+  const INTERP_FUNCTIONS = {
+    linear: {name: "Linear", fun: Interpolation.linear},
+    ease: {name: "Ease", fun: Interpolation.ease},
+    invlerp: {name: "Inverse Linear", fun: Interpolation.invlerp},
+    range: {name: "Range", fun: Interpolation.range},
+    rangeXY: {name: "rangeXY", fun: Interpolation.rangeXY},
+    ease: {name: "Ease", fun: Interpolation.ease},
+    easeIn: {name: "Ease-In", fun: Interpolation.easeIn},
+    flip: {name: "Flip", fun: Interpolation.rangeXY},
+    easeOut: {name: "Ease-Out", fun: Interpolation.easeOut},
+    easeInOut: {name: "Ease In and Out", fun: Interpolation.easeInOut},
+    easeOutBounce: {name: "easeOutBounce", fun: Interpolation.easeOutBounce},
+    spike: {name: "Spike Interpolation", fun: Interpolation.spikeInterpolation},
+  }
 
 
 class AnimatedValue {
     constructor(value, interpFun, duration) {
-        this.currentValue = value;
-        this._value = value;
-        this.interpFun = interpFun;
-        this.duration = duration;
-        this.elapsed = 0;
+      this.currentValue = value;
+      this._to = value;
+      this._from = value;
+      this.interpFun = interpFun;
+      this.duration = duration;
+      this.elapsed = 0;
+      this.onCompleted = () => {};
     }
-
-    get value(){
-        return this.currentValue;
+  
+    get value() {
+      return this.currentValue;
     }
-
-    set value(val){
-        this.currentValue = val;
+  
+    set value(val) {
+      this.currentValue = val;
     }
-
-    lerp(start, end, d){
-        return start + (end - start) * d
+  
+    clamp (a, min = 0, max = 1){
+      return Math.min(max, Math.max(min, a));
     }
-
+  
+    lerp(start, end, d) {
+      return start + (end - start) * d
+    }
+  
     // D is the distance in time to the total animation time
     // So if the total animation time is 2s and the elapsed time is 1.s then d = 0.5
     // if the interpolation function does nothing then it is essentially the same as a linear interpolation
-    update(deltaTime){
-        if(this.elapsed <= this.duration){
-            this.elapsed += deltaTime;
-            let elapsedRatio = this.elapsed / this.duration;
-            this.value = this.lerp(this.value, this._value, this.interpFun.fun(elapsedRatio));
-        }
-        else if(Math.abs(this.value - this._value) <= 0.001){
-            console.log(`Interp value reached ${this.value} - ${this._value} = ${Math.abs(this.value - this._value)}`);
-        }
-        else{
-            console.log(`Interp time reached: ${this.elapsed} / ${this.duration}`)
-        }
+    update(deltaTime) {
+      if(!this.running){
+        return;
+      }
+      if (this.elapsed < this.duration) {
+        this.elapsed += deltaTime;
+        let elapsedRatio = this.clamp(this.elapsed / this.duration, 0, 1);
+        // console.log(`Interp time: ${elapsedRatio} (${this.elapsed} / ${this.duration})`)
+        // console.log(`Interp: value ${this.currentValue} - ${this._to} = ${Math.abs(this.currentValue - this._to)}`);
+        this.currentValue = this.lerp(this._from, this._to, this.interpFun.fun(elapsedRatio));
+      }
+      else if (Math.abs(this.currentValue - this._to) <= 0.001) {
+        this.running = false;
+        this.onCompleted(this._to);
+        // console.log(`Interp value reached ${this.currentValue} - ${this._to} = ${Math.abs(this.currentValue - this._to)}`);
+      }
+      else {
+        this.onCompleted(this._to);
+        this.running = false;
+        // console.log(`Interp time reached: ${this.elapsed} / ${this.duration}`)
+      }
     }
-
-    updateValue(value){
-        this._value = value;
-        this.elapsed = 0;
+  
+    updateValue(newValue) {
+      this._to = newValue;
+      this._from = this.currentValue;
+      this.elapsed = 0;
+      this.running = true;
     }
-
-    setValue(value){
-        this._value = value;
-        this.currentValue = value;
-        this.elapsed = this.interpTime+1;
+  
+    setValue(newValue) {
+      this._to = newValue;
+      this._from = newValue;
+      this.currentValue = newValue;
+      this.elapsed = this.interpTime + 1;
+      this.running = false;
     }
-}
+  }  
 
 class AnimatedPoint {
     constructor(pX, pY, interpFun, interpTime) {
@@ -137,41 +159,41 @@ class AnimatedPoint {
 
 class DrawableLandmark {
   // new DrawableLandmark({ name:"JawOutline", pointsRange:[0, 17], scale:[1, 1], visible:true, pointSize:2, pointColor:"#f00", drawMask:true }),
-  constructor(data = null) {
-    data = data ?? {};
-    this.name = data.name ?? "Landmark";
-    this.scale = data.scale ?? [1, 1];
-    this.visible = data.visible ?? true;
-    this.pointSize = data.pointSize ?? 5;
-    this.pointColor = data.pointColor ?? "fff";
-    this.drawMask = data.drawMask ?? true;
-    this.pointsRange = data.pointsRange ?? [0, 0];
-    this.interpFun = data.interpFun ?? INTERP_FUNCTIONS.linear
-    this.interpTime = data.interpTime ?? 0.5;
-    this.pointsRange = this.pointsRange.sort();
+    constructor(data = null) {
+        data = data ?? {};
+        this.name = data.name ?? "Landmark";
+        this.scale = data.scale ?? [1, 1];
+        this.visible = data.visible ?? true;
+        this.pointSize = data.pointSize ?? 5;
+        this.pointColor = data.pointColor ?? "fff";
+        this.drawMask = data.drawMask ?? true;
+        this.pointsRange = data.pointsRange ?? [0, 0];
+        this.interpFun = data.interpFun ?? INTERP_FUNCTIONS.linear
+        this.interpTime = data.interpTime ?? 0.5;
+        this.pointsRange = this.pointsRange.sort();
 
-    this.rotation = 0;
-    this.points = [];
-    for(let i = this.pointsRange[0]; i < this.pointsRange[1]; i++){
-        this.points.push(new AnimatedPoint(0,0, this.interpFun, this.interpTime));
+        this.rotation = 0;
+        this.points = [];
+        for(let i = this.pointsRange[0]; i < this.pointsRange[1]; i++){
+            this.points.push(new AnimatedPoint(0,0, this.interpFun, this.interpTime));
+        }
+        this.startPoint = this.points[0];
+        this.centerPoint = new AnimatedPoint(0,0, this.interpFun, this.interpTime);
+        this.radius = new AnimatedValue(0, this.interpFun, this.interpTime);
+        this.lastUpdate = performance.now();
+        this.deltaTime = 0;
+        this.useGradientMask = true;
+        console.log(`New Drawable Landmark ${this.name}. Point: ${this.pointSize} ${this.pointColor}. Interpolation ${this.interpFun.name} ${this.interpTime}`);
     }
-    this.startPoint = this.points[0];
-    this.centerPoint = new AnimatedPoint(0,0, this.interpFun, this.interpTime);
-    this.radius = new AnimatedValue(0, this.interpFun, this.interpTime);
-    this.lastUpdate = performance.now();
-    this.deltaTime = 0;
-    this.useGradientMask = true;
-    console.log(`New Drawable Landmark ${this.name}. Point: ${this.pointSize} ${this.pointColor}. Interpolation ${this.interpFun.name} ${this.interpTime}`);
-  }
 
-  updateAnimations(){
-    this.deltaTime = (performance.now() - this.lastUpdate)/1000;
-    this.lastUpdate = performance.now();
-    for(let p of this.points){
-        p.update(this.deltaTime);
+    updateAnimations(){
+        this.deltaTime = (performance.now() - this.lastUpdate)/1000;
+        this.lastUpdate = performance.now();
+        for(let p of this.points){
+            p.update(this.deltaTime);
+        }
+        this.updateCentroid(this.deltaTime);
     }
-    this.updateCentroid(this.deltaTime);
-  }
 
     // The centroid and the radius are not animated by themselves, they just take the value updated by the animated points
     // So it should be automatically animated if the points it's calculated from are animated

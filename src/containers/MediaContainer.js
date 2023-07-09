@@ -82,7 +82,6 @@ class MediaBridge extends Component {
     this.state = {
       session: new TimedEvent("MainSession"),
       statusRef: {update: "NONE", data: {}},
-      bridge: "",
       user: props.username,
       recording: false,
       side_prompt: "",
@@ -126,7 +125,10 @@ class MediaBridge extends Component {
     this.loadModel();
     this.props.media(this);
     this.props.getUserMedia.then(
-      (stream) => (this.localVideo.srcObject = this.localStream = stream)
+      (stream) => {
+        console.log("Setting local video source stream");
+        this.localVideo.srcObject = this.localStream = stream;
+      }
     );
     
     if(this.socket != null){
@@ -141,9 +143,6 @@ class MediaBridge extends Component {
       this.socket.on(SOCKET_CMDS.SURVEY_END, (data) => this.onSurveyEnd(data));
       this.socket.on(SOCKET_CMDS.FACE_DETECTED, (data) => this.onFace(data));
 
-      this.socket.on(SOCKET_CMDS.MESSAGE, (data) => this.onMessage(data));
-      this.socket.on(SOCKET_CMDS.HANGUP, (data) => this.onRemoteHangup(data));
-      this.socket.on(SOCKET_CMDS.CONTROL, (data) => this.onControl(data));
       this.socket.on(SOCKET_CMDS.RECORDING, (data) => this.startRecording(data));
     }
     if(this.remoteVideo != null){
@@ -546,41 +545,6 @@ class MediaBridge extends Component {
     });
   }
 
-  // get setting and control(mask) data at the beginning of process
-  onControl(control_data) {
-    console.log("On Control");
-    const { user, controlData } = control_data;
-    if (user == this.state.user) {
-      this.props.updateAll(controlData);
-      if (controlData.video == false) {
-        this.localVideo.pause();
-      } else this.localVideo.play();
-
-      if (controlData.recording == true && this.state.recording == false) {
-        this.startRecording();
-      }
-      if (controlData.recording == false && this.state.recording == true) {
-        this.stopRecording();
-      }
-      // if (controlData.audio == false) {
-      //   this.localVideo.muted = true;
-      // } else this.localVideo.muted = false;
-    } else {
-      if(this.remoteVideo != null){
-        if (controlData.video == false) {
-          this.remoteVideo.pause();
-        } else{
-          this.remoteVideo.play();
-        }
-        if (controlData.audio == false) {
-          this.remoteVideo.muted = true;
-        } else {
-          this.remoteVideo.muted = false;
-        }
-      }
-    }
-  }
-
   // if losing promote user's face, send socket message to server
   onFaceDetect() {
     // console.info("+ Face detected");
@@ -859,84 +823,12 @@ class MediaBridge extends Component {
     window.requestAnimationFrame(() => this.drawCanvas());
   }
 
-  onRemoteHangup() {
-    this.setState({ ...this.state, bridge: "host-hangup" });
-  }
-  onMessage(message) {
-    if (message.type === "offer") {
-      // set remote description and answer
-      this.pc
-        .setRemoteDescription(new RTCSessionDescription(message))
-        .then(() => this.pc.createAnswer())
-        .then(() => this.setDescription())
-        .then(() => this.sendDescription())
-        .catch(() => this.handleError()); // An error occurred, so handle the failure to connect
-    } else if (message.type === "answer") {
-      // set remote description
-      this.pc.setRemoteDescription(new RTCSessionDescription(message));
-    } else if (message.type === "candidate") {
-      // add ice candidate
-      this.pc.addIceCandidate(message.candidate);
-    }
-  }
   sendData(msg) {
     if(this.dc != undefined && this.dc != null){
       this.dc.send(JSON.stringify(msg));
     }
   }
 
-  // Set up the data channel message handler
-  // transfer data from peers
-  setupDataHandlers() {
-    this.dc.onmessage = (e) => {
-      var msg = JSON.parse(e.data);
-      if (msg == "lose-face") {
-        this.setState({
-          ...this.state,
-          visible: true,
-          ready: this.state.session.running,
-        });
-      }
-      if (msg == "recover") {
-        this.setState({
-          ...this.state,
-          visible: false,
-          ready: true,
-        });
-      }
-      if (msg == SOCKET_CMDS.ROOM_IDLE) {
-        this.setState({
-          ...this.state,
-          ready: false,
-        });
-      }
-      console.log("received message over data channel:" + msg);
-    };
-    this.dc.onclose = () => {
-      this.remoteStream.getVideoTracks()[0].stop();
-      console.log("The Data Channel is Closed");
-    };
-  }
-  setDescription(offer) {
-    return this.pc.setLocalDescription(offer);
-  }
-  // send the offer to a server to be forwarded to the other peer
-  sendDescription() {
-    if(this.socket != null){
-      this.socket.send(this.pc.localDescription);
-    }
-  }
-  hangup() {
-    this.setState({ ...this.state, bridge: "guest-hangup" });
-    this.pc.close();
-    if(this.socket != null){
-      this.socket.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.props.room });
-      this.socket.emit(SOCKET_CMDS.LEAVE_ROOM);
-    }
-  }
-  handleError(e) {
-    console.log(e);
-  }
   sendDataToServer() {
     let eresult = this.record;
     this.emo_result.push(this.record.record_detail);
@@ -955,122 +847,10 @@ class MediaBridge extends Component {
     }
   }
 
-  init() {
-    console.log('Initializing Media');
-    try {
-      // wait for local media to be ready
-      const attachMediaIfReady = () => {
-        console.log('Attach media if ready ()');
-        this.dc = this.pc.createDataChannel("chat");
-        this.setupDataHandlers();
-        console.log("attachMediaIfReady");
-        this.pc
-          .createOffer({ iceRestart: true })
-          .then(() => this.setDescription())
-          .then(() => this.sendDescription())
-          .catch(() => this.handleError()); // An error occurred, so handle the failure to connect
-      };
-      // set up the peer connection
-      // this is one of Google's public STUN servers
-      // make sure your offer/answer role does not change. If user A does a SLD
-      // with type=offer initially, it must do that during  the whole session
-      this.pc = new RTCPeerConnection({
-        iceServers: [
-          {
-            urls: "stun:stun.l.google.com:19302",
-          },
-          {
-            urls: "turn:139.180.183.4:3478",
-            username: "hao",
-            credential: "158131hh2232A",
-          }
-        ],
-      });
-      console.log('RTCPeerCOnnection created');
-      this.pc.onconnectionstatechange = (event) => {
-        console.log("onconnectionstatechange change ", event);
-      };
-      
-      this.pc.addEventListener("iceconnectionstatechange", (event) => {
-        let pcstate = this.pc.iceConnectionState;
-        console.log("iceconnection change ", pcstate);
-        if (
-          pcstate === "failed" ||
-          pcstate === "closed" ||
-          pcstate === "disconnected"
-        ) {
-          /* possibly reconfigure the connection in some way here */
-          /* then request ICE restart */
-          this.reconnecttimer = setInterval(() => {
-            console.log("iceconnection trying to reconnect");
-            location.reload();
-          }, TIMES.ICE_RECONNECTION_INTERVAL);
-        } else {
-          clearInterval(this.reconnecttimer);
-        }
-      });
-      // when our browser gets a candidate, send it to the peer
-      this.pc.onicecandidate = (e) => {
-        // console.log("onicecandidate", e);
-        if (e.candidate) {
-          if(this.socket != null){
-            this.socket.send({
-              type: "candidate",
-              candidate: e.candidate,
-            });
-          }
-        }
-      };
-
-      this.pc.ontrack = (event) => {
-        console.log("ontrack", event);
-      };
-      // when the other side added a media stream, show it on screen
-      this.pc.onaddstream = (e) => {
-        console.log("onaddstream", e);
-        if(this.remoteVideo != null){
-          this.remoteStream = e.stream;
-          this.remoteVideo.srcObject = this.remoteStream = e.stream;
-          this.setState({ ...this.state, bridge: "established" });
-        }
-      };
-      this.pc.ondatachannel = (e) => {
-        // console.log('ondatachannel', e);
-        // data channel
-        this.dc = e.channel;
-        this.setupDataHandlers();
-        this.sendData({
-          peerMediaStream: {
-            video: this.localStream.getVideoTracks()[0].enabled,
-          },
-        });
-        //sendData('hello');
-      };
-      console.log('RTCPeerCOnnection listeners added');
-      // attach local media to the peer connection
-      this.localStream
-        .getTracks()
-        .forEach((track) => {
-          console.log('Adding track ', track);
-          this.pc.addTrack(track, this.localStream)
-        });
-      // call if we were the last to connect (to increase
-      // chances that everything is set up properly at both ends)
-      if (this.state.user === "host") {
-        this.props.getUserMedia
-          .then(attachMediaIfReady)
-          .catch((error) => {
-            console.warn(`Error Getting user media: `, error)
-          });
-      }
-    } catch (error) {
-      console.error("ERROR: Could not init WebRTC", error);
-    }
-  }
   // components: SideBar, Clock, GYModal(popup window, loseface attention), Introduction, Introduction when face detected, Thankyou, local and remote video
   render() {
     return (
-      <div className={`main-room-container ${this.state.bridge}`}>
+      <div className={`main-room-container`}>
       <div className={`media-bridge`}>
       <canvas className="canvas" ref={(ref) => (this.canvasRef = ref)} />
            <Sidebar
@@ -1108,7 +888,6 @@ class MediaBridge extends Component {
           muted>
         </video>
         </div>
-        <SurveyComponent />
        {/* <SurveyPage sessionStatusRef={this.state.statusRef} />  */}
        {/* GABRY: This stupid survey component causes the page to scroll up top at every render... */}
       {/* <div style={{backgroundColor: "white", height: "50vh", width: "100vw"}}/> */}
