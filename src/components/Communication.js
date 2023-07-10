@@ -154,7 +154,7 @@ Communication.propTypes = {
   toggleVideo: PropTypes.func.isRequired,
   toggleAudio: PropTypes.func.isRequired,
   send: PropTypes.func.isRequired,
-  handleHangup: PropTypes.func.isRequired,
+  // handleHangup: PropTypes.func.isRequired,
   handleInput: PropTypes.func.isRequired,
   handleInvitation: PropTypes.func.isRequired,
 };

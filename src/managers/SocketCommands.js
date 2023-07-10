@@ -1,18 +1,34 @@
+const RTC_CMDS = {
+  ACTIONS: {
+    START_CALL: "create",
+    JOIN_CALL:         "join",
+    ACCEPT_JOIN_REQUEST:       "accept",
+    REJECT_JOIN_REQUEST:       "reject",
+    APPROVE_REQUEST:      "approve",
+    REQUEST_JOIN: 'auth',
+    HANGUP:       "hangup",
+    MESSAGE:      "message",
+  },
+  STATUS: {
+    FULL:         "full",
+    HOST_HANGUP:  "host-hangup",
+    GUEST_HANGUP: "guest-hangup",
+    ESTABLISHED:  "established",
+    CONNECTING:   "connecting",
+  }
+}
+
 
 const SOCKET_CMDS = { 
   NONE:                 "NONE",
   RESET:                "reset",
   CONNECT:              "connect",
   DISCONNECT:           "disconnect",
-  ACCEPT:               "accept",
-  REJECT:               "reject",
-  AUTH:                 "auth",
+  RTC_COMMUNICATION:    "rtc-communication",
   JOIN_ROOM:            "join-room",
   ROOM_JOIN_FEEDBACK:   "join_room_feedback",
   LEAVE_ROOM:           "leave-room",
-  ROOM_FULL:            "room-full",
   ROOM_IDLE:            "room-idle",
-  APPROVE:              "approve",
   MESSAGE:              "message",
   BRIDGE:               "bridge",
   HANGUP:               "hangup",
@@ -50,4 +66,4 @@ const NAMESPACES = {
   PROJECTION: "projection-page",
 }
 
-module.exports = { SOCKET_CMDS, DATA_TYPES, NAMESPACES }
+module.exports = { SOCKET_CMDS, RTC_CMDS, DATA_TYPES, NAMESPACES }

@@ -4,7 +4,8 @@ import { Provider } from "react-redux";
 import store from "./store";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Home from "./containers/HomePage";
-import Room from "./containers/RoomPage";
+// import RoomPage from "./containers/RoomPage";
+import RoomPage from "./containers/RoomPageNew";
 import { FaceVideoTest, SurveyTest } from "./containers/TestContainers";
 import RoomControl from "./containers/RoomControl";
 import SurveyPage from "./containers/SurveyPage";
@@ -21,7 +22,7 @@ render(
         <Route exact path="/" component={Home} />
         <Route exact path="/faceTest/" component={FaceVideoTest} />
         <Route exact path="/surveyTest/" component={SurveyTest} />
-        <Route exact path="/room/:room/" component={Room} />
+        <Route exact path="/room/:room/" component={RoomPage} />
         {/* <Route path="*" component={NotFound} /> */}
         <Route exact path="/control/:room" component={RoomControl} />
         <Route exact path="/survey/:room/:user" component={SurveyPage} />

@@ -1,4 +1,4 @@
-const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('./SocketCommands')
+const { SOCKET_CMDS, DATA_TYPES, RTC_CMDS } = require('./SocketCommands')
 const { console  } = require("../utils/colouredLogger");
 const { TIMES } = require('../managers/TimesDefinitions')
 const e = require('express');
@@ -63,12 +63,57 @@ class User {
     }
 
     setupCallbacks(){
+      this.socket.on(SOCKET_CMDS.RTC_COMMUNICATION, (data) => {
+        switch(data.bridge){
+          case RTC_CMDS.ACTIONS.ACCEPT_JOIN_REQUEST: {
+            this.accept(data.sessionId);
+            break;
+          }
+          case RTC_CMDS.ACTIONS.REJECT_JOIN_REQUEST: {
+            this.reject(data.sessionId);
+            break;
+          }
+          case RTC_CMDS.ACTIONS.REQUEST_JOIN: {
+            this.handleJoinRequest(data);
+            break;
+          }
+          case RTC_CMDS.CONNECTING: {
+
+            break;
+          }
+          case RTC_CMDS.ACTIONS.START_CALL: {
+
+            break;
+          }
+          case RTC_CMDS.ESTABLISHED: {
+
+            break;
+          }
+          case RTC_CMDS.FULL: {
+
+            break;
+          }
+          case RTC_CMDS.GUEST_HANGUP: {
+
+            break;
+          }
+          case RTC_CMDS.HOST_HANGUP: {
+
+            break;
+          }
+          case RTC_CMDS.JOIN: {
+
+            break;
+          }
+          default: {
+
+            break;
+          }
+        }
+      })
       this.socket.on(SOCKET_CMDS.MESSAGE, (message) => this.broadcastMessage(SOCKET_CMDS.MESSAGE, message));
       this.socket.on(SOCKET_CMDS.JOIN_ROOM, () => this.getRoom());
       this.socket.on(SOCKET_CMDS.LEAVE_ROOM, () => this.leaveRoom());
-      this.socket.on(SOCKET_CMDS.AUTH, (data) => this.auth(data));
-      this.socket.on(SOCKET_CMDS.ACCEPT, (id) => this.accept(id));
-      this.socket.on(SOCKET_CMDS.REJECT, (id) => this.reject(id));
       this.socket.on(SOCKET_CMDS.CONTROL_ROOM, (data) => this.controlRoom(data));
       this.socket.on(SOCKET_CMDS.ROOM_IDLE, (data) => this.roomInIdle(data));
     }
@@ -86,10 +131,9 @@ class User {
       }
     }
   
-    auth(data){
+    handleJoinRequest(data){
       data.sid = this.socket.id;
-      this.broadcastMessage(SOCKET_CMDS.APPROVE, data);
-      // this.socket.broadcast.to(this.room.id).emit(SOCKET_CMDS.APPROVE, data);
+      this.broadcastMessage(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.APPROVE_REQUEST, data: data});
       console.info("- authenticate client in room " + this.room);
     }
   
@@ -98,13 +142,13 @@ class User {
         console.info("- accept client in room " + this.room);
         this.socket.join(this.room.id);
         // sending to all clients in 'game' room(channel), include sender
-        this.manager.nsio.emit(SOCKET_CMDS.BRIDGE);
+        this.manager.nsio.emit(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.ACCEPT_JOIN_REQUEST});
         this.sessionManager.startSession(this.manager.rooms[this.room.id]);
       }
     }
   
     reject(id){
-      this.socket.emit(SOCKET_CMDS.ROOM_FULL);
+      this.socket.emit(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.STATUS.FULL});
       console.info("- rejected");
     }
 
@@ -116,7 +160,7 @@ class User {
       console.info(`- client ${this} disconnected`);
       console.log(this.socket.rooms);
       this.leaveRoom(this);
-      this.broadcastMessage(SOCKET_CMDS.HANGUP)
+      this.broadcastMessage(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.HANGUP})
       // this.socket.broadcast.to(room).emit("hangup");
       console.info(`- client ${this} left the room ${this.room}`);
       // console.log(`Sockets in room ${this.roomToString(this.manager.nsio, this.room.id)}`)
@@ -191,17 +235,18 @@ class User {
           console.log(`User ${this.id} is the host and created the room ${roomId}`);
           joinFeedback.userRole = User.TYPE.HOST;
           joinFeedback.userRoomId = userRoomId;
-          joinFeedback.bridge = "create";
+          joinFeedback.bridge = RTC_CMDS.ACTIONS.START_CALL ;
         }
         else{
           // Only emit "ROOM_JOIN_FEEDBACK" if this is not the first user, so not the host
           console.log(`User ${this.id} is a guest and created the room ${roomId}`);
           joinFeedback.userRole = User.TYPE.GUEST;
           joinFeedback.userRoomId = userRoomId;
-          joinFeedback.bridge = "join";
+          joinFeedback.bridge = RTC_CMDS.ACTIONS.JOIN_CALL;
         }
       }
       this.socket.emit(SOCKET_CMDS.ROOM_JOIN_FEEDBACK, joinFeedback);
+      this.manager.nsio.emit(SOCKET_CMDS.RTC_COMMUNICATION, joinFeedback);
       console.log(`Socket ID: ${this} \t URL: ${url}`)
     }
   

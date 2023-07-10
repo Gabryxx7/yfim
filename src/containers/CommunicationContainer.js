@@ -4,7 +4,7 @@ import MediaContainer from "./MediaContainer";
 import Communication from "../components/Communication";
 import store from "../store";
 import { connect } from "react-redux";
-import { SOCKET_CMDS } from '../managers/SocketCommands'
+import { SOCKET_CMDS, RTC_CMDS } from '../managers/SocketCommands'
 import { TIMES } from '../managers/TimesDefinitions'
 
 
@@ -18,16 +18,16 @@ class CommunicationContainer extends React.Component {
       video: true,
     };
     this.autoacceptTimer = null;
+    this.rtcManager = null;
   }
+
+  
   hideAuth() {
-    this.props.room.setState({ bridge: "connecting" });
+    this.props.room.setState({ bridge: RTC_CMDS.STATUS.CONNECTING });
   }
-  full() {
-    console.log(`Room is full!`)
-    this.props.room.setState({ bridge: "full" });
-  }
+
   componentDidMount() {
-    const socket = this.props.socket;
+    const socket = this.props.socket.current;
 
     socket.on(SOCKET_CMDS.HELLO, () => {
       console.log(`SOCKET CONNECTED (hello received): ${this.props?.socket?.id} ${this.props?.socket?.nsp}`)
@@ -40,6 +40,12 @@ class CommunicationContainer extends React.Component {
       }
     });
 
+
+    this.socket.on(SOCKET_CMDS.RTC_COMMUNICATION, (data) => {
+      this.RTCManager.handleRTCCommunication(data);
+      this.props.room.setState({ bridge: data.bridge });
+    })
+
     socket.on(SOCKET_CMDS.CONNECT_ERROR, (err) => {
       console.log(`connect_error on ${this} due to ${err.message}`);
     });
@@ -50,8 +56,7 @@ class CommunicationContainer extends React.Component {
     });
     console.log(this.props);
 
-    socket.on(SOCKET_CMDS.ROOM_FULL, this.full);
-    socket.on(SOCKET_CMDS.BRIDGE, (role) => {
+    socket.on(SOCKET_CMDS.RTC_COMMUNICATION, (role) => {
       console.log("Received bridge");
       this.props.room.init();
     });
@@ -64,28 +69,7 @@ class CommunicationContainer extends React.Component {
       this.props.setRoomData(data);
       console.log(`Role assigned ${JSON.stringify(data)}`);
       this.props.room.setState({ bridge: data.bridge, user: data.userRoomId });
-      if(data.bridge == "join"){
-        this.props.socket.emit(SOCKET_CMDS.AUTH, this.state);
-        this.hideAuth();
-        console.log('Emitting Auth');
-      }
     });
-    socket.on(SOCKET_CMDS.APPROVE, ({ message, sid }) => {
-      console.log(`Received approve from ${sid}: ${message}`)
-      this.props.room.setState({ bridge: "approve" });
-      this.setState({ message, sid });
-      this.autoacceptTimer = setTimeout(() => {
-        console.log(`Emitting ${SOCKET_CMDS.ACCEPT} ${sid}`)
-        try{
-          this.props.socket.emit(SOCKET_CMDS.ACCEPT, sid);
-          this.hideAuth();
-        }catch(error){
-          console.error(`Error emitting accept `, error)
-        }
-      }, TIMES.AUTOACCEPT_WAIT);
-    });
-
-    socket.emit(SOCKET_CMDS.JOIN_ROOM);
     this.props.getUserMedia.then((stream) => {
       this.localStream = stream;
       const videoTracks = stream.getVideoTracks();
@@ -120,14 +104,14 @@ class CommunicationContainer extends React.Component {
   }
   send(e) {
     e.preventDefault();
-    this.props.socket.emit(SOCKET_CMDS.AUTH, this.state);
+    this.props.socket.emit(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.REQUEST_JOIN, state: this.state});
     this.hideAuth();
   }
   handleInvitation(e) {
     e.preventDefault();
     if(this.autoacceptTimer != null) clearTimeout(this.autoacceptTimer);
     console.log(`Emitting Invitation accept ${e.target.dataset.ref}: ${this.state.sid}`)
-    this.props.socket.emit(SOCKET_CMDS.ACCEPT, this.state.sid);
+    this.props.socket.emit(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.ACCEPT_JOIN_REQUEST, sessionId: this.state.sid});
     // this.props.socket.emit(e.target.dataset.ref, this.state.sid); // I'm not sure why so many emit() calls had an array [cmd] as command
     this.hideAuth();
   }
@@ -143,9 +127,6 @@ class CommunicationContainer extends React.Component {
     this.setState({ audio: audio });
     this.props.setAudio(audio);
   }
-  handleHangup() {
-    this.props.room.hangup();
-  }
   render() {
     // this.track.applyConstraints({
     //   advanced: [{ ["zoom"]: this.props.zoom }],
@@ -156,24 +137,13 @@ class CommunicationContainer extends React.Component {
         toggleVideo={() => this.toggleVideo()}
         toggleAudio={() => this.toggleAudio()}
         send={() => this.send()}
-        handleHangup={(e) => this.handleHangup(e)}
         handleInput={(e) => this.handleInput(e)}
         handleInvitation={(e) => this.handleInvitation(e)}
       />
     );
   }
 }
-const mapStateToProps = (store) => ({
-  video: store.video,
-  audio: store.audio,
-  roomData: store.roomData,
-  zoom: store.controlParams.zoom,
-});
-const mapDispatchToProps = (dispatch) => ({
-  setVideo: (boo) => store.dispatch({ type: "SET_VIDEO", video: boo }),
-  setAudio: (boo) => store.dispatch({ type: "SET_AUDIO", audio: boo }),
-  setRoomData: (roomData) => store.dispatch({ type: "SET_ROOM_DATA", roomData: roomData }),
-});
+
 
 CommunicationContainer.propTypes = {
   socket: PropTypes.object.isRequired,
@@ -185,6 +155,17 @@ CommunicationContainer.propTypes = {
   setAudio: PropTypes.func.isRequired,
   media: PropTypes.instanceOf(MediaContainer),
 };
+const mapStateToProps = (store) => ({
+  video: store.video,
+  audio: store.audio,
+  roomData: store.roomData,
+  zoom: store.controlParams.zoom,
+});
+const mapDispatchToProps = (dispatch) => ({
+  setVideo: (boo) => store.dispatch({ type: "SET_VIDEO", video: boo }),
+  setAudio: (boo) => store.dispatch({ type: "SET_AUDIO", audio: boo }),
+  setRoomData: (roomData) => store.dispatch({ type: "SET_ROOM_DATA", roomData: roomData }),
+});
 export default connect(
   mapStateToProps,
   mapDispatchToProps
