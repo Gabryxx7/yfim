@@ -1,4 +1,3 @@
-const { SOCKET_CMDS, DATA_TYPES } = require('../managers/SocketCommands')
 const { User } = require('../managers/User')
 const { console  } = require("../utils/colouredLogger")
 
@@ -16,6 +15,7 @@ class Room{
     this.size = 0;
     this.maxSize = maxSize;
     this.users = {};
+    this.host = null;
 
     this.onRoomFull = (room) => {};
     this.onUserLeave = (user) => {};
@@ -50,27 +50,44 @@ class Room{
     return ratings;
   }
 
+  printDebug(){
+    console.room(this.toString());
+  }
+
   toString(){
-    let res = `Users in ${this.id}: [ `;
-    for(const k in this.users){
-      res += `${k}, `
+    let prefix = "\t";
+    let res = `ROOM ${this.id}`;
+    res += `\n${prefix}Users in ${this.id}: [ `;
+    for(let k in this.users){
+      const u = this.users[k];
+      res += `[${u.type}] ${u.name} - ${u.id}, `
     }
     res += `]`;
     const key = this.id;
     try{
       // const socketsInRoomStr = Array.from(namespace.adapter.rooms.get(key)).join(', ');
       const socketsInRoomStr = Array.from(this.adapter).join(', ');
-      res += `\nIn Socket: ${key} = \{ ${socketsInRoomStr} \}`;
+      res += `\n${prefix}In Socket.io room: ${key} = \{ ${socketsInRoomStr} \}`;
     } catch (error) {
-      res += `\nRoom ${key} does not exist in namespace`;
+      res += `\n${prefix}Room ${key} does not exist in namespace`;
     }
     return res;
+  }
+
+  updateHost(){
+    var firstUser = this.users[Object.keys(this.users)[0]];
+    firstUser.type = User.TYPE.HOST;
+    firstUser.notifyClient();
+    this.host = firstUser;
   }
 
   removeUser(user){
     const removed = delete this.users[user.id];
     if(removed){
       this.size -= 1;
+      if(this.size > 0){
+        this.updateHost();
+      }
       this.onUserLeave(user);
     }
     user.socket.leave(this.id);
@@ -102,6 +119,15 @@ class Room{
     if(this.maxSize > 0 && this.size >= this.maxSize){
       console.log(`Room ${this.id} is full, calling onRoomFull(room)`);
       this.onRoomFull(this);
+    }
+    user.name = `User_${this.size-1}`;
+    user.room = this;
+    if(this.size <= 1){
+      user.type = User.TYPE.HOST;
+      this.host = user;
+    }
+    else{
+      user.type = User.TYPE.GUEST;
     }
     return res;
   }

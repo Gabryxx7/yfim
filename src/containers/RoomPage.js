@@ -6,7 +6,7 @@ import store from "../store";
 import io from "socket.io-client";
 import { surveyJSON } from "../components/Survey_JSON";
 import * as Survey from "survey-react";
-const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands')
+const { CMDS, DATA} = require('../managers/Communications')
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SurveyComponent from "../components/SurveyComponent";
@@ -67,7 +67,7 @@ class RoomPage extends Component {
       survey: false,
       user: ""
     };
-    this.socket = io.connect(`/${NAMESPACES.CHAT}`);
+    this.socket = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 
     console.log(`Created Socket: ${this.socket?.nsp}`, this.socket);
   }
@@ -143,8 +143,8 @@ class RoomPage extends Component {
   }
   componentDidMount() {
     console.log(this.props.roomData);
-    this.socket.on(SOCKET_CMDS.MESSAGE, (data) => this.onMessage(data));
-    this.socket.on(SOCKET_CMDS.CONTROL, (data) => this.onControl(data));
+    this.socket.on(CMDS.SOCKET.MESSAGE, (data) => this.onMessage(data));
+    this.socket.on(CMDS.SOCKET.CONTROL, (data) => this.onControl(data));
     this.props.createRoom();
   }
 

@@ -113,7 +113,7 @@ const Communication = (props) => (
       </form>
     </div>
     <div className="grant-access">
-      <p>A peer has sent you a message to join the room:</p>
+      <p>A peer is requesting to join your room:</p>
       <div>{props.message}</div>
       <button
         onClick={props.handleInvitation}

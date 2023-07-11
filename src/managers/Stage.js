@@ -1,4 +1,4 @@
-const { SOCKET_CMDS, DATA_TYPES } = require("../managers/SocketCommands");
+const { CMDS, DATA } = require("./Communications");
 
 const STATUS = {
   NONE: "none",
@@ -74,14 +74,14 @@ class Stage {
 
       this.session.topic_selected.push(topic);
       if(this.session.chatsManager.nsio){
-        this.session.chatsManager.nsio.emit(SOCKET_CMDS.STAGE_CONTROL, stageData);
+        this.session.chatsManager.nsio.emit(CMDS.SOCKET.STAGE_CONTROL, stageData);
       }
       if(this.session.projectio){
-        this.session.projectio.emit(SOCKET_CMDS.STAGE_CONTROL, stageData);
+        this.session.projectio.emit(CMDS.SOCKET.STAGE_CONTROL, stageData);
       }
     }
-    this.session.chatsManager.nsio.emit(SOCKET_CMDS.SESSION_UPDATE, stageData)
-    this.session.controlManager.nsio.emit(SOCKET_CMDS.SESSION_UPDATE, stageData)
+    this.session.chatsManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, stageData)
+    this.session.controlManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, stageData)
     this.status = STATUS.IN_PROGRESS;
   }
 

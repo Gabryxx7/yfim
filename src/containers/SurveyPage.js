@@ -9,7 +9,7 @@ import SurveyFaceDetect from "../components/SurveyFaceDetect";
 import SurveyOngoing from "../components/SurveyOngoing";
 import SurveyReady from "../components/SurveyReady";
 import SurveyThankyou from "../components/SurveyThankyou";
-import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
+import { CMDS, DATA} from '../managers/Communications'
 import { TIMES } from '../managers/TimesDefinitions'
 // survey-react : https://www.npmjs.com/package/survey-react
 
@@ -29,18 +29,18 @@ export default function SurveyPage(props) {
   const [loading, setLoading] = useState(false);
 
   const setupSocket = () => {
-    const socket = io.connect(`/${NAMESPACES.CONTROL}`);
+    const socket = io.connect(`/${CMDS.NAMESPACES.CONTROL}`);
     console.log(`SURVEY PAGE HERE, connecting to ${socket?.nsp}`)
-    socket.emit(SOCKET_CMDS.SURVEY_CONNECT, {
+    socket.emit(CMDS.SOCKET.SURVEY_CONNECT, {
       room: room,
       user: user,
     });
-    socket.on(SOCKET_CMDS.ROOM_IDLE, () => resetParams());
-    socket.on(SOCKET_CMDS.SURVEY_START, (data) => onSurveyStart(data));
-    socket.on(SOCKET_CMDS.FACE_DETECTED, () => setFaceOn(true));
-    socket.on(SOCKET_CMDS.PROCESS_START, () => onProcessStart());
-    socket.on(SOCKET_CMDS.PROCESS_STOP, (data) => onProcessStop(data));
-    socket.on(SOCKET_CMDS.RESET, () => resetParams());
+    socket.on(CMDS.SOCKET.ROOM_IDLE, () => resetParams());
+    socket.on(CMDS.SOCKET.SURVEY_START, (data) => onSurveyStart(data));
+    socket.on(CMDS.SOCKET.FACE_DETECTED, () => setFaceOn(true));
+    socket.on(CMDS.SOCKET.PROCESS_START, () => onProcessStart());
+    socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => onProcessStop(data));
+    socket.on(CMDS.SOCKET.RESET, () => resetParams());
     setSocket(socket);
   }
 
@@ -67,9 +67,9 @@ export default function SurveyPage(props) {
     const { accident_stop } = data;
     console.info("- Survey page process-stop", accident_stop);
     if (!accident_stop) {
-      console.log(SOCKET_CMDS.PROCESS_STOP, answer);
-      socket.emit(SOCKET_CMDS.DATA_SEND, {
-        data_type: DATA_TYPES.QUESTION,
+      console.log(CMDS.SOCKET.PROCESS_STOP, answer);
+      socket.emit(CMDS.SOCKET.DATA_SEND, {
+        data_type: DATA.TYPE.QUESTION,
         room,
         user,
         data: answer,
@@ -97,7 +97,7 @@ export default function SurveyPage(props) {
     const { rating, record } = data;
     console.log("select rating, ", rating);
     console.log("select record", record);
-    socket.emit(SOCKET_CMDS.PROCESS_READY, { room, user, rating, record });
+    socket.emit(CMDS.SOCKET.PROCESS_READY, { room, user, rating, record });
     setReady(true);
   }
   // socket.join(props.match.params.room);
@@ -112,7 +112,7 @@ export default function SurveyPage(props) {
 
     setSurveyOn(false);
     setFinalStage(false);
-    socket.emit(SOCKET_CMDS.SURVEY_END, {
+    socket.emit(CMDS.SOCKET.SURVEY_END, {
       room,
       user,
       survey,
@@ -138,27 +138,27 @@ export default function SurveyPage(props) {
   useEffect(() => {
     console.log("SESION STATUS REF UPDATE: ", sessionStatusRef);
     switch(sessionStatusRef.update){
-      case SOCKET_CMDS.ROOM_IDLE: {
+      case CMDS.SOCKET.ROOM_IDLE: {
         resetParams();
         break;
       }
-      case SOCKET_CMDS.SURVEY_START: {
+      case CMDS.SOCKET.SURVEY_START: {
         onSurveyStart(sessionStatusRef.data);
         break;
       }
-      case SOCKET_CMDS.FACE_DETECTED: {
+      case CMDS.SOCKET.FACE_DETECTED: {
         setFaceOn(true);
         break;
       }
-      case SOCKET_CMDS.PROCESS_START: {
+      case CMDS.SOCKET.PROCESS_START: {
         onProcessStart();
         break;
       }
-      case SOCKET_CMDS.PROCESS_STOP: {
+      case CMDS.SOCKET.PROCESS_STOP: {
           onProcessStop(sessionStatusRef.data);
         break;
       }
-      case SOCKET_CMDS.RESET: {
+      case CMDS.SOCKET.RESET: {
         resetParams();
         break;
       }

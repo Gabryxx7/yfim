@@ -19,7 +19,7 @@ Will start the serer implemented in `server.js`.
 
 ## Flow
 1. The main function is `processStart(room, start_time, cfg)`.
-    * This function gets called by `socket.on(SOCKET_CMDS.PROCESS_READY)` so whenever the socket receives the command `process-ready`
+    * This function gets called by `socket.on(CMDS.SOCKET.PROCESS_READY)` so whenever the socket receives the command `process-ready`
     
 
 ## Messages Flow

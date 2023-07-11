@@ -9,7 +9,7 @@ const compression = require("compression");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 var hash = require("object-hash");
-const { SingleEntryPlugin } = require("webpack");
+const { EntryPlugin } = require("webpack");
 
 // CouchDB
 // const nano = require("nano")("http://admin:admin@localhost:5984");

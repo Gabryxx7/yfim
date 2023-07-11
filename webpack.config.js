@@ -1,6 +1,7 @@
 /** Fix for: "Critical dependency: require function is used in a way in which dependencies cannot be statically extracted"  
  * Check https://github.com/vladmandic/face-api/discussions/134 and https://github.com/mswjs/msw/issues/1252 **/
 module.exports = {
+  mode: 'development',
   module: {
     unknownContextCritical: false,
     rules: [

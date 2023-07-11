@@ -1,5 +1,5 @@
 
-const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands');
+const { CMDS, DATA} = require('./Communications');
 const { Room } = require('../managers/Room')
 const { User } = require('../managers/User')
 const { console  } = require("../utils/colouredLogger")
@@ -22,7 +22,7 @@ class NamespaceManager {
 
     onConnection(socket){
         console.info(`+ New socket connection! ID: ${socket.id}\t Connected to ${this.name} Namespace ${this.namespace}`);
-        socket.emit(SOCKET_CMDS.HELLO);
+        socket.emit(CMDS.SOCKET.HELLO);
         if(this.onConnectionHandler != null){
             this.onConnectionHandler(socket);
             return;

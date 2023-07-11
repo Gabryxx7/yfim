@@ -1,6 +1,6 @@
 const hash = require("object-hash");
 const { NamespaceManager } = require('../managers/NamespaceManager')
-const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands')
+const { CMDS, DATA} = require('./Communications')
 const { STATUS, Stage } = require('../managers/Stage')
 const { Room } = require('../managers/Room')
 const { User } = require('../managers/User')
@@ -35,11 +35,11 @@ class SessionManager {
     // this.chatsManager = new ChatsManager(this.sio, this);
     // this.controlManager = new ControlManager(this.sio, this);
     // this.projectionManager = new ProjectionManager(this.sio, this);
-    this.chatsManager = new NamespaceManager(this.sio, "Chat", NAMESPACES.CHAT, this, User);
-    this.controlManager = new NamespaceManager(this.sio, "Control", NAMESPACES.CONTROL, this, ControlUser);
-    this.projectionManager = new NamespaceManager(this.sio, "Projection", NAMESPACES.PROJECTION, this, null, (socket) => {
-        socket.join(SOCKET_CMDS.PROJECTION_TEST);
-        socket.on(SOCKET_CMDS.PROJECTION_CONNECT, (data) => {
+    this.chatsManager = new NamespaceManager(this.sio, "Chat", CMDS.NAMESPACES.CHAT, this, User);
+    this.controlManager = new NamespaceManager(this.sio, "Control", CMDS.NAMESPACES.CONTROL, this, ControlUser);
+    this.projectionManager = new NamespaceManager(this.sio, "Projection", CMDS.NAMESPACES.PROJECTION, this, null, (socket) => {
+        socket.join(CMDS.SOCKET.PROJECTION_TEST);
+        socket.on(CMDS.SOCKET.PROJECTION_CONNECT, (data) => {
           const { room, user } = data;
           // socket.join("projection-" + room);
           console.log(    '+ a projection was connected in room: " ' + room + ", user: " + user
@@ -91,7 +91,7 @@ class SessionManager {
     console.info(`Starting session on room ${room.id}`);
     try {
       console.info("+ both ready: start process");
-      console.info(room.toString())
+      room.printDebug();
       this.startDateTime = new Date().getTime();
       this.id = this.generateSessionId(this.startDateTime);
 
@@ -141,12 +141,12 @@ class SessionManager {
           host: false,
           guest: false,
         };
-        this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
+        this.chatsManager.nsio.emit(CMDS.SOCKET.PROCESS_START, {
           sessionData,
           record_by_user
         });
 
-        this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_START, {
+        this.controlManager.nsio.emit(CMDS.SOCKET.PROCESS_START, {
           sessionData,
           record_by_user
         });
@@ -187,9 +187,9 @@ class SessionManager {
     if(this.timer != null){
       clearInterval(this.timer);
     }
-    this.chatsManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP, { accident_stop });
-    this.controlManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP, { accident_stop });
-    // this.projectionManager.nsio.emit(SOCKET_CMDS.PROCESS_STOP, { accident_stop });
+    this.chatsManager.nsio.emit(CMDS.SOCKET.PROCESS_STOP, { accident_stop });
+    this.controlManager.nsio.emit(CMDS.SOCKET.PROCESS_STOP, { accident_stop });
+    // this.projectionManager.nsio.emit(CMDS.SOCKET.PROCESS_STOP, { accident_stop });
   }
 
   async storeData(room) {

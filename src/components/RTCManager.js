@@ -1,4 +1,4 @@
-const { SOCKET_CMDS, RTC_CMDS } = require('../managers/SocketCommands')
+const { CMDS } = require('../managers/Communications')
 import { TIMES } from '../managers/TimesDefinitions'
 
 export default class WebRTCManager {
@@ -8,23 +8,24 @@ export default class WebRTCManager {
 		this.dc = null;
 		this.reconnectTimer = null;
 		this.autoacceptTimer = null;
+		this.lastUserIdRequest = null;
 	}
 
   handleRTCCommunication(data){
     console.log("Received RTC Communication", data)
     switch(data.bridge){
-      case RTC_CMDS.ACTIONS.START_CALL: {
+      case CMDS.RTC.ACTIONS.START_CALL: {
         this.initCall();
         break;
       }
-      case RTC_CMDS.ACTIONS.APPROVE_REQUEST: {
-        console.log(data);
-        const { message, sid } = data.data;
-        console.log(`Received approve request from ${sid}: ${message}`)
+      case CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST: {
+			console.log(`Received approval request for auth/join request from user ${data.userId}`)
+		  this.lastUserIdRequest = data.userId
         // this.setState({ message, sid });
         this.autoacceptTimer = setTimeout(() => {
           try{
-            this.socketRef.current.emit(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.ACCEPT_JOIN_REQUEST, sid: sid});
+            this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: this.lastUserIdRequest});
+				this.lastUserIdRequest = null;
             // this.hideAuth();
           }catch(error){
             console.error(`Error emitting accept `, error)
@@ -32,37 +33,37 @@ export default class WebRTCManager {
         }, TIMES.AUTOACCEPT_WAIT);
         break;
       }
-      case RTC_CMDS.STATUS.CONNECTING: {
+      case CMDS.RTC.STATUS.CONNECTING: {
 
         break;
       }
-      case RTC_CMDS.STATUS.ESTABLISHED: {
+      case CMDS.RTC.STATUS.ESTABLISHED: {
 
         break;
       }
-      case RTC_CMDS.STATUS.FULL: {
+      case CMDS.RTC.STATUS.FULL: {
         console.log(`Room is full!`)
         break;
       }
-      case RTC_CMDS.STATUS.GUEST_HANGUP: {
+      case CMDS.RTC.STATUS.GUEST_HANGUP: {
 
         break;
       }
-      case RTC_CMDS.STATUS.HOST_HANGUP: {
+      case CMDS.RTC.STATUS.HOST_HANGUP: {
         this.onRemoteHangup(data);
 
         break;
       }
-      case RTC_CMDS.ACTIONS.HANGUP: {
+      case CMDS.RTC.ACTIONS.HANGUP: {
         break;
       }
-      case RTC_CMDS.ACTIONS.JOIN_CALL: {
-        this.socketRef.current.emit(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.REQUEST_JOIN, state: this.state});
+      case CMDS.RTC.ACTIONS.JOIN_REQUEST: {
+			console.log('Received Join request ' + data?.msg);
+        	// this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.AUTH_REQUEST, state: this.state});
         // this.hideAuth();
-        console.log('Emitting Auth');
         break;
       }
-      case RTC_CMDS.ACTIONS.MESSAGE: {
+      case CMDS.RTC.ACTIONS.MESSAGE: {
 
         break;
       }
@@ -83,15 +84,15 @@ export default class WebRTCManager {
 	}
 
   onRemoteHangup() {
-    this.setState({ ...this.state, bridge: RTC_CMDS.STATUS.HOST_HANGUP });
+    this.setState({ ...this.state, bridge: CMDS.RTC.STATUS.HOST_HANGUP });
   }
 
   hangup() {
-    this.setState({ ...this.state, bridge: RTC_CMDS.STATUS.GUEST_HANGUP });
+    this.setState({ ...this.state, bridge: CMDS.RTC.STATUS.GUEST_HANGUP });
     this.pc.close();
     if(this.socketRef.current != null){
-      this.socketRef.current.emit(SOCKET_CMDS.ROOM_IDLE, { room: this.room });
-      this.socketRef.current.emit(SOCKET_CMDS.LEAVE_ROOM);
+      this.socketRef.current.emit(CMDS.SOCKET.ROOM_IDLE, { room: this.room });
+      this.socketRef.current.emit(CMDS.SOCKET.LEAVE_ROOM);
     }
   }
 
@@ -119,7 +120,7 @@ export default class WebRTCManager {
 	// send the offer to a server to be forwarded to the other peer
 	sendDescription() {
 		if (this.socketRef.current != null) {
-			this.socketRef.current.send(SOCKET_CMDS.RTC_COMMUNICATION, {bridge: RTC_CMDS.ACTIONS.MESSAGE, data: this.pc.localDescription});
+			this.socketRef.current.send(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.MESSAGE, data: this.pc.localDescription});
 		}
 	}
 	handleError(e) {
@@ -145,7 +146,7 @@ export default class WebRTCManager {
 					ready: true,
 				});
 			}
-			if (msg == SOCKET_CMDS.ROOM_IDLE) {
+			if (msg == CMDS.SOCKET.ROOM_IDLE) {
 				this.setState({
 					...this.state,
 					ready: false,
@@ -208,7 +209,7 @@ export default class WebRTCManager {
 		if (this.media.remoteVideo != null) {
 			this.media.remoteStream = e.stream;
 			this.media.remoteVideo.srcObject = this.media.remoteStream = e.stream;
-			this.setState({ ...this.state, bridge: RTC_CMDS.STATUS.ESTABLISHED });
+			this.setState({ ...this.state, bridge: CMDS.RTC.STATUS.ESTABLISHED });
 		}
 	}
 

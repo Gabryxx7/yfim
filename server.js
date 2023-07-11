@@ -9,7 +9,7 @@ const compression = require("compression");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 var hash = require("object-hash");
-const { SingleEntryPlugin } = require("webpack");
+const { EntryPlugin } = require("webpack");
 const { SessionManager } = require("./src/managers/SessionManager")
 const { console  } = require("./src/utils/colouredLogger")
 
@@ -183,12 +183,12 @@ function processStart(room, start_time, cfg) {
 
           topic_selected.push(topic);
           console.log("- sending update to projection in room: " + room);
-          chatio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+          chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
             mask: mask_setting,
             topic: [topic],
             stage,
           });
-          projectio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+          projectio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
             mask: mask_setting,
             topic: [topic],
             stage,
@@ -205,8 +205,8 @@ function processStart(room, start_time, cfg) {
               stage +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+          chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+          controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
           survey_in_progress = true;
           stage = 2;
           //send mask
@@ -226,12 +226,12 @@ function processStart(room, start_time, cfg) {
               topic +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, {
+          chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
             mask: mask_setting,
             topic: [topic],
             stage,
           });
-          controlio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, { stage });
+          controlio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { stage });
         }
       } else if (time_left < 90 && time_left > 0) {
         //stage3
@@ -243,8 +243,8 @@ function processStart(room, start_time, cfg) {
               stage +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+          chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+          controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
           survey_in_progress = true;
           stage = 3;
           //send mask
@@ -264,8 +264,8 @@ function processStart(room, start_time, cfg) {
               topic +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, { mask: mask_setting, topic, stage });
-          controlio.emit(SOCKET_CMDS.STAGE_CONTROL.cmd, { stage });
+          chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { mask: mask_setting, topic, stage });
+          controlio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { stage });
         }
       }
 
@@ -279,8 +279,8 @@ function processStart(room, start_time, cfg) {
               stage +
               ")"
           );
-          chatio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(SOCKET_CMDS.SURVEY_START.cmd, { stage: stage });
+          chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+          controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
           survey_in_progress = true;
         }
         if (!stop && !survey_in_progress) {
@@ -315,8 +315,8 @@ function processStop(room, accident_stop) {
   clearInterval(timmer);
   // socket send stop
 
-  // io.to(room).emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-  chatio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-  controlio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
-  projectio.emit(SOCKET_CMDS.PROCESS_STOP.cmd, { accident_stop });
+  // io.to(room).emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
+  chatio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
+  controlio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
+  projectio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
 }
