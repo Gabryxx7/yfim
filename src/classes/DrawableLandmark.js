@@ -360,7 +360,7 @@ class DrawableLandmark {
      * However, that gave weird results with the ellipse, so I changed it to calculating the ellipse width and height according to that rotation instead
      */
     if(this.useGradientMask){
-        this.drawEllipticalGradient(ctx, this.centerPoint.x, this.centerPoint.y, this.radius, this.scale[0]*1.6, this.scale[1]*1.6);
+      this.drawEllipticalGradient(ctx, this.centerPoint.x, this.centerPoint.y, this.radius, this.scale[0]*1.6, this.scale[1]*1.6);
     }
     else{
         this.drawEllipse(ctx, this.centerPoint.x, this.centerPoint.y, this.radius, this.scale[0], this.scale[1])

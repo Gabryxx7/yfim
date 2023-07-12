@@ -244,15 +244,6 @@ export default class WebRTCManager {
       // }
 	 }
 
-	 onRemoteVideoPlay = () => {
-		console.log("Remote Video Play");
-		// start detect remote's face and process
-		// this.tryStartFaceDetection().catch((error) => {
-		//   console.warn(`Error attempting to start face detection emotion: ${error}`)
-		// });
-	 }
-
-
    startVideoCall() {      
       // call if we were the last to connect (to increase
       // chances that everything is set up properly at both ends)

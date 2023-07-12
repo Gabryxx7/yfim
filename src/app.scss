@@ -430,8 +430,8 @@ input[type="checkbox"] {
 
 .survey-container{
   background-size: cover;
-  position: absolute;
-  top: 16vh;
+  position: relative;
+  // top: 16vh;
   z-index: 19;
   background-color: rgba(0,0,0,0.2);
   backdrop-filter: blur(10px);

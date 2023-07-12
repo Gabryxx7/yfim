@@ -100,8 +100,8 @@ function RoomPage(props) {
 
 	return (
 		<div class={`main-call-container ${bridge} stage-${RTCStatus.stageType}`}>
-			<TestComponent index={0} user={user} />
-			<TestComponent index={1} user={user}/>
+			{/* <TestComponent index={0} user={user} />
+			<TestComponent index={1} user={user}/> */}
 			<Sidebar />
 			<VideoContainer socket={socket} setBridge={setBridge} rtcManager={RTCManager} />
 			{/* <button onClick={notify}>Notify!</button>
@@ -124,8 +124,8 @@ function RoomPage(props) {
 				socket={this.socket}
 				getUserMedia={this.getUserMedia}
 				username={this.props.match.params.room}
-			/>
-			<SurveyComponent /> */}
+			/>*/}
+			<SurveyComponent /> 
 			{/* <CommunicationContainer socket={socket} RTCManager={RTCManager} /> */}
 
 			<Communication
