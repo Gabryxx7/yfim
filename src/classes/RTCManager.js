@@ -69,7 +69,7 @@ export default class WebRTCManager {
         break;
       }
       case CMDS.RTC.ACTIONS.MESSAGE: {
-
+			this.onMessage(data);
         break;
       }
       case CMDS.RTC.STATUS.ACCEPTED: {
@@ -84,12 +84,12 @@ export default class WebRTCManager {
   }
 
   initiateCall(){
-		this.setupDataChannel();
+		this.pc.createDataChannel("chat");
 		this.pc
 			.createOffer({ iceRestart: true })
-			.then(() => this.setDescription())
+			.then((offer) => this.pc.setLocalDescription(offer))
 			.then(() => this.sendDescription())
-			.catch(() => this.handleError()); // An error occurred, so handle the failure to connect
+			.catch((event) => console.error("Error sending Offer ", event)); // An error occurred, so handle the failure to connect
   }
 
   onRemoteHangup() {
@@ -106,21 +106,23 @@ export default class WebRTCManager {
   }
 
   onMessage(message) {
-	console.log("Got new message ", message?.type);
+	console.log("Got new message ", message);
     if (message.type === "offer") {
       // set remote description and answer
       this.pc
         .setRemoteDescription(new RTCSessionDescription(message))
         .then(() => this.pc.createAnswer())
-        .then(() => this.setDescription())
+		  .then((answer) => this.pc.setLocalDescription(answer))
         .then(() => this.sendDescription())
-        .catch(() => this.handleError()); // An error occurred, so handle the failure to connect
+        .catch((event) => console.error("Error sending Answer ", event)); // An error occurred, so handle the failure to connect
     } else if (message.type === "answer") {
       // set remote description
       this.pc.setRemoteDescription(new RTCSessionDescription(message));
     } else if (message.type === "candidate") {
       // add ice candidate
-      this.pc.addIceCandidate(message.candidate);
+		const candidate = message.candidate ?? {};
+      this.pc.addIceCandidate(candidate)
+			.catch((error) => console.error("Error adding ice candidate ", candidate, error))
     }
   }
 
@@ -207,21 +209,13 @@ export default class WebRTCManager {
 	}
  }
 
-
-
-	setDescription(offer) {
-		return this.pc.setLocalDescription(offer);
-	}
 	// send the offer to a server to be forwarded to the other peer
 	sendDescription() {
 		if (this.socketRef.current != null) {
-			this.socketRef.current.send(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.MESSAGE, data: this.pc.localDescription});
+			console.log("Sending description ", this.pc.localDescription)
+			this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.MESSAGE, data: this.pc.localDescription});
 		}
 	}
-	handleError(event) {
-		console.log(event);
-	}
-
 
     // audio recorder initialize
 
@@ -294,8 +288,7 @@ export default class WebRTCManager {
 	
 	// Set up the data channel message handler
 	// transfer data from peers
-	setupDataChannel() {
-		this.dc = this.pc.createDataChannel("chat");
+	setupDataHandlers() {
 		this.dc.onmessage = (event) => {
 			// var msg = JSON.parse(event.data);
 			// if (msg == "lose-face") {
@@ -361,7 +354,7 @@ export default class WebRTCManager {
 		console.log('ondatachannel', event);
 		// data channel
 		this.dc = event.channel;
-		this.setupDataChannel();
+		this.setupDataHandlers();
 		this.sendData({
 			peerMediaStream: {
 				video: this.localStream.getVideoTracks()[0].enabled,

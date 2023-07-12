@@ -82,6 +82,10 @@ class User {
 
             break;
           }
+          case CMDS.RTC.ACTIONS.MESSAGE: {
+            this.broadcastMessage(CMDS.SOCKET.RTC_COMMUNICATION,  {bridge: CMDS.RTC.ACTIONS.MESSAGE, ...data.data})
+            break;
+          }
           case CMDS.RTC.ACTIONS.START_CALL: {
 
             break;
