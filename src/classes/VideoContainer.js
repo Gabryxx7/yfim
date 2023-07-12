@@ -21,7 +21,8 @@ export default function VideoContainer(props) {
 		if (remoteVideo != null) {
 			remoteStream.current = e.stream;
 			remoteVideo.srcObject = remoteStream.current = e.stream;
-      setBridge(CMDS.RTC.STATUS.ESTABLISHED);
+      	setBridge(CMDS.RTC.STATUS.ESTABLISHED);
+			sessionMap.session.start()
 		}
 	}
 

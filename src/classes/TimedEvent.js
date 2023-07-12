@@ -41,8 +41,13 @@ class TimedEvent {
         this.interval = null;
         this.data = {};
         this.onUpdateCallbacks = [];
+        this.onStartCallbacks = [];
     }
     
+    addOnStart(onStartFun){
+      this.onStartCallbacks.push(onStartFun);
+
+    }
     addOnUpdate(onUpdateFun){
         this.onUpdateCallbacks.push(onUpdateFun);
     }
@@ -73,6 +78,9 @@ class TimedEvent {
         this.startTime = startTime > 0 ? startTime : performance.now();
         this.duration = duration;
         this.interval = setInterval(() => this.update(), 1000);
+        for(let onStart of this.onStartCallbacks){
+          onStart(this);
+        }
     }
   
     update(){

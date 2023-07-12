@@ -102,8 +102,8 @@ function RoomPage(props) {
 		<div class={`main-call-container ${bridge} stage-${RTCStatus.stageType}`}>
 			<TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/>
+			<Sidebar />
 			<VideoContainer socket={socket} setBridge={setBridge} rtcManager={RTCManager} />
-			{/* <Sidebar state={this.state} /> */}
 			{/* <button onClick={notify}>Notify!</button>
     <ToastContainer
         position="bottom-right"

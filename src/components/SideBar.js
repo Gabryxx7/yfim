@@ -1,52 +1,60 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import Timer from "../containers/Timer";
+import { SessionContext } from "../classes/Session";
 
 export default function SideBar(props) {
+	const sessionMap = useContext(SessionContext);
+  const [sessionRunning, setSessionRunning] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [duration, setDuration] = useState(0)
   const [stageInfo, setStageInfo] = useState({
-    sidePrompt: props.state?.side_prompt,
-    user: props.state?.user_role,
-    currentStageIdx: props.state?.session?.data?.stage?.currentIdx,
-    currentStageName: props.state?.session?.data?.stage?.name,
-    totalStages: props.state?.session?.data?.stage?.totalStages,
+    sidePrompt: "Prompt",
+    user: "No user",
+    currentStageIdx: -1,
+    currentStageName: "No stage",
+    totalStages: 10,
   })
 
-  props.state?.session?.addOnUpdate((session) => {
-    setTimeElapsed(session.timeElapsed)
-  });
   var sidePadding = "11rem";
   var remoteVideoSide = "right";
   const barPadding = `1rem ${remoteVideoSide == 'right' ? sidePadding : '0.5rem'} 0.5rem ${remoteVideoSide != "right" ? sidePadding : '0.5rem'}`
   
   useEffect(() => {
-    // console.log("Sidebar STATE update!");
-    setTimeElapsed(props.state?.session?.timeElapsed);
-    setDuration(props.state?.session?.data?.stage?.duration);
-    setStageInfo({
-      sidePrompt: props.state?.side_prompt,
-      user: props.state?.user_role,
-      currentStageIdx: props.state?.session?.data?.currentStage,
-      currentStageName: props.state?.session?.data?.stage?.name,
-      totalStages: props.state?.session?.data?.totalStages,
-    })
-    // console.log(props.state.session)
-  }, [props.state]);
+    sessionMap.session.addOnStart((session) => {
+      setSessionRunning(true);
+    });
+    sessionMap.session.addOnUpdate((session) => {
+      setTimeElapsed(session.timeElapsed);
+    });
+    setTimeElapsed(sessionMap.session.timeElapsed);
+    setDuration(sessionMap.session.data?.stage?.duration);
+  })
+  // useEffect(() => {
+  //   // console.log("Sidebar STATE update!");
+  //   // setStageInfo({
+  //   //   sidePrompt: props.state?.side_prompt,
+  //   //   user: props.state?.user_role,
+  //   //   currentStageIdx: props.state?.session?.data?.currentStage,
+  //   //   currentStageName: props.state?.session?.data?.stage?.name,
+  //   //   totalStages: props.state?.session?.data?.totalStages,
+  //   // })
+  //   // console.log(props.state.session)
+  // }, [props.state]);
 
 
 
   return (
     <div className="sidebar_container"
       style={(() => {
-        const padding = props.state?.session?.running ? ''+barPadding : '1rem';
-        const maxHeight = props.state?.session?.running ? '20vh' : '0vh';
+        const padding = sessionRunning ? ''+barPadding : '1rem';
+        const maxHeight = sessionRunning ? '20vh' : '0vh';
         return {padding,maxHeight}
       })()}>
       <div className="info">
-            {props.state?.session?.running &&
+            {sessionRunning &&
                <Timer
-                timeRef={timeElapsed}
+                elapsed={timeElapsed}
                 countdown={true}
                 duration={duration}
                 coloring={true}>
