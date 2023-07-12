@@ -3,7 +3,7 @@ const CMDS = {
     ACTIONS: {
       START_CALL: "create",
       JOIN_REQUEST:         "join-request",
-      AUTH_REQUEST: 'auth',
+      AUTH_REQUEST:       'auth',
       ACCEPT_JOIN_REQUEST:       "accept",
       REJECT_JOIN_REQUEST:       "reject",
       HOST_APPROVAL_REQUEST:      "approve",
@@ -18,6 +18,7 @@ const CMDS = {
       GUEST_HANGUP: "guest-hangup",
       ESTABLISHED:  "established",
       CONNECTING:   "connecting",
+      PENDING_APPROVAL:   "pending",
     }
   },
   SOCKET: { 

@@ -4,14 +4,16 @@ import MediaContainer from "./MediaContainer";
 import CommunicationContainer from "./CommunicationContainer";
 import "survey-react/survey.css";
 import { CMDS, DATA} from "../managers/Communications";
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SurveyComponent from "../components/SurveyComponent";
 import Sidebar from "../components/Sidebar";
 import WebRTCManager from "../classes/RTCManager"
-import Communication from "../components/Communication";
+import { ToastCommunications, InvitationMsg, WaitingMsg, NewRoleMsg, PendingApprovalMsg } from "../components/ToastCommunications";
 import { SessionProvider, SessionContext } from "../classes/Session";
 import TestComponent from "../components/SessionContextUpdateExample"
 import VideoContainer from "../classes/VideoContainer";
+
 
 
 export default function RoomPageNew(props) {
@@ -28,18 +30,27 @@ function RoomPage(props) {
 	const sessionMap = useContext(SessionContext);
 	const [user, setUser] = useState({});
 	const socket = useRef(null);
+	const waitingMsgId = useRef(null);
 	const [RTCManager, setRTCManager] = useState(null)
 	const [RTCStatus, setRTCStatus] = useState({bridge: "none", data: {}});
-	const [bridge, setBridge] = useState(null);
+	const [bridge, setBridge] = useState("none");
 
-	const onRoomUpdate = (data) => {		
+	const onRoomUpdate = (data) => {
+		if(sessionMap.session?.user?.role != data?.user?.role){
+			if(data?.user?.role?.toLowerCase() == 'host'){
+				toast.info(<NewRoleMsg role={data?.user?.role}/>, {
+					autoClose: 3000,
+					toastId: "newRoleToast"
+				})
+			}
+		}
 		console.log(`Updated user Role ${data?.user?.role}`)
 		sessionMap.updateUser(data);
 		setUser(sessionMap.session.user)
 	}
 
-	const handleInvitation = (e) => {
-		e.preventDefault();
+	const onInvitationAnswer = (answer) => {
+		console.log("Invitation answer");
 		if(RTCManager.autoacceptTimer != null) clearTimeout(RTCManager.autoacceptTimer);
 		if(RTCManager.lastUserIdRequest != null){
 			console.log(`Emitting Invitation accept ${RTCManager.lastUserIdRequest}`)
@@ -50,11 +61,15 @@ function RoomPage(props) {
 		setBridge(CMDS.RTC.STATUS.CONNECTING)
 	 }
 
-	useEffect(() => {
+	 useEffect(() => {
 		socket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 		console.log(`Created Socket: `,socket.current);
     	setRTCManager(new WebRTCManager(socket, sessionMap));
 	}, []);
+
+
+	useEffect(() => {
+	}, [user]);
 
 	useEffect(() => {
 		if(RTCManager == null) return;
@@ -96,6 +111,24 @@ function RoomPage(props) {
 	useEffect(() => {
 		if(bridge == null) return;
 		console.log("New bridge", bridge);
+		if(bridge == "none"){
+			toast.loading(<WaitingMsg />, {
+				toastId: "waiting"
+			});
+			return;
+		}
+		toast.dismiss("waiting");
+		if(bridge == CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST){
+			toast.warn(<InvitationMsg onInvitationAnswer={onInvitationAnswer}/>, {
+				toastId: "peerRequestId"
+			});
+		} else if(bridge == CMDS.RTC.STATUS.PENDING_APPROVAL){
+			toast.info(<PendingApprovalMsg />, {
+				toastId: "pendingApproval"
+			});
+		} else{
+			toast.dismiss("pendingApproval");
+		}
 	}, [bridge])
 
 	return (
@@ -104,18 +137,9 @@ function RoomPage(props) {
 			<TestComponent index={1} user={user}/> */}
 			<Sidebar />
 			<VideoContainer socket={socket} setBridge={setBridge} rtcManager={RTCManager} />
-			{/* <button onClick={notify}>Notify!</button>
-    <ToastContainer
-        position="bottom-right"
-        autoClose={100000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"/> */}
+			 <button onClick={() => toast(<InvitationMsg onInvitationAnswer={onInvitationAnswer}/>)}>Notify!</button>
+			 <ToastCommunications />
+    
 			{/* <MediaContainer
 				room={this.props.match.params.room}
 				roomPage={this}
@@ -128,14 +152,14 @@ function RoomPage(props) {
 			<SurveyComponent /> 
 			{/* <CommunicationContainer socket={socket} RTCManager={RTCManager} /> */}
 
-			<Communication
+			{/* <Communication
 				// {...state}
 				toggleVideo={() => console.log("Toggle Video")}
 				toggleAudio={() => console.log("Toggle Audio")}
 				send={() => send()}
 				handleInput={(e) => handleInput(e)}
 				handleInvitation={(e) => handleInvitation(e)}
-			/>
+			/> */}
 		</div>
 	);
 }

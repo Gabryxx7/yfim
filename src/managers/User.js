@@ -237,6 +237,7 @@ class User {
       if(joinFeedback.code > 0){
         if(userRoom.size > 1){
           this.socket.to(this.room.id).emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.JOIN_REQUEST, msg: `User ${this} is requesting to join the call`}); // Broadcast to room this.room.id except for the sender
+          this.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.STATUS.PENDING_APPROVAL, msg: `Waiting for host to approve request`});
           userRoom.host.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST, userId: this.id});
         }
         else{

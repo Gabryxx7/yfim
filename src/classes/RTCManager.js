@@ -64,12 +64,14 @@ export default class WebRTCManager {
       }
       case CMDS.RTC.ACTIONS.JOIN_REQUEST: {
 			console.log('Received Join request ' + data?.msg);
-        	// this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.AUTH_REQUEST, state: this.state});
         // this.hideAuth();
         break;
       }
       case CMDS.RTC.ACTIONS.MESSAGE: {
 			this.onMessage(data);
+        break;
+      }
+      case CMDS.RTC.STATUS.PENDING_APPROVAL: {
         break;
       }
       case CMDS.RTC.STATUS.ACCEPTED: {

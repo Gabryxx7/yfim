@@ -479,6 +479,34 @@ input[type="checkbox"] {
   height: 100%;
   width: 100%;
 }
+
+.toast-msg{
+  font-size: 0.85em;
+  display: flex;
+  place-content: center;
+  place-items: center;
+  flex-direction: column;
+  font-size: 0.85em;
+  a{
+    font-size: 0.95em !important;
+  }
+  .actions{
+    display: flex;
+    gap: 0.5em;
+  }
+}
+
+.Toastify__toast-container {
+  height: auto !important;
+  width: auto !important;
+  min-width: 15rem !important;
+
+  .Toastify__toast {
+    cursor: default;
+    box-shadow: 0 1px 10px 0 rgb(91 90 90 / 10%), 0 2px 15px 0 rgb(123 123 123 / 5%);
+  }
+
+}
 .auth {
   position: fixed;
   bottom: 0;
@@ -501,6 +529,7 @@ input[type="checkbox"] {
   width: 25%;
 }
 .primary-button {
+  border-radius: 4px;
   text-decoration: none;
   display: inline-block;
   cursor: pointer;
@@ -509,14 +538,17 @@ input[type="checkbox"] {
   color: white;
   font-size: 0.9em;
   margin: 0 5px 20px 5px;
-  width: 8em;
+  width: 7em;
   line-height: 3ex;
   padding: 1ex 0.7em;
   text-align: center;
   -webkit-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
-  &.confirm{
+  &:hover{
+    filter: brightness(0.6);
+  }
+  &.accept{
     background-color: mediumseagreen;
   }
   &.reject{
@@ -536,7 +568,6 @@ input[type="checkbox"] {
 .room-occupied,
 .request-access,
 .waiting,
-.request-access,
 .grant-access,
 .waiting {
   overflow: hidden;
@@ -546,7 +577,7 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
   /* Initially we don't want any height, and we want the contents to be hidden */
-  max-height: 0;
+  // max-height: 0;
   transition: max-height 0.3s ease;
 }
 .full .auth .room-occupied,

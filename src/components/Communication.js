@@ -125,7 +125,7 @@ const Communication = (props) => (
       <button
         onClick={props.handleInvitation}
         data-ref="accept"
-        className="primary-button confirm"
+        className="primary-button accept"
       >
         Accept
       </button>
