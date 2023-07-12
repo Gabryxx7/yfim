@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import { surveyJSON } from "../components/Survey_JSON";
-import { survey_Final } from "../components/Survey_Final";
+import { survey_Final } from "../../assets/Survey_Final";
 import * as Survey from "survey-react";
 import "survey-react/survey.css";
 import SurveyIntro from "../components/SurveyIntro";

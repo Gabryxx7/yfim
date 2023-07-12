@@ -10,7 +10,7 @@ const { CMDS, DATA} = require('../managers/Communications')
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SurveyComponent from "../components/SurveyComponent";
-import {TimedEvent} from "../components/TimedEvent";
+import {TimedEvent} from "../classes/TimedEvent";
 import Sidebar from "../components/Sidebar";
 
 const Msg = ({ closeToast, toastProps }) => (
@@ -80,7 +80,7 @@ class RoomPage extends Component {
   }
   
 
-  init() {;      
+  init() {      
     // when our browser gets a candidate, send it to the peer
     
     // attach local media to the peer connection

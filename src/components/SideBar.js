@@ -44,7 +44,8 @@ export default function SideBar(props) {
         return {padding,maxHeight}
       })()}>
       <div className="info">
-            {props.state?.session?.running && <Timer
+            {props.state?.session?.running &&
+               <Timer
                 timeRef={timeElapsed}
                 countdown={true}
                 duration={duration}

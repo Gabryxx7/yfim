@@ -11,10 +11,10 @@ import IntroFaceDetect from "../components/IntroFaceDetect";
 import Thankyou from "../components/Thankyou";
 import Sidebar from "../components/Sidebar";
 import { CMDS, DATA} from '../managers/Communications'
-import { DrawableLandmark, INTERP_FUNCTIONS } from "../components/DrawableLandmark";
+import { DrawableLandmark, INTERP_FUNCTIONS } from "../classes/DrawableLandmark";
 import { TIMES } from "../managers/TimesDefinitions";
 var FileSaver = require("file-saver");
-import {TimedEvent} from "../components/TimedEvent";
+import {TimedEvent} from "../classes/TimedEvent";
 import SurveyPage from "./SurveyPage";
 import SurveyComponent from "../components/SurveyComponent";
 
@@ -106,7 +106,6 @@ class MediaBridge extends Component {
     this.canvasRef = null;
     this.currentVideoSource = null;
     this.remoteVideo = null;
-    this.remoteStream = null;
     this.emo_result = [];
     this.survey_count = 0;
     this.controlParams = props.controlParams;
@@ -152,31 +151,6 @@ class MediaBridge extends Component {
       });
     }
 
-    // audio recorder initialize
-    this.localVideo.addEventListener("play", () => {
-      console.log("Local Video Play");
-      let audio_track = this.localStream.getAudioTracks()[0];
-      let video_track = this.localStream.getVideoTracks()[0];
-      let audio_stream = new MediaStream();
-      audio_stream.addTrack(audio_track);
-      // audio_stream.addTrack(video_track);
-      this.mediaRecorder = new MediaRecorder(this.localStream, {
-        mimeType: "video/webm",
-      });
-      this.chunks = [];
-      // listen for data from media recorder
-      this.mediaRecorder.ondataavailable = (e) => {
-        // not record audio during survey
-        if (e.data && e.data.size > 0 && !this.state.survey_in_progress) {
-          this.chunks.push(e.data);
-        }
-      };
-      if(this.socket == null){
-        this.tryStartFaceDetection().catch((error) => {
-          console.warn(`Error attempting to start face detection: ${error}`)
-        });
-      }
-    });
   }
 
   componentDidUpdate(prevProps) {
@@ -581,52 +555,6 @@ class MediaBridge extends Component {
   }
 
   // audio recording
-
-  startRecording() {
-    // e.preventDefault();
-    if (RECORD_AUDIO) {
-      // wipe old data chunks
-      this.chunks = [];
-      // start recorder with 10ms buffer
-      this.mediaRecorder.start(10);
-      // say that we're recording
-      this.setState({ recording: true });
-    } else {
-      console.info("- AUDIO RECORDING IS DISABLED");
-      this.setState({ recording: false });
-    }
-  }
-
-  stopRecording(accident_stop) {
-    // e.preventDefault();
-    if (RECORD_AUDIO) {
-      console.log("stopping recording");
-      // stop the recorder
-      this.mediaRecorder.stop();
-      // say that we're not recording
-      this.setState({ recording: false });
-      // save the video to memory
-      if (!accident_stop) {
-        this.saveVideo();
-      }
-    }
-  }
-
-  saveVideo() {
-    if (RECORD_VIDEO) {
-      // convert saved chunks to blob
-      const blob = new Blob(this.chunks, { type: "video/webm" });
-      // generate video url from blob
-      // const videoURL = window.URL.createObjectURL(blob);
-      // append videoURL to list of saved videos for rendering
-      let filename = this.sessionId + "_" + this.state.user;
-      FileSaver.saveAs(blob, filename);
-      // const videos = this.state.videos.concat([videoURL]);
-      // this.setState({ videos });
-    } else {
-      console.info("- VIDEO RECORDING IS DISABLED");
-    }
-  }
 
   // main function for chat room
   // 1. faceapi doc: https://justadudewhohacks.github.io/face-api.js/docs/index.html
