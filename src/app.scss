@@ -8,6 +8,11 @@ button {
 }
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Montserrat:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
 
+@keyframes blinker {  
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 @font-face {
   font-family: 'Roboto', sans-serif;
   src: local('Roboto'), url('./fonts/Roboto/Roboto-Regular.ttf') format('truetype');
@@ -462,6 +467,20 @@ input[type="checkbox"] {
       display: none;
     }
   }
+  .live-icon {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 40;
+    animation: none;
+    color: #d3d3d35c;
+  }
+  &.established{
+    .live-icon {
+      animation: blinker 1.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;  
+      color: red;
+    }
+  }
 }
 
 .media-bridge{
@@ -649,3 +668,5 @@ input[type="checkbox"] {
 .sd-imagepicker{
   flex-wrap: nowrap;
 }
+
+

@@ -19,6 +19,7 @@ const CMDS = {
       ESTABLISHED:  "established",
       CONNECTING:   "connecting",
       PENDING_APPROVAL:   "pending",
+      DISCONNECTED:   "disconnected",
     }
   },
   SOCKET: { 

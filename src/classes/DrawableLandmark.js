@@ -183,7 +183,7 @@ class DrawableLandmark {
         this.lastUpdate = performance.now();
         this.deltaTime = 0;
         this.useGradientMask = true;
-        console.log(`New Drawable Landmark ${this.name}. Point: ${this.pointSize} ${this.pointColor}. Interpolation ${this.interpFun.name} ${this.interpTime}`);
+        // console.log(`New Drawable Landmark ${this.name}. Point: ${this.pointSize} ${this.pointColor}. Interpolation ${this.interpFun.name} ${this.interpTime}`);
     }
 
     updateAnimations(){
@@ -230,17 +230,22 @@ class DrawableLandmark {
         this.updateAnimations();
     }
 
+    getUpdatedPoints(landmarkPositions){
+      let newPoints = []
+      if (this.pointsRange[0] >= this.pointsRange[1]) {
+          newPoints = landmarkPositions;
+      } else {
+          newPoints = landmarkPositions.slice(
+              this.pointsRange[0],
+              this.pointsRange[1]
+          )
+      }
+      return newPoints;
+    }
+
     updatePointsFromLandmark(landmarkPositions) {
-        let newPoints = []
-        if (this.pointsRange[0] >= this.pointsRange[1]) {
-            newPoints = landmarkPositions;
-        } else {
-            newPoints = landmarkPositions.slice(
-                this.pointsRange[0],
-                this.pointsRange[1]
-            )
-        }
-        this.updatePoints(newPoints);
+      const newPoints = this.getUpdatedPoints(landmarkPositions);
+      this.updatePoints(newPoints);
     }
 
   setRotation(degrees) {

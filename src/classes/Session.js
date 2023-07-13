@@ -9,6 +9,7 @@ class Session extends TimedEvent{
       UPDATE_USER: "UPDATE_USER"
    }
    static reducer = (session, action) => {
+      console.log("Reducer " + action.type)
       if (action.type === Session.Actions.INCREMENT_COUNTER) {
          session.testCount += 1;
       }
@@ -35,7 +36,7 @@ const SessionProvider = (props) => {
    const value = {
       session: sessionState,
       incrementCounter: (data) => sessionDispatch({type: Session.Actions.INCREMENT_COUNTER, data: data}),
-      updateUser: (data) => sessionDispatch({type: Session.Actions.UPDATE_USER, data: data})
+      updateUser: (data) => sessionDispatch({type: Session.Actions.UPDATE_USER, data: data}),
    };
    return <SessionContext.Provider value={value}>{props.children}</SessionContext.Provider>;
 }

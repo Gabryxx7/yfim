@@ -78,6 +78,7 @@ class TimedEvent {
         this.startTime = startTime > 0 ? startTime : performance.now();
         this.duration = duration;
         this.interval = setInterval(() => this.update(), 1000);
+        console.log("STARTING SESSION: " +this.name);
         for(let onStart of this.onStartCallbacks){
           onStart(this);
         }

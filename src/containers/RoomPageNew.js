@@ -4,16 +4,16 @@ import MediaContainer from "./MediaContainer";
 import CommunicationContainer from "./CommunicationContainer";
 import "survey-react/survey.css";
 import { CMDS, DATA} from "../managers/Communications";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import SurveyComponent from "../components/SurveyComponent";
 import Sidebar from "../components/Sidebar";
 import WebRTCManager from "../classes/RTCManager"
+import {  toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, InvitationMsg, WaitingMsg, NewRoleMsg, PendingApprovalMsg } from "../components/ToastCommunications";
 import { SessionProvider, SessionContext } from "../classes/Session";
 import TestComponent from "../components/SessionContextUpdateExample"
 import VideoContainer from "../classes/VideoContainer";
-
+import FaceProcessor from "../classes/FaceProcessor";
 
 
 export default function RoomPageNew(props) {
@@ -28,11 +28,10 @@ export default function RoomPageNew(props) {
 
 function RoomPage(props) {
 	const sessionMap = useContext(SessionContext);
-	const [user, setUser] = useState({});
+	const [faceProcessor, setFaceProcessor] = useState(null);
 	const socket = useRef(null);
-	const waitingMsgId = useRef(null);
 	const [RTCManager, setRTCManager] = useState(null)
-	const [RTCStatus, setRTCStatus] = useState({bridge: "none", data: {}});
+	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
 
 	const onRoomUpdate = (data) => {
@@ -46,12 +45,10 @@ function RoomPage(props) {
 		}
 		console.log(`Updated user Role ${data?.user?.role}`)
 		sessionMap.updateUser(data);
-		setUser(sessionMap.session.user)
 	}
 
 	const onInvitationAnswer = (answer) => {
 		console.log("Invitation answer");
-		if(RTCManager.autoacceptTimer != null) clearTimeout(RTCManager.autoacceptTimer);
 		if(RTCManager.lastUserIdRequest != null){
 			console.log(`Emitting Invitation accept ${RTCManager.lastUserIdRequest}`)
 			socket.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: RTCManager.lastUserIdRequest});
@@ -65,19 +62,17 @@ function RoomPage(props) {
 		socket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 		console.log(`Created Socket: `,socket.current);
     	setRTCManager(new WebRTCManager(socket, sessionMap));
+		setFaceProcessor(new FaceProcessor());
 	}, []);
-
-
-	useEffect(() => {
-	}, [user]);
 
 	useEffect(() => {
 		if(RTCManager == null) return;
+		RTCManager.onConnectionStateChange = (state) => setConnectionStatus(state);
 		// socket.emit(CMDS.SOCKET.SURVEY_CONNECT, {
 		// 	room: room,
 		// 	user: user,
 		// });
-		// socket.onAny((eventName, ...args) => {
+		// socket.current.onAny((eventName, ...args) => {
 		// 	if(eventName !== CMDS.SOCKET.FACE_DETECTED){
 		// 		console.log(`Received event ${eventName}`, args)
 		// 	}
@@ -92,7 +87,7 @@ function RoomPage(props) {
 		socket.current.on(CMDS.SOCKET.ROOM_IDLE, () => resetParams());
 		socket.current.on(CMDS.SOCKET.SURVEY_START, (data) => onSurveyStart(data));
 		socket.current.on(CMDS.SOCKET.FACE_DETECTED, () => setFaceOn(true));
-		socket.current.on(CMDS.SOCKET.PROCESS_START, () => onProcessStart());
+		// socket.current.on(CMDS.SOCKET.PROCESS_START, () => onProcessStart());
 		socket.current.on(CMDS.SOCKET.ROOM_UPDATE, (data) => onRoomUpdate(data));
 		// socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => onProcessStop(data));
 		socket.current.on(CMDS.SOCKET.RESET, () => resetParams());
@@ -103,12 +98,26 @@ function RoomPage(props) {
     	socket.current.emit(CMDS.SOCKET.JOIN_ROOM);
 	}, [RTCManager])
 
-	useEffect(() => {
-		console.log("New RTCStatus", RTCStatus);
-	 }, [RTCStatus])
-
 
 	useEffect(() => {
+		// console.log("connectionStatus ", connectionStatus)
+		if(connectionStatus == "connected"){
+			toast("A user joined the room!", {
+				type: "success",
+				toastId: "userJoined",
+				autoClose: 5000
+			});
+		}
+		else if(connectionStatus == "disconnected"){
+			toast("A user left the room!", {
+				type: "error",
+				toastId: "userLeft",
+				autoClose: 5000
+			});
+		}
+	}, [connectionStatus]);
+
+	 useEffect(() => {
 		if(bridge == null) return;
 		console.log("New bridge", bridge);
 		if(bridge == "none"){
@@ -132,11 +141,16 @@ function RoomPage(props) {
 	}, [bridge])
 
 	return (
-		<div class={`main-call-container ${bridge} stage-${RTCStatus.stageType}`}>
+		<div class={`main-call-container ${bridge}`}>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}
 			<Sidebar />
-			<VideoContainer socket={socket} setBridge={setBridge} rtcManager={RTCManager} />
+			<VideoContainer
+				socket={socket}
+				onStreamAdded={() => setBridge(CMDS.RTC.STATUS.ESTABLISHED)}
+				connectionStatus={connectionStatus}
+				rtcManager={RTCManager}
+				faceProcessor={faceProcessor} />
 			 <button onClick={() => toast(<InvitationMsg onInvitationAnswer={onInvitationAnswer}/>)}>Notify!</button>
 			 <ToastCommunications />
     

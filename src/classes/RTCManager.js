@@ -7,14 +7,13 @@ export default class WebRTCManager {
     	this.socketRef = socketRef;
 		this.sessionMap = sessionMap;
 		this.remoteStream = null;
-		this.localStream = null;
+		this.localVideo = null;
 		this.pc = null;
 		this.dc = null;
-		this.reconnectTimer = null;
-		this.autoacceptTimer = null;
 		this.lastUserIdRequest = null;
 		this.recording = false;
 		this.onAddStream = () => {};
+		this.onConnectionStateChange = () => {console.log("onconnectionstatechange change ", this.pc.connectionState);};
 	}
 
   handleRTCCommunication(data){
@@ -27,15 +26,6 @@ export default class WebRTCManager {
 			console.log(`Received approval request for auth/join request from user ${data.userId}`)
 		  this.lastUserIdRequest = data.userId
         // this.setState({ message, sid });
-        this.autoacceptTimer = setTimeout(() => {
-          try{
-            this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: this.lastUserIdRequest});
-				this.lastUserIdRequest = null;
-            // this.hideAuth();
-          }catch(error){
-            console.error(`Error emitting accept `, error)
-          }
-        }, TIMES.AUTOACCEPT_WAIT);
         break;
       }
       case CMDS.RTC.STATUS.CONNECTING: {
@@ -108,7 +98,7 @@ export default class WebRTCManager {
   }
 
   onMessage(message) {
-	console.log("Got new message ", message);
+	// console.log("Got new message ", message);
     if (message.type === "offer") {
       // set remote description and answer
       this.pc
@@ -214,7 +204,7 @@ export default class WebRTCManager {
 	// send the offer to a server to be forwarded to the other peer
 	sendDescription() {
 		if (this.socketRef.current != null) {
-			console.log("Sending description ", this.pc.localDescription)
+			// console.log("Sending description ", this.pc.localDescription)
 			this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.MESSAGE, data: this.pc.localDescription});
 		}
 	}
@@ -246,38 +236,38 @@ export default class WebRTCManager {
       // }
 	 }
 
-   startVideoCall() {      
-      // call if we were the last to connect (to increase
-      // chances that everything is set up properly at both ends)
-      // console.log(`State user: ${this.state.user}`);
-		navigator.mediaDevices.getUserMedia({
-			audio: true,
-			video: {
-				width: { min: 1280, ideal: 1280 },
-				height: { min: 720, ideal: 720 },
-				zoom: true,
-		},
-		}).then((stream) => {
-			this.localStream = stream;
-			this.localVideo.srcObject = stream;
-			this.localVideo.addEventListener("play",  () => this.onLocalVideoPlay());
-			// attach local media to the peer connection
-			stream.getTracks().forEach((track) => {
-				console.log('Adding track ', track);
-				this.pc.addTrack(track, this.localStream)
-			});
-			try{
-				if(this.sessionMap.session.user.role.toLowerCase() === "host"){
-					this.initiateCall()
-				}
-			}
-			catch(error){
-				console.error(`Error initiating call: `, error);
-			}
-		})
-		.catch((event) => console.error("Error getting user media: " + e));
+   // startVideoCall() {      
+   //    // call if we were the last to connect (to increase
+   //    // chances that everything is set up properly at both ends)
+   //    // console.log(`State user: ${this.state.user}`);
+	// 	navigator.mediaDevices.getUserMedia({
+	// 		audio: true,
+	// 		video: {
+	// 			width: { min: 1280, ideal: 1280 },
+	// 			height: { min: 720, ideal: 720 },
+	// 			zoom: true,
+	// 	},
+	// 	}).then((stream) => {
+	// 		this.localStream = stream;
+	// 		this.localVideo.srcObject = stream;
+	// 		this.localVideo.addEventListener("play",  () => this.onLocalVideoPlay());
+	// 		// attach local media to the peer connection
+	// 		stream.getTracks().forEach((track) => {
+	// 			console.log('Adding track ', track);
+	// 			this.pc.addTrack(track, this.localStream)
+	// 		});
+	// 		try{
+	// 			if(this.sessionMap.session.user.role.toLowerCase() === "host"){
+	// 				this.initiateCall()
+	// 			}
+	// 		}
+	// 		catch(error){
+	// 			console.error(`Error initiating call: `, error);
+	// 		}
+	// 	})
+	// 	.catch((event) => console.error("Error getting user media: " + e));
 		
-   }
+   // }
 	
 	// Set up the data channel message handler
 	// transfer data from peers
@@ -329,28 +319,41 @@ export default class WebRTCManager {
 		});
 		console.log("RTCPeerCOnnection created");
 
-		this.pc.onconnectionstatechange = (event) => this.onIceConnectionStateChange(event);
-		this.pc.addEventListener("iceconnectionstatechange", (event) => this.onIceConnectionStateChange(event));
+		// this.pc.onconnectionstatechange = (event) => this.onConnectionStateChange(event);
+		this.pc.oniceconnectionstatechange = (event) => this.onIceConnectionStateChange(event);
+		// this.pc.onsignalingstatechange = (event) => {console.log("Signaling state: " +this.pc.signalingState)}
 		this.pc.onicecandidate = (event) => this.onIceCandidate(event);
 		this.pc.ontrack = (event) => this.onTrack(event);
 		this.pc.onaddstream = (event) => this.onAddStream(event);
 		this.pc.ondatachannel = (event) => this.onDataChannel(event);
 		console.log("RTCPeerCOnnection listeners added, initiating call...");
-		this.startVideoCall();
+
+		this.localVideo.srcObject.getTracks().forEach((track) => {
+			console.log('Adding track ', track);
+			this.pc.addTrack(track, this.localVideo.srcObject)
+		});
+		try{
+			if(this.sessionMap.session.user.role.toLowerCase() === "host"){
+				this.initiateCall()
+			}
+		}
+		catch(error){
+			console.error(`Error initiating call: `, error);
+		}
 	}
 
 	onTrack(event) {
-		console.log("ontrack", event);
+		// console.log("ontrack", event);
 	}
 
 	onDataChannel(event) {
-		console.log('ondatachannel', event);
+		// console.log('ondatachannel', event);
 		// data channel
 		this.dc = event.channel;
 		this.setupDataHandlers();
 		this.sendData({
 			peerMediaStream: {
-				video: this.localStream.getVideoTracks()[0].enabled,
+				video: this.localVideo.srcObject.getVideoTracks()[0].enabled,
 			},
 		});
 		//sendData('hello');
@@ -358,7 +361,7 @@ export default class WebRTCManager {
 
 
 	onIceCandidate(event) {
-		console.log("onicecandidate", event);
+		// console.log("onicecandidate", event);
 		if (event.candidate) {
 			if (this.socketRef.current != null) {
 				this.socketRef.current.send({
@@ -368,21 +371,12 @@ export default class WebRTCManager {
 			}
 		}
 	}
-	onConnectionStateChange(event) {
-		console.log("onconnectionstatechange change ", event);
-	}
 	onIceConnectionStateChange(event) {
 		let pcstate = this.pc.iceConnectionState;
-		console.log("iceconnection change ", pcstate);
+		this.onConnectionStateChange(pcstate);
+		// console.log("iceconnection change ", pcstate);
 		if (pcstate === "failed" || pcstate === "closed" || pcstate === "disconnected") {
-			/* possibly reconfigure the connection in some way here */
-			/* then request ICE restart */
-			this.reconnectTimer = setInterval(() => {
-				console.log("iceconnection trying to reconnect");
-				location.reload();
-			}, TIMES.ICE_RECONNECTION_INTERVAL);
-		} else {
-			clearInterval(this.reconnectTimer);
+			this.onConnectionStateChange(pcstate);
 		}
 	}
 
