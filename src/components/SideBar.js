@@ -23,13 +23,22 @@ export default function SideBar(props) {
   useEffect(() => {
     sessionMap.session.addOnStart((session) => {
       setSessionRunning(true);
+      console.log("Session started sidebar: ", session.data)
+      setStageInfo({...stageInfo,
+        user: session.data?.user?.role,
+        currentStageIdx: session.data?.currentStage,
+        currentStageName: session.data?.stage?.name,
+        sidePrompt: session.data?.stage?.topic,
+        totalStages: session.data?.totalStages,
+      });
+      const newDuration = session.data?.stage?.duration;
+      console.log("duration ", newDuration);
+      setDuration(newDuration);
     });
     sessionMap.session.addOnUpdate((session) => {
       setTimeElapsed(session.timeElapsed);
     });
-    setTimeElapsed(sessionMap.session.timeElapsed);
-    setDuration(sessionMap.session.data?.stage?.duration);
-  })
+  }, [])
   // useEffect(() => {
   //   // console.log("Sidebar STATE update!");
   //   // setStageInfo({

@@ -52,8 +52,7 @@ class SessionManager {
   update(){
     let nowTime = new Date().getTime();
     this.elapsed = (nowTime - this.startDateTime)/1000;
-    this.currentStage.update();
-    if(this.currentStage.status == STATUS.COMPLETED){
+    if(this.currentStage == null || this.currentStage.status == STATUS.COMPLETED){
       this.currentStageIdx += 1;
       if(this.currentStageIdx >= this.stages.length){
         console.log("ALL STAGES COMPLETED");
@@ -61,8 +60,13 @@ class SessionManager {
         return;
       }
       this.currentStage = this.stages[this.currentStageIdx];
-      this.currentStage.initalize()
+      this.currentStage.initialize();
+
+      const sessionData = this.getData();
+      this.chatsManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, sessionData)
+      this.controlManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, sessionData)
     }
+    this.currentStage.update();
     this.timer = setTimeout(() => {
       this.update();
     }, TIMES.SESSION_UPDATE_INTERVAL)
@@ -127,30 +131,13 @@ class SessionManager {
       }
       this.startDateTime = new Date().getTime();
       this.startTime = performance.now();
-      this.currentStageIdx = 0;
       if(this.stagesConfig) {
         for(let i = 0; i < this.stagesConfig.length; i++){
           this.stages.push(new Stage(room, this, this.stagesConfig[i], null, i));
         }
       }
-      this.currentStage = this.stages[this.currentStageIdx];
-      if(this.currentStageIdx <= 0){
-        this.currentStage.initalize();
-        const sessionData = this.getData();
-        const record_by_user = {
-          host: false,
-          guest: false,
-        };
-        this.chatsManager.nsio.emit(CMDS.SOCKET.PROCESS_START, {
-          sessionData,
-          record_by_user
-        });
-
-        this.controlManager.nsio.emit(CMDS.SOCKET.PROCESS_START, {
-          sessionData,
-          record_by_user
-        });
-      }
+      // This will take care of starting the next (or first) stage, notifying of a new session update at the end of each stage
+      // And advancing until the end of all the stages
       this.update();
 
       // processStart(roomId, startTime, config);

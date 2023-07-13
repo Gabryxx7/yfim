@@ -47,6 +47,10 @@ function RoomPage(props) {
 		sessionMap.updateUser(data);
 	}
 
+	const onSessionUpdate = (data) => {
+		sessionMap.updateSession(data);
+	}
+
 	const onInvitationAnswer = (answer) => {
 		console.log("Invitation answer");
 		if(RTCManager.lastUserIdRequest != null){
@@ -87,6 +91,7 @@ function RoomPage(props) {
 		socket.current.on(CMDS.SOCKET.ROOM_IDLE, () => resetParams());
 		socket.current.on(CMDS.SOCKET.SURVEY_START, (data) => onSurveyStart(data));
 		socket.current.on(CMDS.SOCKET.FACE_DETECTED, () => setFaceOn(true));
+      socket.current.on(CMDS.SOCKET.SESSION_UPDATE, (data) => onSessionUpdate(data));
 		// socket.current.on(CMDS.SOCKET.PROCESS_START, () => onProcessStart());
 		socket.current.on(CMDS.SOCKET.ROOM_UPDATE, (data) => onRoomUpdate(data));
 		// socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => onProcessStop(data));

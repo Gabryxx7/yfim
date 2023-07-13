@@ -22,7 +22,7 @@ export default function Timer(props){
     var time = elapsed;
     if(timeLimit > 0){
       if(countdown){
-        time = duration - elapsed;
+        time = timeLimit - elapsed;
       }
       setTextColor(getTimerColor(time, timeColorMap))
     }
