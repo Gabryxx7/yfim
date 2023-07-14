@@ -42,11 +42,15 @@ class TimedEvent {
         this.data = {};
         this.onUpdateCallbacks = [];
         this.onStartCallbacks = [];
+        this.onStageStartCallbacks = [];
     }
     
     addOnStart(onStartFun){
       this.onStartCallbacks.push(onStartFun);
+    }
 
+    addOnStageStart(onStartFun){
+      this.onStageStartCallbacks.push(onStartFun);
     }
     addOnUpdate(onUpdateFun){
         this.onUpdateCallbacks.push(onUpdateFun);
@@ -61,7 +65,7 @@ class TimedEvent {
     }
 
     addStage(stage){
-        this.stages.push(stage);
+      this.stages.push(stage);
     }
 
     startNextStage(){
@@ -70,6 +74,9 @@ class TimedEvent {
         }
         this.currentStage += 1;
         this.currentStageData = this.stages[this.currentStage];
+        for(let onStageStart of this.onStageStartCallbacks){
+          onStageStart(this);
+        }
     }
   
     start(startTime=-1, startDateTime=null, duration=-1){

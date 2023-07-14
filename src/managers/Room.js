@@ -31,9 +31,9 @@ class Room{
   }
 
   allUsersReady(){
-    count = 0;
-    total = 0;
-    for (const userId in this.users) {
+    var count = 0;
+    var total = 0;
+    for (let userId in this.users) {
       total += 1;
       if(this.users[userId].ready){
         count += 1;

@@ -14,6 +14,7 @@ import { SessionProvider, SessionContext } from "../classes/Session";
 import TestComponent from "../components/SessionContextUpdateExample"
 import VideoContainer from "../classes/VideoContainer";
 import FaceProcessor from "../classes/FaceProcessor";
+import { STAGE_STATUS } from "../classes/Session"
 
 
 export default function RoomPageNew(props) {
@@ -33,6 +34,8 @@ function RoomPage(props) {
 	const [RTCManager, setRTCManager] = useState(null)
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
+	const [stageState, setStageState] = useState(STAGE_STATUS.NONE);
+	const [stageType, setStageType] = useState("video-chat");
 
 	const onRoomUpdate = (data) => {
 		if(sessionMap.session?.user?.role != data?.user?.role){
@@ -49,6 +52,9 @@ function RoomPage(props) {
 
 	const onSessionUpdate = (data) => {
 		sessionMap.updateSession(data);
+		sessionMap.session.start();
+		setStageType(sessionMap.session.data?.stage?.stepData?.type);
+		setStageState(STAGE_STATUS.IN_PROGRESS);
 	}
 
 	const onInvitationAnswer = (answer) => {
@@ -103,6 +109,10 @@ function RoomPage(props) {
     	socket.current.emit(CMDS.SOCKET.JOIN_ROOM);
 	}, [RTCManager])
 
+	useEffect(() => {
+		console.log(`STAGE RTYPE: ${stageType}`)
+	}, [stageType])
+
 
 	useEffect(() => {
 		// console.log("connectionStatus ", connectionStatus)
@@ -149,14 +159,30 @@ function RoomPage(props) {
 		<div class={`main-call-container ${bridge}`}>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}
-			<Sidebar />
+			<Sidebar 
+				onTimerEnd={() => {
+					setStageState(STAGE_STATUS.COMPLETED)
+					console.log("STAGE COMPLETED");
+					socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
+				}}
+  				stageState={stageState}
+			/>
 			<VideoContainer
+				style={{
+					display: () => {stageType == 'video-chat' ? 'block' : 'none'}
+				}}
+  				stageState={stageState}
 				socket={socket}
-				onStreamAdded={() => setBridge(CMDS.RTC.STATUS.ESTABLISHED)}
+				onStreamAdded={() => {
+					setBridge(CMDS.RTC.STATUS.ESTABLISHED)
+				}}
+				onRemotePlay={() => {
+					sessionMap.session.start();
+					setStageState(STAGE_STATUS.IN_PROGRESS);
+				}}
 				connectionStatus={connectionStatus}
 				rtcManager={RTCManager}
 				faceProcessor={faceProcessor} />
-			 <button onClick={() => toast(<InvitationMsg onInvitationAnswer={onInvitationAnswer}/>)}>Notify!</button>
 			 <ToastCommunications />
     
 			{/* <MediaContainer
@@ -168,7 +194,10 @@ function RoomPage(props) {
 				getUserMedia={this.getUserMedia}
 				username={this.props.match.params.room}
 			/>*/}
-			<SurveyComponent /> 
+			<SurveyComponent 
+				style={{
+					display: () => {stageType == 'video-chat' ? 'none' : 'block'}
+				}} /> 
 			{/* <CommunicationContainer socket={socket} RTCManager={RTCManager} /> */}
 
 			{/* <Communication

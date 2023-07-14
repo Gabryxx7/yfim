@@ -63,9 +63,9 @@ class Stage {
     if (this.type == "video-chat") {
       this.extra = {};
       try{
-        let mask_setting = this.session.masksConfig[this.params.mask_id];
-        mask_setting = mask_setting?.setting ? mask_setting.setting[2] : {};
-        this.extra['mask'] = mask_setting;
+        // let mask_setting = this.session.masksConfig[this.params.mask_id];
+        // mask_setting = mask_setting?.setting ? mask_setting.setting[2] : {};
+        this.extra['mask'] = this.params?.mask_settings;
       } catch(error){
         console.error("error getting mask settings: ", error);
       }
@@ -97,6 +97,11 @@ class Stage {
     // this.session.controlManager.nsio.emit(CMDS.SOCKET.STAGE_UPDATE, stageData)
 
     this.status = STATUS.IN_PROGRESS;
+  }
+
+  setStatus(status){
+    console.log(`Setting Status for Stage ${this.name}: ${status}`)
+    this.status = status;
   }
 
   getData(){

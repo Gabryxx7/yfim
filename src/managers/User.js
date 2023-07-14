@@ -25,7 +25,7 @@ class User {
       this.id = this.socket.id; // Just for the purpose of this project
       this.name = User.TYPE.NONE;
       this.joined = false;
-      this.ready = false;
+      this.ready = true;
       this.rating = null;
       this.record = null;
       this.data = {};
@@ -121,6 +121,7 @@ class User {
       this.socket.on(CMDS.SOCKET.LEAVE_ROOM, () => this.leaveRoom());
       this.socket.on(CMDS.SOCKET.CONTROL_ROOM, (data) => this.controlRoom(data));
       this.socket.on(CMDS.SOCKET.ROOM_IDLE, (data) => this.roomInIdle(data));
+      this.socket.on(CMDS.SOCKET.STAGE_COMPLETED, () => this.onUserStageCompleted());
     }
 
     // sending to all clients in the room (channel) except sender
@@ -215,6 +216,13 @@ class User {
         data.error = error;
       }
       this.socket.emit(CMDS.SOCKET.ROOM_UPDATE, data);
+    }
+
+    onUserStageCompleted(){
+      this.ready = true;
+      if(this.room){
+        this.sessionManager.onUserStageCompleted(this.room);
+      }
     }
   
     joinCreateRoom(){

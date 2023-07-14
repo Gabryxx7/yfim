@@ -1,6 +1,11 @@
 import React, { createContext, useReducer, useCallback } from "react";
 import {TimedEvent} from "../classes/TimedEvent";
 
+const STAGE_STATUS = {
+   NONE: "none",
+   IN_PROGRESS: "in_progress",
+   COMPLETED: "completed",
+ };
 
 class Session extends TimedEvent{
    static Actions = {
@@ -45,4 +50,4 @@ const SessionProvider = (props) => {
 }
 
 
-export { SessionContext, SessionProvider, Session }
+export { STAGE_STATUS, SessionContext, SessionProvider, Session }

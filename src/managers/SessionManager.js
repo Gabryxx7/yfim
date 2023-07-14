@@ -48,6 +48,14 @@ class SessionManager {
       });
   }
 
+  onUserStageCompleted(room){
+    const allUsersReady = room.allUsersReady();
+    console.log("All users ready in room " + room.id);
+    if(allUsersReady){
+      this.currentStage.setStatus(STATUS.COMPLETED);
+    }
+  }
+
 
   update(){
     let nowTime = new Date().getTime();

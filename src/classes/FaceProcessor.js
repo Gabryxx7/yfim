@@ -28,6 +28,13 @@ const landmarksData = [
 	new DrawableLandmark({ ...defLandData, name: "LeftEye", pointsRange: [36, 42], scale: [1.5, 1.35] }),
 	new DrawableLandmark({ ...defLandData, name: "RightEye", pointsRange: [42, 48], scale: [1.5, 1.35] }),
 	new DrawableLandmark({ ...defLandData, name: "Mouth", pointsRange: [48, 68], scale: [0.8, 0.8] }),
+	// new DrawableLandmark({ ...defLandData, name: "JawOutline", pointsRange: [0, 17], scale: [1, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: "LeftEyeBrow", pointsRange: [17, 22], scale: [1, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: "RightEyeBrow", pointsRange: [22, 27], scale: [1, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: "Nose", pointsRange: [27, 36], scale: [0.5, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: "LeftEye", pointsRange: [36, 42], scale: [1.5, 1.35], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: "RightEye", pointsRange: [42, 48], scale: [1.5, 1.35], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: "Mouth", pointsRange: [48, 68], scale: [0.8, 0.8], visible: true }),
 ];
 const centerLandmarkPoint = new DrawableLandmark({
 	...defLandData,
@@ -53,6 +60,20 @@ export default class FaceProcessor extends VideoProcessor {
       this.chunks = [];
 	}
 
+   setMaskData(maskData){
+      if(maskData.show_features != null){
+         for (let l of landmarksData){
+            l.visible = false;
+            for(let feature of maskData.show_features){
+               if(l.name.toUpperCase() == feature.toUpperCase()){
+                  l.visible = true;
+                  break;
+               }
+            }
+         }
+      }
+   }
+
    startRecording(){
       delete this.chunks;
       this.chunks = [];
@@ -62,7 +83,7 @@ export default class FaceProcessor extends VideoProcessor {
    stopRecording(user){
       this.recording = false;
       const date = new Date().toISOString().split(".")[0];
-      console.log(this.chunks[0])
+      // console.log(this.chunks[0])
       // const blob = new Blob(this.chunks, {type: "text/plain;charset=utf-8"});
       const blob = new Blob([JSON.stringify(this.chunks)], {type: "text/plain;charset=utf-8"});
       let filename = `YFIM_Face_${user?.role}_${date}.json`;
@@ -148,8 +169,6 @@ export default class FaceProcessor extends VideoProcessor {
 	// Draw a mask over face/screen
 	draw() {
 		if (this.detections != null && this.detectionsUpdated) {
-			this.ctx.fillStyle = "black";
-			this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 			let imHeight = this.detections.detection.imageHeight;
 			let imWidth = this.detections.detection.imageWidth;
 			let cHeight = this.ctx.canvas.clientHeight;
@@ -174,11 +193,17 @@ export default class FaceProcessor extends VideoProcessor {
 				l.updatePointsFromLandmark(landmarks.positions);
 				l.setRotation(resized.angle.roll);
 			}
-
 			// I need to draw the cutout/clipping maskes first and then draw the landmarks on top, i can't do both in the same loop as the clipping masks of the next
 			// Points would override the previous landmark points
+         var canvasCleared = false;
 			for (let l of landmarksData) {
+            if(!l.visible) continue;
 				if (l.drawMask) {
+               if(!canvasCleared){
+                  this.ctx.fillStyle = "black";
+                  this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                  canvasCleared = true;
+               }
 					try {
 						l.drawClippingMask(this.ctx);
 					} catch (error) {

@@ -164,6 +164,7 @@ class DrawableLandmark {
         this.name = data.name ?? "Landmark";
         this.scale = data.scale ?? [1, 1];
         this.visible = data.visible ?? true;
+        this.showPoints = data.showPoints ?? false;
         this.pointSize = data.pointSize ?? 5;
         this.pointColor = data.pointColor ?? "fff";
         this.drawMask = data.drawMask ?? true;
@@ -352,10 +353,6 @@ class DrawableLandmark {
    * In this case we can draw a full black rectangle with "fillRect" and then cut out the "holes" with "destination-out"
    */
   drawClippingMask(ctx, debug = false) {
-    if(!this.visible){
-        return;
-    }
-
     ctx.globalCompositeOperation = "destination-out";
     // console.log(`${this.name}: [${this.centerData.x}, ${this.centerData.y}], radius: ${this.centerData.radius}` );
     ctx.beginPath();
@@ -376,9 +373,7 @@ class DrawableLandmark {
   }
 
   drawCentroid(ctx, debug = false) {
-    if(!this.visible){
-        return;
-    }
+    if(!this.showPoints) return;
     ctx.beginPath();
     ctx.fillStyle = "blue";
     ctx.arc(this.centerPoint.x, this.centerPoint.y, this.pointSize, 0, 2 * Math.PI);
@@ -387,9 +382,7 @@ class DrawableLandmark {
   }
 
   drawPoints(ctx, debug = false) {
-    if(!this.visible){
-        return;
-    }
+    if(!this.showPoints) return;
     if (debug) {
       console.log(this.name, this.points);
     }

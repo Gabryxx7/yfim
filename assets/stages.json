@@ -1,14 +1,26 @@
 [
   {
-    "name": "Start",
+    "name": "Test Video 1",
     "steps": [
       {
         "type": "video-chat",
         "duration": 10,
         "params": {
-          "mask_id": "endWithEyes",
+          "audio": true,
+          "video": true,
+          "question_type": "icebreaker"
+        }
+      }
+    ]
+  },{
+    "name": "Test Survey 1",
+    "steps": [
+      {
+        "type": "survey",
+        "duration": 10,
+        "params": {
           "mask_settings": {
-            "show_features": ["leftEye", "rightEye", "mouth", "nose"]
+            "show_features": ["leftEye", "rightEye", "mouth"]
           },
           "audio": true,
           "video": true,
@@ -17,24 +29,46 @@
       }
     ]
   },{
-    "name": "Start BAK",
+    "name": "Test Video 2",
     "steps": [
       {
-        "type": "survey",
+        "type": "video-chat",
         "duration": 10,
         "params": {
-          "param1": ""
+          "mask_settings": {
+            "show_features": ["leftEye", "rightEye", "mouth"]
+          },
+          "audio": true,
+          "video": true,
+          "question_type": "icebreaker"
+        }
+      }
+    ]
+  },{
+    "name": "Start Mask 2",
+    "steps": [
+      {
+        "type": "video-chat",
+        "duration": 10,
+        "params": {
+          "mask_settings": {
+            "show_features": ["leftEye", "rightEye"]
+          },
+          "audio": true,
+          "video": true,
+          "question_type": "icebreaker"
         }
       }
     ]
   },
   {
-    "name": "Stage 1",
+    "name": "Stage 1 - Video Chat Icebreaker",
     "steps": [
       {
         "name": "Chat",
         "type": "video-chat",
-        "duration": 500,
+        "duration_uncomment": 500,
+        "duration": 30,
         "params": {
           "mask_settings": {
             "show_features": ["leftEye", "rightEye", "mouth", "nose"]
@@ -47,7 +81,7 @@
       {
         "name": "Survey",
         "type": "survey",
-        "duration": 7,
+        "duration": 100,
         "params": {
           "param1": ""
         }

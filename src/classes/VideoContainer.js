@@ -32,6 +32,7 @@ export default function VideoContainer(props) {
 	const localVideo = useRef();
 	const remoteVideo = useRef();
 	const remoteStream = useRef();
+	const onRemotePlay = props.onRemotePlay ?? (() => {});
 	const onStreamAdded = props.onStreamAdded;
 
 	// when the other side added a media stream, show it on screen
@@ -45,7 +46,8 @@ export default function VideoContainer(props) {
 				faceProcessor.setVideo(remoteVideo.current);
 				sessionMap.session.remoteVideo = remoteVideo.current;
 				// setVideoConstraints(remoteVideo.current);
-				sessionMap.session.start();
+				onRemotePlay();
+				
 			});
 			onStreamAdded();
 		}
@@ -103,16 +105,10 @@ export default function VideoContainer(props) {
 	};
 
 	useEffect(() => {
-		if(faceProcessor != null){
-			faceProcessor.canvas = canvasRef.current;
-		}
-	}, [])
-
-
-	useEffect(() => {
 		sessionMap.session.addOnStart((session) => {
 			console.log("Setting up MediaRecorder ", mediaRecorder);
-			if(mediaRecorder != null){
+			if(mediaRecorder != null && mediaRecorder.state != "recording"){
+				console.log("Starring MediaRecorder ", mediaRecorder);
 				mediaRecorder.start();
 				console.log("Recording started!")
 				faceProcessor.startRecording();
@@ -140,7 +136,10 @@ export default function VideoContainer(props) {
 				setTimeout(() => mediaRecorder.stop(), recordTestDuration);
 			}
 		});
-	}, [mediaRecorder])
+		if(faceProcessor != null){
+			faceProcessor.canvas = canvasRef.current;
+		}
+	}, [])
 
 	useEffect(() => {
 		if(faceProcessor == null) return;
@@ -155,6 +154,12 @@ export default function VideoContainer(props) {
 					return faceProcessor.loadModels();
 				})
 				.then(async () => faceProcessor.start())
+			
+			sessionMap.session.addOnStart((session) => {
+				if(session.data?.stage?.mask){
+					faceProcessor.setMaskData(session.data?.stage?.mask);
+				}
+			});
 		}
 	}, [faceProcessor]);
 
