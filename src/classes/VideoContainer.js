@@ -171,8 +171,8 @@ export default function VideoContainer(props) {
 	}, [rtcManager]);
 
 	return (
-		<div className={`main-room-container`}>
-			<div className={`media-bridge`}>
+		<div className='main-room-container'>
+			<div className='media-bridge'>
 				<div className="live-icon"> <FontAwesomeIcon icon={icon({name: 'video'})} /> </div>
 				<canvas className="canvas" ref={canvasRef} />
 				{(() => {

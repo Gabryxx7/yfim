@@ -15,6 +15,11 @@ import TestComponent from "../components/SessionContextUpdateExample"
 import VideoContainer from "../classes/VideoContainer";
 import FaceProcessor from "../classes/FaceProcessor";
 import { STAGE_STATUS } from "../classes/Session"
+import { Model } from "survey-core";
+import { surveyJSON } from "../../assets/PostChatSurvey";
+import { Survey } from "survey-react-ui";
+import "survey-core/defaultV2.min.css";
+import "../survey.scss";
 
 
 export default function RoomPageNew(props) {
@@ -37,6 +42,24 @@ function RoomPage(props) {
 	const [stageState, setStageState] = useState(STAGE_STATUS.NONE);
 	const [stageType, setStageType] = useState("video-chat");
 
+	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
+	// Where I only set the onComplete() callback on the first page render, this seems to do the trick (probably because of memoization?!)
+	const surveyModel = useRef(null)
+
+	useEffect(() => {
+		if(surveyModel.current == null){
+			surveyModel.current = new Model(surveyJSON);
+			surveyModel.current.onComplete.add((sender, options) => {
+				console.log(JSON.stringify(sender.data, null, 3));
+				setStageState(STAGE_STATUS.COMPLETED)
+				console.log("STAGE COMPLETED (event)");
+				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
+			})
+			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
+		}
+	}, [])
+	
+
 	const onRoomUpdate = (data) => {
 		if(sessionMap.session?.user?.role != data?.user?.role){
 			if(data?.user?.role?.toLowerCase() == 'host'){
@@ -51,6 +74,7 @@ function RoomPage(props) {
 	}
 
 	const onSessionUpdate = (data) => {
+		console.log("Session update");
 		sessionMap.updateSession(data);
 		sessionMap.session.start();
 		setStageType(sessionMap.session.data?.stage?.stepData?.type);
@@ -69,6 +93,7 @@ function RoomPage(props) {
 	 }
 
 	 useEffect(() => {
+		console.log("Room page render");
 		socket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 		console.log(`Created Socket: `,socket.current);
     	setRTCManager(new WebRTCManager(socket, sessionMap));
@@ -162,16 +187,13 @@ function RoomPage(props) {
 			<Sidebar 
 				onTimerEnd={() => {
 					setStageState(STAGE_STATUS.COMPLETED)
-					console.log("STAGE COMPLETED");
+					console.log("STAGE COMPLETED (time limit reached)");
 					socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
 				}}
   				stageState={stageState}
 			/>
+			<div style={{display: `${stageType == 'video-chat' ? 'block' : 'none'}`}}>
 			<VideoContainer
-				style={{
-					display: () => {stageType == 'video-chat' ? 'block' : 'none'}
-				}}
-  				stageState={stageState}
 				socket={socket}
 				onStreamAdded={() => {
 					setBridge(CMDS.RTC.STATUS.ESTABLISHED)
@@ -183,6 +205,7 @@ function RoomPage(props) {
 				connectionStatus={connectionStatus}
 				rtcManager={RTCManager}
 				faceProcessor={faceProcessor} />
+			</div>
 			 <ToastCommunications />
     
 			{/* <MediaContainer
@@ -194,10 +217,9 @@ function RoomPage(props) {
 				getUserMedia={this.getUserMedia}
 				username={this.props.match.params.room}
 			/>*/}
-			<SurveyComponent 
-				style={{
-					display: () => {stageType == 'video-chat' ? 'none' : 'block'}
-				}} /> 
+			<div style={{display: `${stageType == 'video-chat' ? 'none' : 'block'}`}}>
+			{surveyModel.current != null &&  <Survey className="survey-container" model={surveyModel.current} /> }
+			</div>
 			{/* <CommunicationContainer socket={socket} RTCManager={RTCManager} /> */}
 
 			{/* <Communication

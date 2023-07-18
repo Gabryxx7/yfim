@@ -30,6 +30,12 @@ class Room{
     return `${this.id} (${this.size}${overTotal})`;
   }
 
+  setUsersReady(ready){
+    for (let userId in this.users) {
+      this.users[userId].ready = ready;
+    }
+  }
+
   allUsersReady(){
     var count = 0;
     var total = 0;

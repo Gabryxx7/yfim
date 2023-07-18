@@ -44,6 +44,7 @@ class Stage {
     this.startTime = performance.now();
     this.elapsed = 0;
     console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
+    this.room.setUsersReady(false);
     if (this.steps.length > 0) {
       this.currentStepIdx = 0;
       this.currentStep = this.steps[this.currentStepIdx];

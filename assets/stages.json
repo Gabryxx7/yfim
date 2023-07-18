@@ -1,11 +1,13 @@
 [
   {
-    "name": "Test Video 1",
+    "name": "Test Survey 1",
     "steps": [
       {
-        "type": "video-chat",
-        "duration": 10,
+        "type": "survey",
         "params": {
+          "mask_settings": {
+            "show_features": ["leftEye", "rightEye", "mouth"]
+          },
           "audio": true,
           "video": true,
           "question_type": "icebreaker"
@@ -13,15 +15,12 @@
       }
     ]
   },{
-    "name": "Test Survey 1",
+    "name": "Test Video 1",
     "steps": [
       {
-        "type": "survey",
+        "type": "video-chat",
         "duration": 10,
         "params": {
-          "mask_settings": {
-            "show_features": ["leftEye", "rightEye", "mouth"]
-          },
           "audio": true,
           "video": true,
           "question_type": "icebreaker"

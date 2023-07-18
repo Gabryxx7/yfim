@@ -16,7 +16,8 @@ export default function SideBar(props) {
     user: "No user",
     index: -1,
     name: "No stage",
-    totalStages: 10
+    totalStages: 10,
+    stageType: "none"
   })
 
   var sidePadding = "11rem";
@@ -24,6 +25,7 @@ export default function SideBar(props) {
   const barPadding = `1rem ${remoteVideoSide == 'right' ? sidePadding : '0.5rem'} 0.5rem ${remoteVideoSide != "right" ? sidePadding : '0.5rem'}`
   
   useEffect(() => {
+		console.log("Sidebar re-render");
     sessionMap.session.addOnStart((session) => {
       setSessionRunning(true);
       console.log("Session started sidebar: ", session.data)
@@ -33,6 +35,7 @@ export default function SideBar(props) {
         name: session.data?.stage?.name,
         prompt: session.data?.stage?.topic,
         totalStages: session.data?.totalStages,
+        stageType: session.data?.stage?.stepData?.type
       });
       const newDuration = session.data?.stage?.duration;
       console.log("duration ", newDuration);
@@ -44,6 +47,7 @@ export default function SideBar(props) {
   }, [])
 
   useEffect(() => {
+		console.log("Sidebar stage update");
   }, [stageState])
   // useEffect(() => {
   //   // console.log("Sidebar STATE update!");
@@ -67,7 +71,7 @@ export default function SideBar(props) {
         return {padding,maxHeight}
       })()}>
       <div className="info">
-            {sessionRunning &&
+            {sessionRunning && duration > 0 &&
                <Timer
                 stageState={stageState}
                 onTimerEnd={onTimerEnd}
@@ -99,6 +103,7 @@ export default function SideBar(props) {
             </div>
           </div>
        <span className="sidebar_user_role">{stageData.user}</span>
+       <span className="sidebar_user_role">{stageData.stageType}</span>
       </div>
       <div className="sidebar_prompt">{stageData.prompt}</div>
     </div>

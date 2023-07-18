@@ -49,7 +49,12 @@ const makeLikertQuestion = (type, name, prompt) => {
   }
 }
 
+
 export const surveyJSON = {
+  showProgressBar: "top",
+  progressBarType: "questions",
+  widthMode: "static",
+  width: "864px",
   pages: [
     {
       title: "Emotional Self-Assessment",
@@ -61,33 +66,48 @@ export const surveyJSON = {
         makeSAMQuestion("Self", "Q1.3", SAMType.VALENCE, "How did you overall feel? Please choose the manikin that most describes **your feeling**"),
       ],
     },
-    {
-      title: "Assessment Of Your Partner",
-      description: "Please anser the following questions considering how you think **YOUR CONVERSATION PARTNER** felt",
-      name:"Assessment Of Your Partner",
-      elements: [
-        makeSAMQuestion("Other", "Q1.1", SAMType.ACTIVATION, "Please choose the manikin that most describes how you think **your conversation partner** felt"),
-        makeSAMQuestion("Other", "Q1.2", SAMType.DOMINANCE, "Please choose the manikin that most describes how you think **your conversation partner** felt"),
-        makeSAMQuestion("Other", "Q1.3", SAMType.VALENCE, "Please choose the manikin that most describes how you think **your conversation partner** felt."),
-      ],
-    },
-    {
-      title: "General Feedback",
-      name: "General Feedback",
-      elements: [
-        makeLikertQuestion("Other", "Inteface", "The interface helped me make sense of my conversation partner's emotions"),
-        makeLikertQuestion("Other", "Empathy", "I was able to empathise with my conversation partner's point of view"),
-        makeLikertQuestion("Other", "Convey", "I was able to convey my opinion effectively to my conversation partner"),
-        makeLikertQuestion("Self", "FreeExpression", "I felt free to express my (assigned) point of view"),
-        makeLikertQuestion("Self", "PartnersEmpathy", "I felt like my conversation partner was empathising with my point of view"),
-        makeLikertQuestion("Self", "DiscussionUseful", "The discussion helped me see a new aspect regarding the topic"),
-        makeLikertQuestion("General", "PartnersEmpathy", "I felt like my conversation partner was empathising with my point of view"),
-        makeLikertQuestion("General", "DiscussionUseful", "The discussion helped me see a new aspect regarding the topic")
-      ],
-    },
-  ],
-  showProgressBar: "top",
-  progressBarType: "questions",
-  widthMode: "static",
-  width: "864px",
-};
+  ]
+}
+
+// export const surveyJSON = {
+//   showProgressBar: "top",
+//   progressBarType: "questions",
+//   widthMode: "static",
+//   width: "864px",
+//   pages: [
+//     {
+//       title: "Emotional Self-Assessment",
+//       description: "Please anser the following questions considering how **YOU** felt",
+//       name: "Emotional Self-Assessment",
+//       elements: [
+//         makeSAMQuestion("Self", "Q1.1", SAMType.ACTIVATION, "How did you overall feel? Please choose the manikin that most describes **your feeling**"),
+//         makeSAMQuestion("Self", "Q1.2", SAMType.DOMINANCE, "How did you overall feel? Please choose the manikin that most describes **your feeling**"),
+//         makeSAMQuestion("Self", "Q1.3", SAMType.VALENCE, "How did you overall feel? Please choose the manikin that most describes **your feeling**"),
+//       ],
+//     },
+//     {
+//       title: "Assessment Of Your Partner",
+//       description: "Please anser the following questions considering how you think **YOUR CONVERSATION PARTNER** felt",
+//       name:"Assessment Of Your Partner",
+//       elements: [
+//         makeSAMQuestion("Other", "Q1.1", SAMType.ACTIVATION, "Please choose the manikin that most describes how you think **your conversation partner** felt"),
+//         makeSAMQuestion("Other", "Q1.2", SAMType.DOMINANCE, "Please choose the manikin that most describes how you think **your conversation partner** felt"),
+//         makeSAMQuestion("Other", "Q1.3", SAMType.VALENCE, "Please choose the manikin that most describes how you think **your conversation partner** felt."),
+//       ],
+//     },
+//     {
+//       title: "General Feedback",
+//       name: "General Feedback",
+//       elements: [
+//         makeLikertQuestion("Other", "Inteface", "The interface helped me make sense of my conversation partner's emotions"),
+//         makeLikertQuestion("Other", "Empathy", "I was able to empathise with my conversation partner's point of view"),
+//         makeLikertQuestion("Other", "Convey", "I was able to convey my opinion effectively to my conversation partner"),
+//         makeLikertQuestion("Self", "FreeExpression", "I felt free to express my (assigned) point of view"),
+//         makeLikertQuestion("Self", "PartnersEmpathy", "I felt like my conversation partner was empathising with my point of view"),
+//         makeLikertQuestion("Self", "DiscussionUseful", "The discussion helped me see a new aspect regarding the topic"),
+//         makeLikertQuestion("General", "PartnersEmpathy", "I felt like my conversation partner was empathising with my point of view"),
+//         makeLikertQuestion("General", "DiscussionUseful", "The discussion helped me see a new aspect regarding the topic")
+//       ],
+//     },
+//   ],
+// };
