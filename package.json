@@ -15,6 +15,9 @@
     "watch": "webpack --watch",
     "test-session-manager": "node test_sessions.js"
   },
+  "browser": {
+    "fs": false
+  },
   "keywords": [
     "WebRTC Video Chat",
     "RTCPeerConnection",

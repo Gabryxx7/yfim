@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import MediaContainer from "./MediaContainer";
-const { CMDS, DATA} = require('../managers/Communications')
 import SurveyComponent from "../components/SurveyComponent";
 
 class FaceVideoTest extends Component {

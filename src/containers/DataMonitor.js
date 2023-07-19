@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactJson from "react-json-view";
 import io from "socket.io-client";
-import { CMDS, DATA} from '../managers/Communications'
+import { CMDS, DATA} from '../managers/Definitions'
 
 var headers = new Headers();
 

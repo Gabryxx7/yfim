@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
-import { CMDS, DATA } from "../managers/Communications";
+import { CMDS, DATA } from "../managers/Definitions";
 import "react-toastify/dist/ReactToastify.css";
 import { SessionContext } from "../classes/Session";
 const FileSaver = require("file-saver");
@@ -157,7 +157,7 @@ export default function VideoContainer(props) {
 			
 			sessionMap.session.addOnStart((session) => {
 				if(session.data?.stage?.mask){
-					faceProcessor.setMaskData(session.data?.stage?.mask);
+					faceProcessor.setMaskData(session.data?.stage?.step?.mask);
 				}
 			});
 		}

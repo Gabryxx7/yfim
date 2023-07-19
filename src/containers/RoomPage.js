@@ -1,12 +1,11 @@
 import React, { Component } from "react";
-import MediaContainer from "./MediaContainer";
 import CommunicationContainer from "./CommunicationContainer";
 import { connect } from "react-redux";
 import store from "../store";
 import io from "socket.io-client";
 import { surveyJSON } from "../components/Survey_JSON";
 import * as Survey from "survey-react";
-const { CMDS, DATA} = require('../managers/Communications')
+const { CMDS, DATA} = require('../managers/Definitions')
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SurveyComponent from "../components/SurveyComponent";

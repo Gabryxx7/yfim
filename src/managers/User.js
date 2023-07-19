@@ -1,6 +1,5 @@
-const { CMDS, DATA,  } = require('./Communications')
+const { CMDS, DATA, TIMES } = require('./Definitions')
 const { console  } = require("../utils/colouredLogger");
-const { TIMES } = require('../managers/TimesDefinitions')
 const e = require('express');
 
 

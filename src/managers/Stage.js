@@ -1,10 +1,5 @@
-const { CMDS, DATA } = require("./Communications");
-
-const STATUS = {
-  NONE: "none",
-  IN_PROGRESS: "in_progress",
-  COMPLETED: "completed",
-};
+const { STAGE } = require("./Definitions");
+const { Topics } = require("../../assets/Topics");
 
 class Stage {
   constructor(room, session, config, parent = null, idx = -1) {
@@ -16,6 +11,7 @@ class Stage {
       parent != null ? `${parent.name} - ${this.config.type}` : this.name;
     this.parent = parent;
     this.prefix = parent != null ? "\t" : "";
+    this.index = idx;
     this.id = idx;
     this.type = this.config.type;
     this.duration = this.config.duration ? this.config.duration : 0;
@@ -26,7 +22,7 @@ class Stage {
     this.startTime = -1;
     this.endTime = -1;
     this.timeLeft = -1;
-    this.status = STATUS.NONE;
+    this.status = STAGE.STATUS.NONE;
     this.extra = {};
     this.steps = [];
     if (this.config.steps) {
@@ -45,23 +41,24 @@ class Stage {
     this.elapsed = 0;
     console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
     this.room.setUsersReady(false);
+
+    // If it does have multiple steps, then we should initialize the first step
     if (this.steps.length > 0) {
       this.currentStepIdx = 0;
       this.currentStep = this.steps[this.currentStepIdx];
       this.currentStep.initialize();
-      this.status = STATUS.IN_PROGRESS;
+      this.status = STAGE.STATUS.IN_PROGRESS;
       this.duration = 0;
       for (let i = 0; i < this.config.steps.length; i++) {
         this.duration += this.steps[i].duration;
       }
-      return;
+      return; // We should stop here since the stage updates with its internal steps and it does not have a progress on its own
     }
-    // If it's a multi-step stage then we don't need to initialize the stage itself (a multi-step stage cannot have stuff of its own)
 
-    // let stage = this.parent.id;
-    // GABRY: TESTING... Using stage = 3 and mask_setting["setting"][2] I was able to test the mask 
-    // let stage = 3;
-    if (this.type == "video-chat") {
+    // If the stage does not have any step, then the current step is the stage itself
+    this.status = STAGE.STATUS.IN_PROGRESS;
+
+    if (this.type == STAGE.TYPE.VIDEO_CHAT) {
       this.extra = {};
       try{
         // let mask_setting = this.session.masksConfig[this.params.mask_id];
@@ -71,7 +68,7 @@ class Stage {
         console.error("error getting mask settings: ", error);
       }
       try{
-        let prompts = this.session.topics[this.params.question_type];
+        let prompts = Topics[this.params.question_type];
         const rindex = Math.floor(Math.random() * prompts.length);
         let topic = prompts[rindex];
         this.extra['topic'] = topic;
@@ -80,24 +77,6 @@ class Stage {
         console.error("error getting new topic: ", error);
       }
     }
-
-    // const stageData = {
-    //   stage: this.currentStepIdx,
-    //   stageData: this.currentStep?.getData(),
-    //   config: this.config,
-    //   data: this.getData()
-    // }
-    // if(this.session.chatsManager.nsio){
-    //   this.session.chatsManager.nsio.emit(CMDS.SOCKET.STAGE_CONTROL, stageData);
-    // }
-    // if(this.session.projectio){
-    //   this.session.projectio.emit(CMDS.SOCKET.STAGE_CONTROL, stageData);
-    // }
-    // No need for these two lines if the stages do not have anything in the middle, just use session_update
-    // this.session.chatsManager.nsio.emit(CMDS.SOCKET.STAGE_UPDATE, stageData)
-    // this.session.controlManager.nsio.emit(CMDS.SOCKET.STAGE_UPDATE, stageData)
-
-    this.status = STATUS.IN_PROGRESS;
   }
 
   setStatus(status){
@@ -111,15 +90,22 @@ class Stage {
       data = {
         name: this.name, 
         id: this.id,
+        index: this.index,
         startTime: this.startTime,
         startDateTime: this.startDateTime,
-        duration:this.duration,
+        duration: this.duration,
         room: this.room?.id,
-        step: this.currentStepIdx,
-        stepData: this.currentStep?.getData(),
-        type: this.type,
-        ...this.currentStep?.extra
       };
+      if(this.currentStep){
+        data.step = this.currentStep.getData();
+      }
+      else{
+        data = {
+          ...data,
+          ...this.extra,
+          type: this.type
+        }
+      }
     }catch(error){
       console.error(`Error getting stage data: `, error);
     }
@@ -139,10 +125,10 @@ class Stage {
     }
     if (this.steps.length > 0) {
       this.currentStep.update();
-      if (this.currentStep.status == STATUS.COMPLETED) {
+      if (this.currentStep.status == STAGE.STATUS.COMPLETED) {
         this.currentStepIdx += 1;
         if (this.currentStepIdx >= this.steps.length) {
-          this.status = STATUS.COMPLETED;
+          this.status = STAGE.STATUS.COMPLETED;
           return;
         }
         this.currentStep = this.steps[this.currentStepIdx];
@@ -154,22 +140,22 @@ class Stage {
   }
 
   complete() {
-    this.status = STATUS.COMPLETED;
+    this.status = STAGE.STATUS.COMPLETED;
   }
 
   update() {
-    if (this.status == STATUS.COMPLETED) {
+    if (this.status == STAGE.STATUS.COMPLETED) {
       return;
     }
 
-    if (this.status == STATUS.NONE) {
+    if (this.status == STAGE.STATUS.NONE) {
       this.initialize(); // Just in case it did not get initialized before, should be done immediately by the session manager when switching stages
     }
     // First update right after the initialization
-    if (this.status == STATUS.IN_PROGRESS) {
+    if (this.status == STAGE.STATUS.IN_PROGRESS) {
       this.updateProgress();
     }
   }
 }
 
-module.exports = { STATUS, Stage };
+module.exports = { Stage };

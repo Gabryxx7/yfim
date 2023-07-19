@@ -2,6 +2,11 @@
  * Check https://github.com/vladmandic/face-api/discussions/134 and https://github.com/mswjs/msw/issues/1252 **/
 module.exports = {
   mode: 'development',
+  resolve: {
+    fallback: {
+        "fs": false
+    },
+  },
   module: {
     unknownContextCritical: false,
     rules: [

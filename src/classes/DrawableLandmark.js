@@ -1,3 +1,4 @@
+import { FACEAPI } from "../managers/Definitions";
 
 class Interpolation{
     static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
@@ -396,4 +397,50 @@ class DrawableLandmark {
   }
 }
 
-export { DrawableLandmark, INTERP_FUNCTIONS};
+
+// Points positions are defined here: https://github.com/justadudewhohacks/face-api.js/blob/master/src/classes/FaceLandmarks68.ts
+// Alternatively, one could use reflection to just call the function by name. I just find it easier to pass the list of points and let the landmark object updates itself
+// PointsRange refers to which points belong to the landmark in the list of landmark positions so pointsRange=[i,j] would use the points positions.slice(i, j)
+// If pointsRange is [] or [0,0] or in general i and j are such that j <= i, the whole list of given positions will be used
+const defLandData = {
+	name: "Test",
+	pointsRange: [0, 0],
+	scale: [1, 1],
+	visible: true,
+	pointSize: 2,
+	pointColor: "#f00",
+	drawMask: true,
+	interpFun: INTERP_FUNCTIONS.easeInOut,
+	interpTime: 0.15,
+};
+
+const LandmarksData = [
+	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: false }),
+	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: false }),
+	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: false }),
+	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.NOSE, pointsRange: [27, 36], scale: [0.5, 1], visible: false }),
+	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35] }),
+	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35] }),
+	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8] }),
+	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.NOSE, pointsRange: [27, 36], scale: [0.5, 1], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35], visible: true }),
+	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8], visible: true }),
+];
+const centerLandmarkPoint = new DrawableLandmark({
+	...defLandData,
+	name: "Center",
+	pointsRange: [],
+	scale: [1, 1],
+	pointSize: 10,
+	pointColor: "#ff0",
+	drawMask: false,
+});
+let centerOffset = 0;
+const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+let updateCenterOffsetInterval = null;
+
+export { LandmarksData };

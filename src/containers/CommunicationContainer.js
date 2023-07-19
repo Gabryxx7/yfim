@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Communication from "../components/Communication";
-import store from "../store";
-import { connect } from "react-redux";
-import { CMDS } from '../managers/Communications'
-import { TIMES } from '../managers/TimesDefinitions'
+import { CMDS } from '../managers/Definitions'
 
 
 

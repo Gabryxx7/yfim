@@ -8,8 +8,7 @@ import SurveyFaceDetect from "../components/SurveyFaceDetect";
 import SurveyOngoing from "../components/SurveyOngoing";
 import SurveyReady from "../components/SurveyReady";
 import SurveyThankyou from "../components/SurveyThankyou";
-import { CMDS, DATA} from '../managers/Communications'
-import { TIMES } from '../managers/TimesDefinitions'
+import { CMDS, DATA, TIMES} from '../managers/Definitions'
 // survey-react : https://www.npmjs.com/package/survey-react
 
 export default function SurveyPage(props) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { timeColorMapDefault, getTimerColor } from "../classes/TimedEvent"
-import { STAGE_STATUS } from "../classes/Session"
+import { STAGE } from "../managers/Definitions"
 
 const TIMER_STATE = {
   NONE: 0,
@@ -29,10 +29,10 @@ export default function Timer(props){
   }
 
   useEffect(() => {
-    if(stageState == STAGE_STATUS.COMPLETED){
+    if(stageState == STAGE.STATUS.COMPLETED){
       setTimerState(TIMER_STATE.STOPPED);
     }
-    if(stageState == STAGE_STATUS.IN_PROGRESS){
+    if(stageState == STAGE.STATUS.IN_PROGRESS){
       setTimerState(TIMER_STATE.RUNNING);
     }
   }, [stageState])

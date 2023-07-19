@@ -7,7 +7,7 @@ import { Slider } from "@mui/material";
 import ReactFileReader from "react-file-reader";
 import GYModal from "../components/Modal";
 import Select from "react-select";
-import { CMDS, DATA} from '../managers/Communications'
+import { CMDS, DATA} from '../managers/Definitions'
 
 const colourStyles = {
   option: (styles, { data, isDisabled, isFocused, isSelected }) => {

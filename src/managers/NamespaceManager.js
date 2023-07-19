@@ -1,5 +1,5 @@
 
-const { CMDS, DATA} = require('./Communications');
+const { CMDS, DATA} = require('./Definitions');
 const { Room } = require('../managers/Room')
 const { User } = require('../managers/User')
 const { console  } = require("../utils/colouredLogger")

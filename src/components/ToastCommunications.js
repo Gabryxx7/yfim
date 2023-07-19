@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext, useReducer, useCallback } from "react";
 import "survey-react/survey.css";
-import { CMDS, DATA} from "../managers/Communications";
+import { CMDS, DATA} from "../managers/Definitions";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { SessionProvider, SessionContext } from "../classes/Session";

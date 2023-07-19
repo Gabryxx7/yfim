@@ -1,6 +1,5 @@
 
-import { CMDS } from '../managers/Communications'
-import { TIMES } from '../managers/TimesDefinitions'
+import { CMDS } from '../managers/Definitions'
 
 export default class WebRTCManager {
 	constructor(socketRef, sessionMap) {

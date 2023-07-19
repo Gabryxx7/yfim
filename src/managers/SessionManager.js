@@ -1,35 +1,27 @@
 const hash = require("object-hash");
 const { NamespaceManager } = require('../managers/NamespaceManager')
-const { CMDS, DATA} = require('./Communications')
-const { STATUS, Stage } = require('../managers/Stage')
+const { CMDS, STAGE, TIMES } = require('./Definitions')
+const { Stage } = require('../managers/Stage')
 const { Room } = require('../managers/Room')
 const { User } = require('../managers/User')
 const { ControlUser } = require('./ControlUser')
 const { console  } = require("../utils/colouredLogger")
-const { TIMES } = require('../managers/TimesDefinitions')
+const { SessionConfig } = require('../../assets/SessionConfig')
+const { Topics } = require('../../assets/Topics')
 
 class SessionManager {
-  constructor(sio, stagesConfig, masksConfig, questionset) {
+  constructor(sio) {
     this.sio = sio;
     this.rooms = {}
     this.started = false;
-    this.questionset = questionset;
-    this.icebreaker = this.questionset["icebreaker"];
-    this.wouldyou = this.questionset["wouldyou"];
-    this.topics = this.questionset;
     this.current_rating = "mature"
-    this.quest = [
-      ...this.questionset["quest"][this.current_rating],
-      ...this.questionset["quest"]["general"],
-    ];
     this.timer = null;
     this.startDateTime = -1;
     this.startTime = 0;
     this.elapsed = 0;
     this.currentStage = null;
     this.currentStageIdx = -1;
-    this.masksConfig = masksConfig;
-    this.stagesConfig = stagesConfig;
+    this.stagesConfig = SessionConfig;
     this.topic_selected = [];
     this.stages = [];
     // this.chatsManager = new ChatsManager(this.sio, this);
@@ -52,7 +44,7 @@ class SessionManager {
     const allUsersReady = room.allUsersReady();
     console.log("All users ready in room " + room.id);
     if(allUsersReady){
-      this.currentStage.setStatus(STATUS.COMPLETED);
+      this.currentStage.setStatus(STAGE.STATUS.COMPLETED);
     }
   }
 
@@ -60,7 +52,7 @@ class SessionManager {
   update(){
     let nowTime = new Date().getTime();
     this.elapsed = (nowTime - this.startDateTime)/1000;
-    if(this.currentStage == null || this.currentStage.status == STATUS.COMPLETED){
+    if(this.currentStage == null || this.currentStage.status == STAGE.STATUS.COMPLETED){
       this.currentStageIdx += 1;
       if(this.currentStageIdx >= this.stages.length){
         console.log("ALL STAGES COMPLETED");
@@ -88,8 +80,7 @@ class SessionManager {
         id: this.id,
         startTime: this.startTime,
         startDateTime: this.startDateTime,
-        totalStages: this.stages.length,
-        currentStage: this.currentStageIdx,
+        stages: this.stages.length,
         stage: this.currentStage?.getData()
       };
     }catch(error){

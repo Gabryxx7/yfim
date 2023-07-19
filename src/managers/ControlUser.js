@@ -1,4 +1,4 @@
-const { CMDS, DATA} = require('./Communications');
+const { CMDS, DATA} = require('./Definitions');
 const { User } = require('./User');
 
 class ControlUser extends User{

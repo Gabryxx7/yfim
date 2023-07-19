@@ -1,53 +1,9 @@
 import VideoProcessor from "./VideoProcessor";
-import { DrawableLandmark, INTERP_FUNCTIONS } from "../classes/DrawableLandmark";
 const FileSaver = require("file-saver");
-import { TIMES } from "../managers/TimesDefinitions";
 // import * as faceapi from "face-api.js"; // Updated face-api, check below
 import * as faceapi from "@vladmandic/face-api"; // https://github.com/justadudewhohacks/face-api.js/issues?q=undefined+backend+#issuecomment-681001997
+import { LandmarksData } from "../classes/DrawableLandmark"
 
-// Points positions are defined here: https://github.com/justadudewhohacks/face-api.js/blob/master/src/classes/FaceLandmarks68.ts
-// Alternatively, one could use reflection to just call the function by name. I just find it easier to pass the list of points and let the landmark object updates itself
-// PointsRange refers to which points belong to the landmark in the list of landmark positions so pointsRange=[i,j] would use the points positions.slice(i, j)
-// If pointsRange is [] or [0,0] or in general i and j are such that j <= i, the whole list of given positions will be used
-const defLandData = {
-	name: "Test",
-	pointsRange: [0, 0],
-	scale: [1, 1],
-	visible: true,
-	pointSize: 2,
-	pointColor: "#f00",
-	drawMask: true,
-	interpFun: INTERP_FUNCTIONS.easeInOut,
-	interpTime: 0.15,
-};
-const landmarksData = [
-	new DrawableLandmark({ ...defLandData, name: "JawOutline", pointsRange: [0, 17], scale: [1, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: "LeftEyeBrow", pointsRange: [17, 22], scale: [1, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: "RightEyeBrow", pointsRange: [22, 27], scale: [1, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: "Nose", pointsRange: [27, 36], scale: [0.5, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: "LeftEye", pointsRange: [36, 42], scale: [1.5, 1.35] }),
-	new DrawableLandmark({ ...defLandData, name: "RightEye", pointsRange: [42, 48], scale: [1.5, 1.35] }),
-	new DrawableLandmark({ ...defLandData, name: "Mouth", pointsRange: [48, 68], scale: [0.8, 0.8] }),
-	// new DrawableLandmark({ ...defLandData, name: "JawOutline", pointsRange: [0, 17], scale: [1, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: "LeftEyeBrow", pointsRange: [17, 22], scale: [1, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: "RightEyeBrow", pointsRange: [22, 27], scale: [1, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: "Nose", pointsRange: [27, 36], scale: [0.5, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: "LeftEye", pointsRange: [36, 42], scale: [1.5, 1.35], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: "RightEye", pointsRange: [42, 48], scale: [1.5, 1.35], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: "Mouth", pointsRange: [48, 68], scale: [0.8, 0.8], visible: true }),
-];
-const centerLandmarkPoint = new DrawableLandmark({
-	...defLandData,
-	name: "Center",
-	pointsRange: [],
-	scale: [1, 1],
-	pointSize: 10,
-	pointColor: "#ff0",
-	drawMask: false,
-});
-let centerOffset = 0;
-const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
-let updateCenterOffsetInterval = null;
 
 // faceapi doc: https://justadudewhohacks.github.io/face-api.js/docs/index.html
 export default class FaceProcessor extends VideoProcessor {
@@ -62,7 +18,7 @@ export default class FaceProcessor extends VideoProcessor {
 
    setMaskData(maskData){
       if(maskData.show_features != null){
-         for (let l of landmarksData){
+         for (let l of LandmarksData){
             l.visible = false;
             for(let feature of maskData.show_features){
                if(l.name.toUpperCase() == feature.toUpperCase()){
@@ -131,7 +87,7 @@ export default class FaceProcessor extends VideoProcessor {
             if(this.recording){
                const data = {};
                data.landmarks = [];
-               for (let l of landmarksData) {
+               for (let l of LandmarksData) {
                   data.landmarks.push({name: l.name, points: l.getUpdatedPoints(this.detections.landmarks.positions)});
                }
                data.expressions = this.detections.expressions.asSortedArray();
@@ -189,14 +145,14 @@ export default class FaceProcessor extends VideoProcessor {
 			// detections = faceapi.resizeResults(detections, { width: this.ctx.canvas.clientWidth, height: this.ctx.canvas.clientHeight })
 			const landmarks = resized.landmarks;
 			// console.log("landmarks", landmarks);
-			for (let l of landmarksData) {
+			for (let l of LandmarksData) {
 				l.updatePointsFromLandmark(landmarks.positions);
 				l.setRotation(resized.angle.roll);
 			}
 			// I need to draw the cutout/clipping maskes first and then draw the landmarks on top, i can't do both in the same loop as the clipping masks of the next
 			// Points would override the previous landmark points
          var canvasCleared = false;
-			for (let l of landmarksData) {
+			for (let l of LandmarksData) {
             if(!l.visible) continue;
 				if (l.drawMask) {
                if(!canvasCleared){
@@ -214,7 +170,7 @@ export default class FaceProcessor extends VideoProcessor {
 			this.detectionsUpdated = false;
 		}
 
-		// for(let l of landmarksData){
+		// for(let l of LandmarksData){
 		//   l.drawPoints(ctx)
 		//   l.drawCentroid(ctx, false)
 		// }

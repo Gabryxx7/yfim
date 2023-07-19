@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useRef, useContext, useReducer, useCallback } from "react";
 import io from "socket.io-client";
-import MediaContainer from "./MediaContainer";
-import CommunicationContainer from "./CommunicationContainer";
 import "survey-react/survey.css";
-import { CMDS, DATA} from "../managers/Communications";
-import SurveyComponent from "../components/SurveyComponent";
+import { CMDS, DATA} from "../managers/Definitions";
 import Sidebar from "../components/Sidebar";
 import WebRTCManager from "../classes/RTCManager"
 import {  toast } from 'react-toastify';
@@ -14,13 +11,13 @@ import { SessionProvider, SessionContext } from "../classes/Session";
 import TestComponent from "../components/SessionContextUpdateExample"
 import VideoContainer from "../classes/VideoContainer";
 import FaceProcessor from "../classes/FaceProcessor";
-import { STAGE_STATUS } from "../classes/Session"
+import { STAGE } from "../managers/Definitions"
 import { Model } from "survey-core";
-import { surveyJSON } from "../../assets/PostChatSurvey";
 import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
 import "../survey.scss";
 
+const { PostChatSurvey } = require("../../assets/PostChatSurvey");
 
 export default function RoomPageNew(props) {
 	const sessionMap = useContext(SessionContext);
@@ -39,7 +36,7 @@ function RoomPage(props) {
 	const [RTCManager, setRTCManager] = useState(null)
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
-	const [stageState, setStageState] = useState(STAGE_STATUS.NONE);
+	const [stageState, setStageState] = useState(STAGE.STATUS.NONE);
 	const [stageType, setStageType] = useState("video-chat");
 
 	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
@@ -48,10 +45,10 @@ function RoomPage(props) {
 
 	useEffect(() => {
 		if(surveyModel.current == null){
-			surveyModel.current = new Model(surveyJSON);
+			surveyModel.current = new Model(PostChatSurvey);
 			surveyModel.current.onComplete.add((sender, options) => {
 				console.log(JSON.stringify(sender.data, null, 3));
-				setStageState(STAGE_STATUS.COMPLETED)
+				setStageState(STAGE.STATUS.COMPLETED)
 				console.log("STAGE COMPLETED (event)");
 				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
 			})
@@ -77,8 +74,8 @@ function RoomPage(props) {
 		console.log("Session update");
 		sessionMap.updateSession(data);
 		sessionMap.session.start();
-		setStageType(sessionMap.session.data?.stage?.stepData?.type);
-		setStageState(STAGE_STATUS.IN_PROGRESS);
+		setStageType(sessionMap.session.data?.stage?.step?.type);
+		setStageState(STAGE.STATUS.IN_PROGRESS);
 	}
 
 	const onInvitationAnswer = (answer) => {
@@ -142,14 +139,14 @@ function RoomPage(props) {
 	useEffect(() => {
 		// console.log("connectionStatus ", connectionStatus)
 		if(connectionStatus == "connected"){
-			toast("A user joined the room!", {
+			toast(<div className="toast-msg">A user joined the room!</div>, {
 				type: "success",
 				toastId: "userJoined",
 				autoClose: 5000
 			});
 		}
 		else if(connectionStatus == "disconnected"){
-			toast("A user left the room!", {
+			toast(<div className="toast-msg">A user left the room!</div>, {
 				type: "error",
 				toastId: "userLeft",
 				autoClose: 5000
@@ -186,7 +183,7 @@ function RoomPage(props) {
 			<TestComponent index={1} user={user}/> */}
 			<Sidebar 
 				onTimerEnd={() => {
-					setStageState(STAGE_STATUS.COMPLETED)
+					setStageState(STAGE.STATUS.COMPLETED)
 					console.log("STAGE COMPLETED (time limit reached)");
 					socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
 				}}
@@ -200,7 +197,7 @@ function RoomPage(props) {
 				}}
 				onRemotePlay={() => {
 					sessionMap.session.start();
-					setStageState(STAGE_STATUS.IN_PROGRESS);
+					setStageState(STAGE.STATUS.IN_PROGRESS);
 				}}
 				connectionStatus={connectionStatus}
 				rtcManager={RTCManager}

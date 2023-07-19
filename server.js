@@ -58,10 +58,7 @@ const app = express(),
 // controlio = io.of("control");
 // projectio = io.of("projection");
 
-const questionset = require("./assets/topics/topics.json");
-const stagesConfig = require("./assets/stages.json");
-const masksConfig = require("./assets/MaskSetting/masks.json");
-const sessionManager = new SessionManager(io, stagesConfig, masksConfig, questionset)
+const sessionManager = new SessionManager(io)
 // sessionManager = new SessionManager(io)
 
 console.log("starting server on port: " + port);
@@ -82,241 +79,241 @@ app.use(favicon("./dist/favicon.ico"));
 // Switch off the default 'X-Powered-By: Express' header
 app.disable("x-powered-by");
 
-control_room_list = {};
-ready_user_by_room = {};
-rating_by_user = {};
-projection_room_list = {};
-survey_room_list = {};
+// control_room_list = {};
+// ready_user_by_room = {};
+// rating_by_user = {};
+// projection_room_list = {};
+// survey_room_list = {};
 
-survey_socket = {
-  //? Does the app support multiple concurring conversations in different rooms? What happens if new rooms are opened?
-  guest: undefined,
-  host: undefined,
-};
+// survey_socket = {
+//   //? Does the app support multiple concurring conversations in different rooms? What happens if new rooms are opened?
+//   guest: undefined,
+//   host: undefined,
+// };
 
-emotion_ready = { host: false, guest: false };
-question_ready = { host: false, guest: false };
-survey_ready = { host: false, guest: false };
-emotion_data = {
-  host: {},
-  guest: {},
-};
-question_data = {
-  host: {},
-  guest: {},
-};
-record_by_user = {
-  //What's this?
-  host: true,
-  guest: true,
-};
+// emotion_ready = { host: false, guest: false };
+// question_ready = { host: false, guest: false };
+// survey_ready = { host: false, guest: false };
+// emotion_data = {
+//   host: {},
+//   guest: {},
+// };
+// question_data = {
+//   host: {},
+//   guest: {},
+// };
+// record_by_user = {
+//   //What's this?
+//   host: true,
+//   guest: true,
+// };
 
-const mask_set = ["endWithEyes", "endWithMouth", "opposite"];
+// const mask_set = ["endWithEyes", "endWithMouth", "opposite"];
 
-var sessionId;
-var sessionRev;
-var startTime;
-var timmer;
-var current_cfg;
-var current_rating;
-var topic_selected = [];
-var survey_in_progress = false;
-var stage;
+// var sessionId;
+// var sessionRev;
+// var startTime;
+// var timmer;
+// var current_cfg;
+// var current_rating;
+// var topic_selected = [];
+// var survey_in_progress = false;
+// var stage;
 
-function generateId(stime) {
-  // let year = stime.getFullYear();
-  // let month = stime.getMonth() + 1;
-  // let day = stime.getDate();
-  // let hours = stime.getHours();
-  // let minutes = stime.getMinutes();
-  // let seconds = stime.getSeconds();
-  // let datestr = year * 10000 + month * 100 + day;
+// function generateId(stime) {
+//   // let year = stime.getFullYear();
+//   // let month = stime.getMonth() + 1;
+//   // let day = stime.getDate();
+//   // let hours = stime.getHours();
+//   // let minutes = stime.getMinutes();
+//   // let seconds = stime.getSeconds();
+//   // let datestr = year * 10000 + month * 100 + day;
 
-  // datestr += year + "/" + month + "/" + day;
-  // let timestr = "";
-  // timestr += hours + "/" + minutes + "/" + seconds;
-  // const sid = {
-  //   dateId: datestr,
-  //   timeId: timestr,
-  // };
+//   // datestr += year + "/" + month + "/" + day;
+//   // let timestr = "";
+//   // timestr += hours + "/" + minutes + "/" + seconds;
+//   // const sid = {
+//   //   dateId: datestr,
+//   //   timeId: timestr,
+//   // };
 
-  // creating a hash from current timestamp and random number
-  return hash(
-    new Date().getTime().toString() + Math.floor(Math.random() * 100000) + 1
-  );
+//   // creating a hash from current timestamp and random number
+//   return hash(
+//     new Date().getTime().toString() + Math.floor(Math.random() * 100000) + 1
+//   );
 
-  // const sid = datestr.toString();
-  // sessionId = response.id;
-}
+//   // const sid = datestr.toString();
+//   // sessionId = response.id;
+// }
 
-function processStart(room, start_time, cfg) {
-  console.log("+ process start in room: " + room);
-  console.log("config ", cfg);
-  stage = 0;
-  const { duration } = cfg["setting"][0];
-  const questionset = require("./assets/topics/topics.json");
-  const icebreaker = questionset["icebreaker"];
-  const wouldyou = questionset["wouldyou"];
-  const quest = [
-    ...questionset["quest"][current_rating],
-    ...questionset["quest"]["general"],
-  ];
+// function processStart(room, start_time, cfg) {
+//   console.log("+ process start in room: " + room);
+//   console.log("config ", cfg);
+//   stage = 0;
+//   const { duration } = cfg["setting"][0];
+//   const questionset = require("./assets/topics/topics.json");
+//   const icebreaker = questionset["icebreaker"];
+//   const wouldyou = questionset["wouldyou"];
+//   const quest = [
+//     ...questionset["quest"][current_rating],
+//     ...questionset["quest"]["general"],
+//   ];
 
-  let endTime = start_time + 1000 * duration;
-  // create a timmer
-  if (timmer == undefined || (timmer != undefined && timmer["_destroyed"])) {
-    // pick up a questionnaire from the list
-    let stop = false;
-    let count = 0;
-    // start chatting
-    timmer = setInterval(() => {
-      let nowTime = new Date().getTime();
-      if (time_left > 150) {
-        //stage1
-        if (stage != 1) {
-          stage = 1;
-          //send mask
-          console.log(time_left, "stage 1");
-          let mask_setting = cfg["setting"][stage];
-          const rindex = Math.floor(Math.random() * icebreaker.length);
-          let topic = icebreaker[rindex];
+//   let endTime = start_time + 1000 * duration;
+//   // create a timmer
+//   if (timmer == undefined || (timmer != undefined && timmer["_destroyed"])) {
+//     // pick up a questionnaire from the list
+//     let stop = false;
+//     let count = 0;
+//     // start chatting
+//     timmer = setInterval(() => {
+//       let nowTime = new Date().getTime();
+//       if (time_left > 150) {
+//         //stage1
+//         if (stage != 1) {
+//           stage = 1;
+//           //send mask
+//           console.log(time_left, "stage 1");
+//           let mask_setting = cfg["setting"][stage];
+//           const rindex = Math.floor(Math.random() * icebreaker.length);
+//           let topic = icebreaker[rindex];
 
-          topic_selected.push(topic);
-          console.log("- sending update to projection in room: " + room);
-          chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
-            mask: mask_setting,
-            topic: [topic],
-            stage,
-          });
-          projectio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
-            mask: mask_setting,
-            topic: [topic],
-            stage,
-          });
-        }
-      } else if (time_left < 150 && time_left > 90) {
-        //stage2
-        if (stage != 2) {
-          // previous stage finish, raise a survey
-          console.log(
-            "- sending survey start to room: " +
-              room +
-              " (stage: " +
-              stage +
-              ")"
-          );
-          chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
-          survey_in_progress = true;
-          stage = 2;
-          //send mask
-          console.log(time_left, "stage 2");
-          let mask_setting = cfg["setting"][stage];
-          const rindex = Math.floor(Math.random() * wouldyou.length);
-          let topic = wouldyou[rindex];
-          topic_selected.push(topic);
-          console.log(
-            "- sending stage control to room: " +
-              room +
-              " (stage: " +
-              stage +
-              ", mask: " +
-              mask_setting +
-              ", topic: " +
-              topic +
-              ")"
-          );
-          chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
-            mask: mask_setting,
-            topic: [topic],
-            stage,
-          });
-          controlio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { stage });
-        }
-      } else if (time_left < 90 && time_left > 0) {
-        //stage3
-        if (stage != 3) {
-          console.log(
-            "- sending survey start to room: " +
-              room +
-              " (stage: " +
-              stage +
-              ")"
-          );
-          chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
-          survey_in_progress = true;
-          stage = 3;
-          //send mask
-          console.log(time_left, "stage 3");
-          let mask_setting = cfg["setting"][stage];
-          const rindex = Math.floor(Math.random() * quest.length);
-          let topic = quest[rindex];
-          topic_selected.push(topic);
-          console.log(
-            "- sending stage control to room: " +
-              room +
-              " (stage: " +
-              stage +
-              ", mask: " +
-              mask_setting +
-              ", topic: " +
-              topic +
-              ")"
-          );
-          chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { mask: mask_setting, topic, stage });
-          controlio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { stage });
-        }
-      }
+//           topic_selected.push(topic);
+//           console.log("- sending update to projection in room: " + room);
+//           chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
+//             mask: mask_setting,
+//             topic: [topic],
+//             stage,
+//           });
+//           projectio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
+//             mask: mask_setting,
+//             topic: [topic],
+//             stage,
+//           });
+//         }
+//       } else if (time_left < 150 && time_left > 90) {
+//         //stage2
+//         if (stage != 2) {
+//           // previous stage finish, raise a survey
+//           console.log(
+//             "- sending survey start to room: " +
+//               room +
+//               " (stage: " +
+//               stage +
+//               ")"
+//           );
+//           chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+//           controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+//           survey_in_progress = true;
+//           stage = 2;
+//           //send mask
+//           console.log(time_left, "stage 2");
+//           let mask_setting = cfg["setting"][stage];
+//           const rindex = Math.floor(Math.random() * wouldyou.length);
+//           let topic = wouldyou[rindex];
+//           topic_selected.push(topic);
+//           console.log(
+//             "- sending stage control to room: " +
+//               room +
+//               " (stage: " +
+//               stage +
+//               ", mask: " +
+//               mask_setting +
+//               ", topic: " +
+//               topic +
+//               ")"
+//           );
+//           chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
+//             mask: mask_setting,
+//             topic: [topic],
+//             stage,
+//           });
+//           controlio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { stage });
+//         }
+//       } else if (time_left < 90 && time_left > 0) {
+//         //stage3
+//         if (stage != 3) {
+//           console.log(
+//             "- sending survey start to room: " +
+//               room +
+//               " (stage: " +
+//               stage +
+//               ")"
+//           );
+//           chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+//           controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+//           survey_in_progress = true;
+//           stage = 3;
+//           //send mask
+//           console.log(time_left, "stage 3");
+//           let mask_setting = cfg["setting"][stage];
+//           const rindex = Math.floor(Math.random() * quest.length);
+//           let topic = quest[rindex];
+//           topic_selected.push(topic);
+//           console.log(
+//             "- sending stage control to room: " +
+//               room +
+//               " (stage: " +
+//               stage +
+//               ", mask: " +
+//               mask_setting +
+//               ", topic: " +
+//               topic +
+//               ")"
+//           );
+//           chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { mask: mask_setting, topic, stage });
+//           controlio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, { stage });
+//         }
+//       }
 
-      if (time_left <= 0) {
-        if (stage != 4) {
-          stage = 4;
-          console.log(
-            "- sending survey start to room: " +
-              room +
-              " (stage: " +
-              stage +
-              ")"
-          );
-          chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
-          controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
-          survey_in_progress = true;
-        }
-        if (!stop && !survey_in_progress) {
-          count += 1;
-          console.log("stop count ", count);
-          stop = true;
-          processStop(room, false);
-        }
-      }
+//       if (time_left <= 0) {
+//         if (stage != 4) {
+//           stage = 4;
+//           console.log(
+//             "- sending survey start to room: " +
+//               room +
+//               " (stage: " +
+//               stage +
+//               ")"
+//           );
+//           chatio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+//           controlio.emit(CMDS.SOCKET.SURVEY_START.cmd, { stage: stage });
+//           survey_in_progress = true;
+//         }
+//         if (!stop && !survey_in_progress) {
+//           count += 1;
+//           console.log("stop count ", count);
+//           stop = true;
+//           processStop(room, false);
+//         }
+//       }
 
-      console.log(
-        "- Second timer for room: " +
-          room +
-          ", stage: " +
-          stage +
-          ", time left: " +
-          time_left
-      );
-    }, 1000);
-  } else {
-    console.log("timmer running", typeof timmer);
-  }
-}
-function processStop(room, accident_stop) {
-  console.log("+ process stop ");
-  if (accident_stop) {
-    topic_selected = [];
-  }
+//       console.log(
+//         "- Second timer for room: " +
+//           room +
+//           ", stage: " +
+//           stage +
+//           ", time left: " +
+//           time_left
+//       );
+//     }, 1000);
+//   } else {
+//     console.log("timmer running", typeof timmer);
+//   }
+// }
+// function processStop(room, accident_stop) {
+//   console.log("+ process stop ");
+//   if (accident_stop) {
+//     topic_selected = [];
+//   }
 
-  survey_in_progress = false;
-  // clear timmer
-  clearInterval(timmer);
-  // socket send stop
+//   survey_in_progress = false;
+//   // clear timmer
+//   clearInterval(timmer);
+//   // socket send stop
 
-  // io.to(room).emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
-  chatio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
-  controlio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
-  projectio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
-}
+//   // io.to(room).emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
+//   chatio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
+//   controlio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
+//   projectio.emit(CMDS.SOCKET.PROCESS_STOP.cmd, { accident_stop });
+// }

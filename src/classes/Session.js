@@ -1,11 +1,6 @@
 import React, { createContext, useReducer, useCallback } from "react";
 import {TimedEvent} from "../classes/TimedEvent";
 
-const STAGE_STATUS = {
-   NONE: "none",
-   IN_PROGRESS: "in_progress",
-   COMPLETED: "completed",
- };
 
 class Session extends TimedEvent{
    static Actions = {
@@ -20,8 +15,6 @@ class Session extends TimedEvent{
       }
       if (action.type === Session.Actions.UPDATE_SESSION) {
          session.data = action.data;
-         session.currentStage = action.data.stage;
-         session.currentStageData = action.data.stageData;
       }
       if (action.type === Session.Actions.UPDATE_USER) {
          session.user = action.data.user;
@@ -50,4 +43,4 @@ const SessionProvider = (props) => {
 }
 
 
-export { STAGE_STATUS, SessionContext, SessionProvider, Session }
+export { SessionContext, SessionProvider, Session }

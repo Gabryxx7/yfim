@@ -52,7 +52,7 @@ $corner-radius: var(--sjs-corner-radius, 4px);
 $editor-corner-radius: var(--sjs-editorpanel-cornerRadius, var(--sjs-corner-radius, 4px));
 $panel-corner-radius: var(--sjs-questionpanel-cornerRadius, var(--sjs-corner-radius, 4px));
 
-$foreground: var(--sjs-general-forecolor, var(--foreground, #161616));
+$foreground: var(--sjs-general-forecolor, var(--foreground, #616161));
 $foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #909090));
 $foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
@@ -167,4 +167,19 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 @mixin borderLight {
   border: calcSize(0.25) solid $border-light;
   border-radius: calcCornerRadius(1);
+}
+
+
+.sd-imagepicker{
+  flex-wrap: nowrap;
+}
+
+.sd-rating{
+  display: flex;
+  width: auto !important;
+  place-content: space-evenly !important;
+}
+
+.sd-rating__item {
+  border: 1px solid rgb(163, 163, 163, 0.2);
 }
