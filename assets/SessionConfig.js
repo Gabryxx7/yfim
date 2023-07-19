@@ -19,7 +19,7 @@ const SessionConfig = [
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
-        "duration": 1000,
+        "duration": 10,
         "params": {
           "audio": true,
           "video": true,
@@ -32,15 +32,10 @@ const SessionConfig = [
     "name": "Test Survey 1",
     "steps": [
       {
-        "type": STAGE.TYPE.SURVEY,
         "params": {
-          "mask_settings": {
-            "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH]
-          },
-          "audio": true,
-          "video": true,
-          "question_type": QUESTION.TYPE.ICEBREAKER
-        }
+          "test": true,
+        },
+        "type": STAGE.TYPE.SURVEY,
       }
     ]
   },{
@@ -57,6 +52,17 @@ const SessionConfig = [
           "video": true,
           "question_type": QUESTION.TYPE.ICEBREAKER
         }
+      }
+    ]
+  },
+  {
+    "name": "Test Survey 2",
+    "steps": [
+      {
+        "params": {
+          "test": true,
+        },
+        "type": STAGE.TYPE.SURVEY,
       }
     ]
   },{

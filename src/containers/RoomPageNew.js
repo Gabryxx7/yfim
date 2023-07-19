@@ -17,7 +17,7 @@ import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
 import "../survey.scss";
 
-const { PostChatSurvey } = require("../../assets/PostChatSurvey");
+const { PostChatSurvey, TestSurvey } = require("../../assets/PostChatSurvey");
 
 export default function RoomPageNew(props) {
 	const sessionMap = useContext(SessionContext);
@@ -45,7 +45,8 @@ function RoomPage(props) {
 
 	useEffect(() => {
 		if(surveyModel.current == null){
-			surveyModel.current = new Model(PostChatSurvey);
+			// surveyModel.current = new Model(PostChatSurvey);
+			surveyModel.current = new Model(TestSurvey);
 			surveyModel.current.onComplete.add((sender, options) => {
 				console.log(JSON.stringify(sender.data, null, 3));
 				setStageState(STAGE.STATUS.COMPLETED)
@@ -76,6 +77,11 @@ function RoomPage(props) {
 		sessionMap.session.start();
 		setStageType(sessionMap.session.data?.stage?.step?.type);
 		setStageState(STAGE.STATUS.IN_PROGRESS);
+
+		if(surveyModel.current != null){
+			surveyModel.current.clear();
+			surveyModel.current.render();
+		}
 	}
 
 	const onInvitationAnswer = (answer) => {

@@ -137,7 +137,7 @@ const makeLikertQuestion = (type, name, prompt) => {
 }
 
 
-const PostChatSurvey = {
+const SurveyTemplate = {
   showProgressBar: "top",
   showPageNumbers: true,
   progressBarType: "pages",
@@ -146,6 +146,27 @@ const PostChatSurvey = {
   width: "70vw",
   pages: []
 }
+
+const TestSurvey = structuredClone(SurveyTemplate);
+TestSurvey.pages.push({
+  title: "Test question",
+  description: "Test question",
+  name: "Test question",
+  elements: [
+    {
+      type: "rating",
+      name: "test",
+      title: "Test question",
+      rateMin: 0,
+      rateMax: 10,
+      minRateDescription: "Very Negative",
+      maxRateDescription: "Very Positive",
+     },
+  ]
+})
+
+
+const PostChatSurvey = structuredClone(SurveyTemplate);
 
 // PostChatSurvey.pages.push({
 //   title: "Emotional Self-Assessment",
@@ -215,4 +236,4 @@ PostChatSurvey.pages.push({
 });
 
 // module.exports = { PostChatSurvey }
-export { PostChatSurvey }
+export { PostChatSurvey, TestSurvey }

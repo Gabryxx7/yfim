@@ -77,6 +77,12 @@ class Stage {
         console.error("error getting new topic: ", error);
       }
     }
+    else if (this.type == STAGE.TYPE.SURVEY) {
+      this.extra = {};
+      if(this.params.test){
+        this.extra.test = true;
+      }
+    }
   }
 
   setStatus(status){
