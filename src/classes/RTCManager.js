@@ -126,17 +126,9 @@ export default class WebRTCManager {
 	  this.props.updateAll(controlData);
 	  if (controlData.video == false) {
 		 this.localVideo.pause();
-	  } else this.localVideo.play();
-
-	//   if (controlData.recording == true && this.recording == false) {
-	// 	 this.startRecording();
-	//   }
-	//   if (controlData.recording == false && this.recording == true) {
-	// 	 this.stopRecording();
-	//   }
-	  // if (controlData.audio == false) {
-	  //   this.localVideo.muted = true;
-	  // } else this.localVideo.muted = false;
+	  } else{
+		this.localVideo.play();
+	  }
 	} else {
 	  if(this.remoteVideo != null){
 		 if (controlData.video == false) {
@@ -153,52 +145,6 @@ export default class WebRTCManager {
 	}
  }
 
-
- startRecording() {
-	// event.preventDefault();
-	if (RECORD_AUDIO) {
-	  // wipe old data chunks
-	  this.chunks = [];
-	  // start recorder with 10ms buffer
-	  this.mediaRecorder.start(10);
-	  // say that we're recording
-	  this.setState({ recording: true });
-	} else {
-	  console.info("- AUDIO RECORDING IS DISABLED");
-	  this.setState({ recording: false });
-	}
- }
-
- stopRecording(accident_stop) {
-	// event.preventDefault();
-	if (RECORD_AUDIO) {
-	  console.log("stopping recording");
-	  // stop the recorder
-	  this.mediaRecorder.stop();
-	  // say that we're not recording
-	  this.setState({ recording: false });
-	  // save the video to memory
-	  if (!accident_stop) {
-		 this.saveVideo();
-	  }
-	}
- }
-
- saveVideo() {
-	if (RECORD_VIDEO) {
-	  // convert saved chunks to blob
-	  const blob = new Blob(this.chunks, { type: "video/webm" });
-	  // generate video url from blob
-	  // const videoURL = window.URL.createObjectURL(blob);
-	  // append videoURL to list of saved videos for rendering
-	  let filename = this.sessionId + "_" + this.state.user;
-	  FileSaver.saveAs(blob, filename);
-	  // const videos = this.state.videos.concat([videoURL]);
-	  // this.setState({ videos });
-	} else {
-	  console.info("- VIDEO RECORDING IS DISABLED");
-	}
- }
 
 	// send the offer to a server to be forwarded to the other peer
 	sendDescription() {

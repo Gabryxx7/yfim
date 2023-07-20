@@ -54,7 +54,9 @@ function RoomPage(props) {
 				console.log(JSON.stringify(sender.data, null, 3));
 				setStageState(STAGE.STATUS.COMPLETED);
 				console.log("STAGE COMPLETED (event)");
-				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED, {survey: sender.data});
+				const date = new Date().toISOString().split(".")[0];
+				let baseFilename = `YFIM_SURVEY_${sessionMap.session.user?.name}_${date}.json`;
+				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED, {survey: sender.data, filename: baseFilename});
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 		}

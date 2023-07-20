@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
-import { CMDS, DATA } from "../managers/Definitions";
+import { CMDS, DATA, STAGE } from "../managers/Definitions";
 import "react-toastify/dist/ReactToastify.css";
 import { SessionContext } from "../classes/Session";
 const FileSaver = require("file-saver");
@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import {  toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import * as JSZip from 'jszip'
 
 const setVideoConstraints = (video) => {
 	video.getTracks().forEach((track) => {
@@ -25,6 +26,7 @@ export default function VideoContainer(props) {
 	const sessionMap = useContext(SessionContext);
 	const faceProcessor = props.faceProcessor;
 	const [mediaRecorder, setMediaRecorder] = useState(null);
+	const recorderReady = useRef(false);
 	const mediaChunks = useRef([]);
 	const socket = props.socket;
 	const rtcManager = props.rtcManager;
@@ -82,9 +84,9 @@ export default function VideoContainer(props) {
 		}
 		localVideo.current.addEventListener("play",  () => {
 			console.log("Local video PLAY");
-			const mediaRecorder = new MediaRecorder(localVideo.current.srcObject);
-			console.log("Created media recorder", mediaRecorder)
-			setMediaRecorder(mediaRecorder);
+			const newMediaRecorder = new MediaRecorder(localVideo.current.srcObject);
+			console.log("Created media recorder", newMediaRecorder)
+			setMediaRecorder(newMediaRecorder);
 			// faceProcessor.start();
 		});
 
@@ -105,10 +107,11 @@ export default function VideoContainer(props) {
 	};
 
 	useEffect(() => {
+		if(mediaRecorder == null) return;
 		sessionMap.session.addOnStart((session) => {
-			console.log("Setting up MediaRecorder ", mediaRecorder);
+			if(session.data?.stage?.step?.type != STAGE.TYPE.VIDEO_CHAT) return;
 			if(mediaRecorder != null && mediaRecorder.state != "recording"){
-				console.log("Starring MediaRecorder ", mediaRecorder);
+				console.log("Starting MediaRecorder ", mediaRecorder);
 				mediaRecorder.start();
 				console.log("Recording started!")
 				faceProcessor.startRecording();
@@ -116,15 +119,70 @@ export default function VideoContainer(props) {
 					mediaChunks.current.push(e.data);
 				}
 				mediaRecorder.onstop = (e) => {
-					console.log("Recording stopped!")
-					// convert saved chunks to blob
-					const date = new Date().toISOString().split(".")[0];
-					const blob = new Blob(mediaChunks.current, { type: "video/webm" });
-					let filename = `YFIM_Video_${sessionMap.session.user?.role}_${date}`;
-					FileSaver.saveAs(blob, filename);
-					faceProcessor.stopRecording(sessionMap.session.user);
-					// const videos = this.state.videos.concat([videoURL]);
-					// this.setState({ videos });
+					try{
+						console.log("Recording stopped!")
+						// convert saved chunks to blob
+						const date = new Date().toISOString().split(".")[0];
+						let baseFilename = `YFIM_<type>_${sessionMap.session.user?.name}_${date}`;
+						const files = [];
+						files.push({
+							name: baseFilename.replace("<type>", "VIDEO")+".webm",
+							data: new Blob(mediaChunks.current, { type: "video/webm" })
+						})
+						files.push({
+							name: baseFilename.replace("<type>", "FACE")+".json",
+							data: faceProcessor.stopRecording()
+						})
+						
+						const zipFiles = true;
+						if(zipFiles){
+							const zip =  new JSZip();
+							for (let file of files) {
+								zip.file(file.name, file.data);
+							}
+												
+							zip.generateAsync({
+								type: "blob",
+								compression: "DEFLATE",
+								compressionOptions: {level: 9}
+							}).then((content) => {
+								const zipFilename = baseFilename.replace("<type>_", "")+".zip"
+								FileSaver.saveAs(content, zipFilename);
+								var url = window.location.href;
+								var arr = url.split("/");
+								var result = arr[0] + "//" + arr[2];
+
+								var fd = new FormData();
+								fd.append("zipFile", content, zipFilename);
+								fd.append("userName", sessionMap.session.user?.name);
+								fd.append("sessionId", sessionMap.session.data?.sessionId);
+
+								console.log("FORM DATA", fd);
+								for (var key of fd.entries()) {
+									console.log(key[0] + ', ' + key[1]);
+								}
+								fetch(`${result}/upload_stage_results`, {
+									 method: 'POST',
+									 body: fd,
+									//  mimeType:'multipart/form-data',
+									//  headers: {
+									// 	"Content-Type": `multipart/form-data; boundary=${fd._boundary}`
+									//  }
+								}).then((res) => console.log("File Upload completed", res))
+								.catch((err) => console.warn("Error uploading file to server", err));
+							}).catch((error) => {
+								console.warn("Error saving .zip file...", error);
+							});
+						}
+						else{
+							for (let file of files) {
+								FileSaver.saveAs(file.data, file.name);
+							}
+						}
+					}
+					catch(error){
+						console.warn("Error storing video and face api files...", error);
+					}
 				}
 				const recordTestDuration = 5000;
 				toast("Recording Started!", {
@@ -136,6 +194,9 @@ export default function VideoContainer(props) {
 				setTimeout(() => mediaRecorder.stop(), recordTestDuration);
 			}
 		});
+	}, [mediaRecorder])
+
+	useEffect(() => {
 		if(faceProcessor != null){
 			faceProcessor.canvas = canvasRef.current;
 		}

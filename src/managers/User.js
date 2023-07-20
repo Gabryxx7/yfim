@@ -1,6 +1,6 @@
 const { CMDS, DATA, TIMES } = require('./Definitions')
 const { console  } = require("../utils/colouredLogger");
-const e = require('express');
+const fs = require('fs');
 
 
 /** 
@@ -220,6 +220,7 @@ class User {
 
     onUserStageCompleted(data){
       console.log("Stage completed data: ", data);
+      fs.writeFileSync("./uploads/"+  data.filename, JSON.stringify(data.survey, null, 3));
       this.ready = true;
       if(this.room){
         this.sessionManager.onUserStageCompleted(this.room);

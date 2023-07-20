@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const multer = require('multer');
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
@@ -63,6 +64,32 @@ const sessionManager = new SessionManager(io)
 
 console.log("starting server on port: " + port);
 
+// parse application/json
+app.use(bodyParser.json());
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const upload = multer({
+  dest: "./uploads/",
+  storage: multer.diskStorage({
+    destination: function (req, file, next) {
+      console.log(req.body, req.file, file);
+      next(null, path.join(__dirname, "uploads"));
+    },
+    filename: function (req, file, cb) {
+      console.log(req.body, req.file, file);
+      cb(null, file.originalname.replace("//", "-"));
+    }
+  }),
+  limits: {
+     fieldSize: '500mb',
+  }});
+app.use('/upload_stage_results', upload.any());
+// app.post('/upload_stage_results', upload.any(), function (req, res) {
+//   console.log(req.files, req.file, req.body)
+// });
+
 app.use(function (req, res, next) {
   req.io = io;
   next();
@@ -78,6 +105,7 @@ app.use((req, res) => res.sendFile(__dirname + "/dist/index.html"));
 app.use(favicon("./dist/favicon.ico"));
 // Switch off the default 'X-Powered-By: Express' header
 app.disable("x-powered-by");
+
 
 // control_room_list = {};
 // ready_user_by_room = {};

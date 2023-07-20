@@ -37,14 +37,13 @@ export default class FaceProcessor extends VideoProcessor {
       this.recording = true;
    }
 
-   stopRecording(user){
+   stopRecording(filename){
       this.recording = false;
-      const date = new Date().toISOString().split(".")[0];
       // console.log(this.chunks[0])
       // const blob = new Blob(this.chunks, {type: "text/plain;charset=utf-8"});
       const blob = new Blob([JSON.stringify(this.chunks)], {type: "text/plain;charset=utf-8"});
-      let filename = `YFIM_Face_${user?.role}_${date}.json`;
-      FileSaver.saveAs(blob, filename);
+      // FileSaver.saveAs(blob, `${filename}.json`);
+		return blob;
       // const videos = this.state.videos.concat([videoURL]);
       // this.setState({ videos });
    }
