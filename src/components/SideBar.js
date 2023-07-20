@@ -10,21 +10,21 @@ export default function SideBar(props) {
   const [sessionRunning, setSessionRunning] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [duration, setDuration] = useState(0)
+  const prompt = props.prompt ?? "PROMPT";
   const onTimerEnd = props.onTimerEnd ?? (() => {});
   const stageState = props.stageState;
   const [stageData, setStageData] = useState({
-    prompt: "Prompt",
     user: "No user",
-    index: 2,
+    index: 0,
     name: "Session has not started yet...",
-    totalStages: 10,
+    totalStages: 0,
     stageType: "none"
   })
 
   // var sidePadding = "11rem";
   // var remoteVideoSide = "right";
   // let barPadding = `1rem ${remoteVideoSide == 'right' ? sidePadding : '0.5rem'} 0.5rem ${remoteVideoSide != "right" ? sidePadding : '0.5rem'}`
-  let barPadding = "1rem";
+  let barPadding = "0.5rem 1rem";
   useEffect(() => {
 		console.log("Sidebar re-render");
     sessionMap.session.addOnStart((session) => {
@@ -35,7 +35,6 @@ export default function SideBar(props) {
         user: session.user?.role,
         index: session.data?.stage?.index,
         name: session.data?.stage?.name,
-        prompt: stageType == STAGE.TYPE.VIDEO_CHAT ? session.data?.stage?.step?.topic : "We have some questions for you...",
         totalStages: session.data?.stages,
         stageType: stageType
       });
@@ -85,16 +84,25 @@ export default function SideBar(props) {
              </Timer>
           <div className="sidebar-block">
             <div>{stageData.name} ({stageState})</div>
-            <ProgressBar
+            {sessionRunning && <ProgressBar
               max={stageData.totalStages} 
-              progress={stageData.index+1}/>
+              progress={stageData.index+1}/> }
           </div>
       <div className="debug-info">
-       <span>{stageData.user}</span>
-       <span>{stageData.stageType}</span>
+        <div className="user-info">
+          <div>{stageData.user}</div>
+          <div>{stageData.stageType}</div>
+        </div>
+        {/* <div className="room-info">
+          <div>Waiting for your partner...</div>
+        </div> */}
       </div>
       </div>
-      <div className={`sidebar-prompt ${sessionRunning ? '' : 'hidden'}`} >{stageData.prompt}</div>
+      <div
+      // className={`sidebar-prompt ${sessionRunning ? '' : 'hidden'}`}
+      className={`sidebar-prompt`}
+      >
+        {prompt}</div>
     </div>
   );
 }

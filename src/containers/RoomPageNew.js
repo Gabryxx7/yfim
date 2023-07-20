@@ -34,11 +34,12 @@ function RoomPage(props) {
 	const sessionMap = useContext(SessionContext);
 	const [faceProcessor, setFaceProcessor] = useState(null);
 	const socket = useRef(null);
+	const [prompt, setPrompt] = useState("Waiting for your conversation partner to join the call...")
 	const [RTCManager, setRTCManager] = useState(null)
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
 	const [stageState, setStageState] = useState(STAGE.STATUS.NONE);
-	const [stageType, setStageType] = useState("video-chat");
+	const [stageType, setStageType] = useState(STAGE.TYPE.VIDEO_CHAT);
 
 	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
 	// Where I only set the onComplete() callback on the first page render, this seems to do the trick (probably because of memoization?!)
@@ -50,13 +51,43 @@ function RoomPage(props) {
 			surveyModel.current = new Model(TestSurvey);
 			surveyModel.current.onComplete.add((sender, options) => {
 				console.log(JSON.stringify(sender.data, null, 3));
-				setStageState(STAGE.STATUS.COMPLETED)
+				setStageState(STAGE.STATUS.COMPLETED);
 				console.log("STAGE COMPLETED (event)");
 				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 		}
 	}, [])
+
+
+	useEffect(() => {
+		if(stageState == STAGE.STATUS.NONE){
+			setPrompt("Waiting for your conversation partner to join the call...");
+			return;
+		}
+		if(stageState == STAGE.STATUS.COMPLETED){
+			if(stageType == STAGE.TYPE.SURVEY){
+				setPrompt("Waiting for your conversation partner to complete the survey...");
+			}
+			return;
+		}
+		if(stageState == STAGE.STATUS.IN_PROGRESS){
+			if(stageType == STAGE.TYPE.SURVEY){
+				setPrompt("We have some questions for you...");
+			}
+			else if(stageType == STAGE.TYPE.VIDEO_CHAT){
+				const newPrompt = sessionMap.session.data?.stage?.step?.topic;
+				if(newPrompt != null && newPrompt != undefined){
+					setPrompt(newPrompt);
+				}
+			}
+			return;
+		}
+	}, [stageState])
+
+	useEffect(() => {
+		console.log("NEW PROMPT ", prompt)
+	}, [prompt])
 	
 
 	const onRoomUpdate = (data) => {
@@ -139,7 +170,7 @@ function RoomPage(props) {
 	}, [RTCManager])
 
 	useEffect(() => {
-		console.log(`STAGE RTYPE: ${stageType}`)
+		console.log(`NEW STAGE TYPE: ${stageType}`)
 	}, [stageType])
 
 
@@ -194,9 +225,10 @@ function RoomPage(props) {
 					console.log("STAGE COMPLETED (time limit reached)");
 					socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
 				}}
+				prompt={prompt}
   				stageState={stageState}
 			/>
-			<div style={{display: `${stageType == 'video-chat' ? 'block' : 'none'}`}}>
+			<div style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
 			<VideoContainer
 				socket={socket}
 				onStreamAdded={() => {
@@ -222,7 +254,7 @@ function RoomPage(props) {
 				getUserMedia={this.getUserMedia}
 				username={this.props.match.params.room}
 			/>*/}
-			<div style={{display: `${stageType == 'video-chat' ? 'none' : 'block'}`}}>
+			<div style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'none' : 'block'}`}}>
 			{surveyModel.current != null &&  <Survey className="survey-container" model={surveyModel.current} /> }
 			</div>
 			{/* <CommunicationContainer socket={socket} RTCManager={RTCManager} /> */}

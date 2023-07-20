@@ -4,7 +4,7 @@ button {
   font-size: 1.6vw;
   margin: 0;
   font-family: Sans-Serif;
-  background-color: #111;
+  background-color: #121212;
 }
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Montserrat:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
 
@@ -247,7 +247,7 @@ input[type="checkbox"] {
 .consent_form {
   z-index: 20;
   text-align: left;
-  background-color: black;
+  background-color: #121212;
   margin: auto;
   font-size: 20px;
 }
@@ -321,6 +321,10 @@ input[type="checkbox"] {
   border-radius: 14px;
   box-shadow: 0px 0px 8px 3px rgba(36, 36, 36, 0.368627451);
 
+  &:not(.none){
+    display: none;
+  }
+
   * {
     width: 100%;
     color: #fff;
@@ -383,7 +387,7 @@ input[type="checkbox"] {
   // padding: 1rem 11rem 0.5rem 0.5rem; // Remote video on the right
   box-sizing: border-box;
   backdrop-filter: blur(25px);
-  background-color: #000000ca;
+  background-color: #121212;
   font-size: 1rem;
   // border-radius: 14px;
   box-shadow: 0px 0px 8px 3px #2424245e;
@@ -399,15 +403,21 @@ input[type="checkbox"] {
       position: absolute;
       width: 90%;
       height: 0.8px;
-      background-color: #8e8e8e2c;
+      background-color: #b5b5b52c;
     }
-    &:first-child::after{
-      // display: block;
-      bottom: 0;
+    &:first-child{
+      // padding-bottom: 0.5rem;
+      &::after{
+        // display: block;
+        bottom: 0;
+      }
     }
-    &:last-child::before{
-      display: block;
-      top: 0;
+    &:last-child{
+      padding-top: 1rem;
+      &::before{
+        display: block;
+        top: 0;
+      }
     }
   }
 
@@ -441,8 +451,16 @@ input[type="checkbox"] {
 
   .debug-info{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     font-size: 0.9rem;
+    .user-info{
+      display: flex;
+      flex-direction: column;
+    }
+    .room-info{
+      display: flex;
+      flex-direction: column;
+    }
   }
 
   .sidebar-prompt{
@@ -476,8 +494,8 @@ input[type="checkbox"] {
   position: relative;
   // top: 16vh;
   z-index: 19;
-  background-color: rgba(0,0,0,0.2);
-  backdrop-filter: blur(10px);
+  // background-color: rgba(0,0,0,0.2);
+  // backdrop-filter: blur(10px);
 }
 
 .main-call-container,

@@ -156,8 +156,9 @@ export default function VideoContainer(props) {
 				.then(async () => faceProcessor.start())
 			
 			sessionMap.session.addOnStart((session) => {
-				if(session.data?.stage?.mask){
-					faceProcessor.setMaskData(session.data?.stage?.step?.mask);
+				const maskData = session.data?.stage?.step?.mask;
+				if(maskData != null && maskData != undefined){
+					faceProcessor.setMaskData(maskData);
 				}
 			});
 		}
