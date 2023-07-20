@@ -172,7 +172,6 @@ export default function VideoContainer(props) {
 	}, [rtcManager]);
 
 	return (
-		<div className='main-room-container'>
 			<div className='media-bridge'>
 				<div className="live-icon"> <FontAwesomeIcon icon={icon({name: 'video'})} /> </div>
 				<canvas className="canvas" ref={canvasRef} />
@@ -199,10 +198,9 @@ export default function VideoContainer(props) {
 					<video className="remote-video" id="remote-video" ref={remoteVideo} autoPlay></video>
 				)}
 				<video className="local-video" id="local-video" ref={localVideo} autoPlay muted></video>
-			</div>
 			{/* <SurveyPage sessionStatusRef={this.state.statusRef} />  */}
 			{/* GABRY: This stupid survey component causes the page to scroll up top at every render... */}
 			{/* <div style={{backgroundColor: "white", height: "50vh", width: "100vw"}}/> */}
-		</div>
+			</div>
 	);
 }

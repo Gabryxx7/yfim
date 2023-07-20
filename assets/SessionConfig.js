@@ -19,8 +19,11 @@ const SessionConfig = [
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
-        "duration": 10,
+        "duration": 30,
         "params": {
+          "mask_settings": {
+            "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.JAWOUTLINE, FACEAPI.LANDMARK.NOSE]
+          },
           "audio": true,
           "video": true,
           "question_type": QUESTION.TYPE.ICEBREAKER

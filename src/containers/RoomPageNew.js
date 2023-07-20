@@ -216,19 +216,21 @@ function RoomPage(props) {
 	}, [bridge])
 
 	return (
+		<>
+		<Sidebar 
+			onTimerEnd={() => {
+				setStageState(STAGE.STATUS.COMPLETED)
+				console.log("STAGE COMPLETED (time limit reached)");
+				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
+			}}
+			prompt={prompt}
+			stageState={stageState}
+		/>
+			
 		<div class={`main-call-container ${bridge}`}>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}
-			<Sidebar 
-				onTimerEnd={() => {
-					setStageState(STAGE.STATUS.COMPLETED)
-					console.log("STAGE COMPLETED (time limit reached)");
-					socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
-				}}
-				prompt={prompt}
-  				stageState={stageState}
-			/>
-			<div style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
+			<div className='main-room-container' style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
 			<VideoContainer
 				socket={socket}
 				onStreamAdded={() => {
@@ -268,5 +270,6 @@ function RoomPage(props) {
 				handleInvitation={(e) => handleInvitation(e)}
 			/> */}
 		</div>
+		</>
 	);
 }
