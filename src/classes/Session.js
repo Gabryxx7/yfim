@@ -15,6 +15,7 @@ class Session extends TimedEvent{
       }
       if (action.type === Session.Actions.UPDATE_SESSION) {
          session.data = action.data;
+         session.id = action.data?.sessionId;
       }
       if (action.type === Session.Actions.UPDATE_USER) {
          session.user = action.data.user;

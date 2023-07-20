@@ -77,7 +77,7 @@ class SessionManager {
     var data = {};
     try{
       data = {
-        id: this.id,
+        sessionId: this.id,
         startTime: this.startTime,
         startDateTime: this.startDateTime,
         stages: this.stages.length,

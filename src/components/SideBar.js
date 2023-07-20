@@ -15,6 +15,7 @@ export default function SideBar(props) {
   const stageState = props.stageState;
   const [stageData, setStageData] = useState({
     user: "user",
+    sessionId: "sid",
     userRole: "none",
     index: 0,
     name: "Session has not started yet...",
@@ -35,6 +36,7 @@ export default function SideBar(props) {
       setStageData({...stageData,
         userRole: session.user?.role,
         user: session.user?.name,
+        sessionId: session.data?.sessionId,
         index: session.data?.stage?.index,
         name: session.data?.stage?.name,
         totalStages: session.data?.stages,
@@ -94,6 +96,7 @@ export default function SideBar(props) {
         <div className="user-info">
           <div>{stageData.user} ({stageData.userRole})</div>
           <div>{stageData.stageType}</div>
+          <div>{stageData.sessionId}</div>
         </div>
         {/* <div className="room-info">
           <div>Waiting for your partner...</div>
@@ -102,7 +105,7 @@ export default function SideBar(props) {
       </div>
       <div
       // className={`sidebar-prompt ${sessionRunning ? '' : 'hidden'}`}
-      className={`sidebar-prompt`}
+        className={`sidebar-prompt`}
       >
         {prompt}</div>
     </div>

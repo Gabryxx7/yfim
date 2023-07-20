@@ -26,7 +26,7 @@ export default class FaceProcessor extends VideoProcessor {
                   break;
                }
             }
-				console.log(`Updated Mask Data ${l.name} ${l.visible}` )
+				// console.log(`Updated Mask Data ${l.name} ${l.visible}` )
          }
       }
    }

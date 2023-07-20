@@ -296,7 +296,7 @@ input[type="checkbox"] {
   &:not(.none){
     display: none;
   }
-  
+
   .intro {
     width: 70%;
     font-family: "Montserrat";
@@ -441,7 +441,7 @@ input[type="checkbox"] {
   .debug-info{
     display: flex;
     flex-direction: row;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     .user-info{
       display: flex;
       flex-direction: column;

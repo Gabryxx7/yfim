@@ -54,7 +54,7 @@ function RoomPage(props) {
 				console.log(JSON.stringify(sender.data, null, 3));
 				setStageState(STAGE.STATUS.COMPLETED);
 				console.log("STAGE COMPLETED (event)");
-				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
+				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED, {survey: sender.data});
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 		}

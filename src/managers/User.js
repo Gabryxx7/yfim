@@ -120,7 +120,7 @@ class User {
       this.socket.on(CMDS.SOCKET.LEAVE_ROOM, () => this.leaveRoom());
       this.socket.on(CMDS.SOCKET.CONTROL_ROOM, (data) => this.controlRoom(data));
       this.socket.on(CMDS.SOCKET.ROOM_IDLE, (data) => this.roomInIdle(data));
-      this.socket.on(CMDS.SOCKET.STAGE_COMPLETED, () => this.onUserStageCompleted());
+      this.socket.on(CMDS.SOCKET.STAGE_COMPLETED, (data) => this.onUserStageCompleted(data));
     }
 
     // sending to all clients in the room (channel) except sender
@@ -218,7 +218,8 @@ class User {
       this.socket.emit(CMDS.SOCKET.ROOM_UPDATE, data);
     }
 
-    onUserStageCompleted(){
+    onUserStageCompleted(data){
+      console.log("Stage completed data: ", data);
       this.ready = true;
       if(this.room){
         this.sessionManager.onUserStageCompleted(this.room);
