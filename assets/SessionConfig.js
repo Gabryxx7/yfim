@@ -19,7 +19,7 @@ const SessionConfig = [
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
-        "duration": 30,
+        "duration": 10,
         "params": {
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.JAWOUTLINE, FACEAPI.LANDMARK.NOSE]

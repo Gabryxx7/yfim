@@ -138,6 +138,7 @@ const makeLikertQuestion = (type, name, prompt) => {
 
 
 const SurveyTemplate = {
+  completedHtml: "<h1>Thank you!</h1><h3>We are waiting for your conversation partner to complete the survey...</h3><h3>The next stage will start soon!</h3>",
   showProgressBar: "top",
   showPageNumbers: true,
   progressBarType: "pages",

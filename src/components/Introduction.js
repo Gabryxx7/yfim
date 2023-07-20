@@ -13,7 +13,7 @@ export default function Introduction(props) {
 
   }, [name])
   return (
-    <div className="intro-container">
+    <div className={`intro-container ${stageState}`}>
     <div className={`intro ${stageState}`}>
       <p className="title">YOUR FACE IS MUTED</p>
       <p className="text">
