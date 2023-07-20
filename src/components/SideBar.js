@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import Timer from "../containers/Timer";
 import { SessionContext } from "../classes/Session";
 import { STAGE } from '../managers/Definitions'
-
+import ProgressBar from './Progressbar';
 
 export default function SideBar(props) {
 	const sessionMap = useContext(SessionContext);
@@ -15,8 +15,8 @@ export default function SideBar(props) {
   const [stageData, setStageData] = useState({
     prompt: "Prompt",
     user: "No user",
-    index: -1,
-    name: "No stage",
+    index: 2,
+    name: "Session has not started yet...",
     totalStages: 10,
     stageType: "none"
   })
@@ -66,50 +66,35 @@ export default function SideBar(props) {
 
 
   return (
-    <div className="sidebar_container"
+    <div className="sidebar-container"
       style={(() => {
         const padding = sessionRunning ? ''+barPadding : '1rem';
-        const maxHeight = sessionRunning ? '20vh' : '0vh';
+        // const maxHeight = sessionRunning ? '20vh' : '0vh';
+        const maxHeight = '20vh';
         return {padding,maxHeight}
       })()}>
       <div className="info">
-            {sessionRunning &&
                <Timer
+                active={sessionRunning}
                 stageState={stageState}
                 onTimerEnd={onTimerEnd}
                 elapsed={timeElapsed}
                 countdown={true}
                 duration={duration}
                 coloring={true}>
-             </Timer>}
-          <div className="sidebar_foot">
-            <span>{stageData.name} ({stageState})</span>
-            <div class="progress-container">
-              <div class="progress-bar"
-                style={{
-                  background: '#d4eeff',
-                  transition: "all 0.5s",
-                  height: "0.5rem",
-                  width: "100%",
-                  borderRadius: "50px",
-                }}>
-              <div class="progress-bar-completed"
-                style={{
-                  background: "#1da1f2",
-                  height: "100%",
-                  borderRadius: "inherit",
-                  width: `${(stageData.index+1)/stageData.totalStages*100}%`
-                }}/>
-                </div>
-            <span class="progress-text">{stageData.index+1}/{stageData.totalStages}</span>
-            </div>
+             </Timer>
+          <div className="sidebar-block">
+            <div>{stageData.name} ({stageState})</div>
+            <ProgressBar
+              max={stageData.totalStages} 
+              progress={stageData.index+1}/>
           </div>
       <div className="debug-info">
        <span>{stageData.user}</span>
        <span>{stageData.stageType}</span>
       </div>
       </div>
-      <div className="sidebar_prompt">{stageData.prompt}</div>
+      <div className={`sidebar-prompt ${sessionRunning ? '' : 'hidden'}`} >{stageData.prompt}</div>
     </div>
   );
 }

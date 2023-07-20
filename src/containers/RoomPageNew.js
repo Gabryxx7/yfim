@@ -16,6 +16,7 @@ import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
 import "../survey.scss";
+import Introduction from "../components/Introduction";
 
 const { PostChatSurvey, TestSurvey } = require("../../assets/PostChatSurvey");
 
@@ -209,6 +210,7 @@ function RoomPage(props) {
 				rtcManager={RTCManager}
 				faceProcessor={faceProcessor} />
 			</div>
+			 <Introduction stageState={stageState}/>
 			 <ToastCommunications />
     
 			{/* <MediaContainer

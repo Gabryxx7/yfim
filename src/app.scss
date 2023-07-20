@@ -297,40 +297,45 @@ input[type="checkbox"] {
   font-weight: bold;
 }
 
-.topic {
+.intro {
   position: absolute;
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   display: flex;
+  gap: 15%;
   flex-direction: column;
   place-content: center;
   place-items: center;
-  width: 80%;
-  z-index: 20;
+  max-width: 80vw;
+  z-index: 80;
   text-align: center;
   margin: auto;
-  // top: 50%;
   left: 0;
   right: 0;
-  padding: 3rem 1rem;
+  top: 0;
+  bottom: 0;
+  max-height: 40vh;
+  padding: 1rem 2rem 2rem 2rem;
   box-sizing: border-box;
   backdrop-filter: blur(25px);
-  background-color: #0000009c;
+  background-color: rgba(0, 0, 0, 0.6117647059);
   border-radius: 14px;
-  box-shadow: 0px 0px 8px 3px rgba(36,36,36,.368627451);
+  box-shadow: 0px 0px 8px 3px rgba(36, 36, 36, 0.368627451);
+
+  * {
+    width: 100%;
+    color: #fff;
+    margin: 0;
+  }
+
+  .title {
+    font-size: 3rem;
+    font-weight: bold;
+  }
+  .text {
+    font-size: 1.3rem;
+  }
 }
 
-.topic_head {
-  color: #fff;
-  font-size: 3rem;
-  margin: 0 auto;
-  font-weight: bold;
-  padding: 2rem;
-}
-.topic_text {
-  color: #fff;
-  font-size: 1.3rem;
-  margin: 0 auto;
-}
 .chatblock {
   position: absolute;
   height: 40%;
@@ -342,7 +347,6 @@ input[type="checkbox"] {
   text-align: left;
 }
 .timer {
-  font-size: 2em;
   box-sizing: border-box;
   // backdrop-filter: blur(25px);
   // background-color: #000000ca;
@@ -353,7 +357,14 @@ input[type="checkbox"] {
   place-items: center;
   place-content: center;
 }
-.sidebar_container {
+
+.hidden {
+  max-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transition: all 0.2s;
+}
+.sidebar-container {
   border-bottom: 1px solid #575757b0;
   max-height: 20vh; //Initially hidden
   overflow: hidden;
@@ -373,31 +384,30 @@ input[type="checkbox"] {
   box-sizing: border-box;
   backdrop-filter: blur(25px);
   background-color: #000000ca;
-  font-size: 1.2rem;
+  font-size: 1rem;
   // border-radius: 14px;
   box-shadow: 0px 0px 8px 3px #2424245e;
 
   & > * {
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    &::after{
+    position: relative;
+    width: 100%;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+    &::before, ::after{
+      display: none;
       content: "";
       position: absolute;
-      bottom: 0;
       width: 90%;
       height: 0.8px;
       background-color: #8e8e8e2c;
     }
-    &:first-child{
-      padding-top: 0;
-      padding-bottom: 1rem;
+    &:first-child::after{
+      // display: block;
+      bottom: 0;
     }
-    &:last-child{
-      padding-top: 1rem;
-      padding-bottom: 0;
-      &::after{
-        display: none;
-      }
+    &:last-child::before{
+      display: block;
+      top: 0;
     }
   }
 
@@ -409,8 +419,24 @@ input[type="checkbox"] {
     place-content: space-evenly;
     place-items: center;
     width: 100%;
-    font-size: 0.8em;
     position: relative;
+  }
+
+  .timer{
+    &.none {
+      font-size: 130%;
+    }
+    &.running {
+      font-size: 200%;
+    }
+    &.stopped {
+      font-size: 160%;
+      color: rgb(213, 213, 213, 0.5);
+    }
+    &.paused {
+      font-size: 160%;
+      color: rgb(213, 213, 213, 0.5);
+    }
   }
 
   .debug-info{
@@ -419,18 +445,18 @@ input[type="checkbox"] {
     font-size: 0.9rem;
   }
 
-  .sidebar_prompt{
+  .sidebar-prompt{
     font-family: 'Montserrat', sans-serif;
     display: flex;
     place-content: center;
     place-items: center;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 500;
+    transition: all 0.2s;
   }
-  .sidebar_foot {
+  .sidebar-block {
     position: relative;
-    width: 80%;
-    font-size: 1rem;
+    width: 100%;
     text-align: center;
     display: flex;
     place-content: center;
@@ -438,8 +464,9 @@ input[type="checkbox"] {
     flex-direction: column;
     height: 100%;
     gap: 0.15rem;
-    & > span{
-      margin-right: 1rem;
+    font-size: 90%;
+    div {
+      width: 100%;
     }
   }
 }

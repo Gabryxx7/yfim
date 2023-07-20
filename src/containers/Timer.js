@@ -4,12 +4,14 @@ import { timeColorMapDefault, getTimerColor } from "../classes/TimedEvent"
 import { STAGE } from "../managers/Definitions"
 
 const TIMER_STATE = {
-  NONE: 0,
-  RUNNING: 1,
-  STOPPED: 2,
+  NONE: "none",
+  RUNNING: "running",
+  PAUSED: "paused",
+  STOPPED: "stopped",
 };
 
 export default function Timer(props){
+  const active = props.active ?? true;
   const elapsed = props.elapsed ?? null;
   const timeLimit = props.duration ?? null;
   const countdown = props.countdown ?? false;
@@ -33,11 +35,15 @@ export default function Timer(props){
       setTimerState(TIMER_STATE.STOPPED);
     }
     if(stageState == STAGE.STATUS.IN_PROGRESS){
+      setTimeString("00:00")
       setTimerState(TIMER_STATE.RUNNING);
     }
   }, [stageState])
 
   useEffect(() => {
+    if(!active){
+      setTimeString("Waiting...")
+    }
     if(timerState != TIMER_STATE.RUNNING) return;
     var time = elapsed;
     if(timeLimit > 0){
@@ -55,7 +61,7 @@ export default function Timer(props){
   }, [elapsed]);
 
   return (
-    <div className="timer" style={{color: `${textColor}`}}>
+    <div className={`timer ${timerState}`} style={{color: `${textColor}`}}>
       {timeString}
     </div>
   );

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { STAGE } from '../managers/Definitions'
 
 export default function Introduction(props) {
-  const userRole = props.userRole != undefined ? props.userRole : "";
+  const stageState = props.stageState ?? STAGE.STATUS.IN_PROGRESS;
   return (
-    <div className="topic intro-topic">
-      <p className="topic_head">YOUR FACE IS MUTED</p>
-      <p className="topic_text">
+    <div className={`intro ${stageState}`}>
+      <p className="title">YOUR FACE IS MUTED</p>
+      <p className="text">
         {(() => {
-          if(state == "main"){
+          if(stageState == STAGE.STATUS.NONE){
             return(<>
               <i>Your Face is Muted</i> explores how a lack of non-verbal cues
                 <br />
@@ -19,7 +20,7 @@ export default function Introduction(props) {
                 for your conversation partner.
               </>);
           }
-          if(state == "faceDetected"){
+          if(stageState == STAGE.STATUS.IN_PROGRESS){
             return(<>
               This is a three-part experience that will take 3 minutes.
               <br />
@@ -34,7 +35,7 @@ export default function Introduction(props) {
               <br />
               <br />
               Tap 'Start' on the iPad to begin the experience.
-            <p className="topic_info">{userRole}</p>
+            {/* <p className="topic_info">{userRole}</p> */}
           </>);
           }
         })()}
