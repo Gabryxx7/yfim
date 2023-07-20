@@ -41,6 +41,7 @@ class Stage {
     this.elapsed = 0;
     console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
     this.room.setUsersReady(false);
+    this.extra = {'topic': this.config.topic};
 
     // If it does have multiple steps, then we should initialize the first step
     if (this.steps.length > 0) {
@@ -59,7 +60,6 @@ class Stage {
     this.status = STAGE.STATUS.IN_PROGRESS;
 
     if (this.type == STAGE.TYPE.VIDEO_CHAT) {
-      this.extra = {};
       try{
         // let mask_setting = this.session.masksConfig[this.params.mask_id];
         // mask_setting = mask_setting?.setting ? mask_setting.setting[2] : {};
@@ -68,17 +68,16 @@ class Stage {
         console.error("error getting mask settings: ", error);
       }
       try{
-        let prompts = Topics[this.params.question_type];
+        let prompts = Topics[this.config.topic];
         const rindex = Math.floor(Math.random() * prompts.length);
-        let topic = prompts[rindex];
-        this.extra['topic'] = topic;
-        this.session.topic_selected.push(topic);
+        let question = prompts[rindex];
+        this.extra['prompt'] = question;
+        this.session.question_selected.push(question);
       } catch(error){
-        console.error("error getting new topic: ", error);
+        console.error("error getting new question: ", error);
       }
     }
     else if (this.type == STAGE.TYPE.SURVEY) {
-      this.extra = {};
       if(this.params.test){
         this.extra.test = true;
       }
@@ -101,6 +100,7 @@ class Stage {
         startDateTime: this.startDateTime,
         duration: this.duration,
         room: this.room?.id,
+        ...this.extra,
       };
       if(this.currentStep){
         data.step = this.currentStep.getData();

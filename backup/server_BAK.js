@@ -104,7 +104,7 @@ var startTime;
 var timmer;
 var current_cfg;
 var current_rating;
-var topic_selected = [];
+var question_selected = [];
 var survey_in_progress = false;
 var stage;
 
@@ -178,7 +178,7 @@ function processStart(room, start_time, cfg) {
           const rindex = Math.floor(Math.random() * icebreaker.length);
           let topic = icebreaker[rindex];
 
-          topic_selected.push(topic);
+          question_selected.push(topic);
           console.log("- sending update to projection in room: " + room);
           chatio.emit("stage-control", {
             mask: mask_setting,
@@ -211,7 +211,7 @@ function processStart(room, start_time, cfg) {
           let mask_setting = cfg["setting"][stage];
           const rindex = Math.floor(Math.random() * wouldyou.length);
           let topic = wouldyou[rindex];
-          topic_selected.push(topic);
+          question_selected.push(topic);
           console.log(
             "- sending stage control to room: " +
               room +
@@ -249,7 +249,7 @@ function processStart(room, start_time, cfg) {
           let mask_setting = cfg["setting"][stage];
           const rindex = Math.floor(Math.random() * quest.length);
           let topic = quest[rindex];
-          topic_selected.push(topic);
+          question_selected.push(topic);
           console.log(
             "- sending stage control to room: " +
               room +
@@ -304,7 +304,7 @@ function processStart(room, start_time, cfg) {
 function processStop(room, accident_stop) {
   console.log("+ process stop ");
   if (accident_stop) {
-    topic_selected = [];
+    question_selected = [];
   }
 
   survey_in_progress = false;
@@ -325,7 +325,7 @@ async function storeData(room) {
   let phase_result = [];
   for (let i = 0; i < 3; i++) {
     const data = {
-      topic: topic_selected[i],
+      topic: question_selected[i],
       mask_setting: current_cfg["setting"][i + 1],
       host: {
         survey: question_data["host"][i],
@@ -363,7 +363,7 @@ async function storeData(room) {
     phase_03: phase_result[2],
     audio: audio,
   };
-  topic_selected = [];
+  question_selected = [];
   emotion_ready = { host: false, guest: false };
   question_ready = { host: false, guest: false };
   emotion_data = {

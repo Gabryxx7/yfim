@@ -16,6 +16,7 @@ try{
 const SessionConfig = [
   {
     "name": "Test Video 1",
+    "topic": QUESTION.TYPE.ICEBREAKER,
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
@@ -24,15 +25,13 @@ const SessionConfig = [
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.JAWOUTLINE, FACEAPI.LANDMARK.NOSE]
           },
-          "audio": true,
-          "video": true,
-          "question_type": QUESTION.TYPE.ICEBREAKER
         }
       }
     ]
   },
   {
     "name": "Test Survey 1",
+    "topic": QUESTION.TYPE.ICEBREAKER,
     "steps": [
       {
         "params": {
@@ -43,6 +42,7 @@ const SessionConfig = [
     ]
   },{
     "name": "Test Video 2",
+    "topic": QUESTION.TYPE.ICEBREAKER,
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
@@ -51,15 +51,13 @@ const SessionConfig = [
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH]
           },
-          "audio": true,
-          "video": true,
-          "question_type": QUESTION.TYPE.ICEBREAKER
         }
       }
     ]
   },
   {
     "name": "Test Survey 2",
+    "topic": QUESTION.TYPE.ICEBREAKER,
     "steps": [
       {
         "params": {
@@ -70,6 +68,7 @@ const SessionConfig = [
     ]
   },{
     "name": "Start Mask 2",
+    "topic": QUESTION.TYPE.ICEBREAKER,
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
@@ -77,16 +76,14 @@ const SessionConfig = [
         "params": {
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE]
-          },
-          "audio": true,
-          "video": true,
-          "question_type": QUESTION.TYPE.ICEBREAKER
+          }
         }
       }
     ]
   },
   {
     "name": "Stage 1 - Video Chat Icebreaker",
+    "topic": QUESTION.TYPE.ICEBREAKER,
     "steps": [
       {
         "name": "Chat",
@@ -97,9 +94,6 @@ const SessionConfig = [
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.NOSE]
           },
-          "audio": true,
-          "video": true,
-          "question_type": QUESTION.TYPE.ICEBREAKER
         }
       },
       {
@@ -123,9 +117,7 @@ const SessionConfig = [
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.NOSE]
           },
-          "audio": true,
-          "video": true,
-          "question_type": QUESTION.TYPE.WOULDYOU
+          "topic": QUESTION.TYPE.WOULDYOU
         }
       },
       {
@@ -149,9 +141,7 @@ const SessionConfig = [
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.NOSE]
           },
-          "audio": true,
-          "video": true,
-          "question_type": QUESTION.TYPE.QUEST
+          "topic": QUESTION.TYPE.QUEST
         }
       },
       {

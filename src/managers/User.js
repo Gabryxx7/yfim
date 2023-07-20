@@ -219,8 +219,11 @@ class User {
     }
 
     onUserStageCompleted(data){
-      console.log("Stage completed data: ", data);
-      fs.writeFileSync("./uploads/"+  data.filename, JSON.stringify(data.survey, null, 3));
+      console.log("Stage completed");
+      if(data != null && data != undefined){
+        console.log("Stage completed data: ", data);
+        fs.writeFileSync("./uploads/"+  data.filename, JSON.stringify(data.data, null, 3));
+      }
       this.ready = true;
       if(this.room){
         this.sessionManager.onUserStageCompleted(this.room);

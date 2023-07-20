@@ -20,7 +20,8 @@ export default function SideBar(props) {
     index: 0,
     name: "Session has not started yet...",
     totalStages: 0,
-    stageType: "none"
+    stageType: "none",
+    topic: "none"
   })
 
   // var sidePadding = "11rem";
@@ -40,7 +41,8 @@ export default function SideBar(props) {
         index: session.data?.stage?.index,
         name: session.data?.stage?.name,
         totalStages: session.data?.stages,
-        stageType: stageType
+        stageType: stageType,
+        topic: session.data?.stage?.topic
       });
       const newDuration = session.data?.stage?.step?.duration;
       console.log("duration ", newDuration);
@@ -95,7 +97,7 @@ export default function SideBar(props) {
       <div className="debug-info">
         <div className="user-info">
           <div>{stageData.user} ({stageData.userRole})</div>
-          <div>{stageData.stageType}</div>
+          <div>{stageData.stageType} - {stageData.topic}</div>
           <div>{stageData.sessionId}</div>
         </div>
         {/* <div className="room-info">

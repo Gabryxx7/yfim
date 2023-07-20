@@ -22,7 +22,7 @@ class SessionManager {
     this.currentStage = null;
     this.currentStageIdx = -1;
     this.stagesConfig = SessionConfig;
-    this.topic_selected = [];
+    this.question_selected = [];
     this.stages = [];
     // this.chatsManager = new ChatsManager(this.sio, this);
     // this.controlManager = new ControlManager(this.sio, this);
@@ -186,7 +186,7 @@ class SessionManager {
     let phase_result = [];
     for (let i = 0; i < 3; i++) {
       const data = {
-        topic: topic_selected[i],
+        topic: question_selected[i],
         mask_setting: current_cfg["setting"][i + 1],
         host: {
           survey: question_data["host"][i],
@@ -224,7 +224,7 @@ class SessionManager {
       phase_03: phase_result[2],
       audio: audio,
     };
-    topic_selected = [];
+    question_selected = [];
     emotion_ready = { host: false, guest: false };
     question_ready = { host: false, guest: false };
     emotion_data = {

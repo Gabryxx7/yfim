@@ -56,7 +56,18 @@ function RoomPage(props) {
 				console.log("STAGE COMPLETED (event)");
 				const date = new Date().toISOString().split(".")[0];
 				let baseFilename = `YFIM_SURVEY_${sessionMap.session.user?.name}_${date}.json`;
-				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED, {survey: sender.data, filename: baseFilename});
+				const surveyData = sender.data;
+				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED, {
+					data: {
+						user: sessionMap.session.user?.name,
+						date: date,
+						sessionId: sessionMap.session.data?.sessionId,
+						stage: sessionMap.session.data?.stage?.name,
+						stageIndex: sessionMap.session.data?.stage?.index,
+						survey: sender.data,
+						topic: sessionMap.session.data?.stage?.topic
+					},
+					filename: baseFilename});
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 		}
@@ -79,7 +90,7 @@ function RoomPage(props) {
 				setPrompt("We have some questions for you...");
 			}
 			else if(stageType == STAGE.TYPE.VIDEO_CHAT){
-				const newPrompt = sessionMap.session.data?.stage?.step?.topic;
+				const newPrompt = sessionMap.session.data?.stage?.step?.prompt;
 				if(newPrompt != null && newPrompt != undefined){
 					setPrompt(newPrompt);
 				}

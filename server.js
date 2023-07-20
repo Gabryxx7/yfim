@@ -144,7 +144,7 @@ app.disable("x-powered-by");
 // var timmer;
 // var current_cfg;
 // var current_rating;
-// var topic_selected = [];
+// var question_selected = [];
 // var survey_in_progress = false;
 // var stage;
 
@@ -206,7 +206,7 @@ app.disable("x-powered-by");
 //           const rindex = Math.floor(Math.random() * icebreaker.length);
 //           let topic = icebreaker[rindex];
 
-//           topic_selected.push(topic);
+//           question_selected.push(topic);
 //           console.log("- sending update to projection in room: " + room);
 //           chatio.emit(CMDS.SOCKET.STAGE_CONTROL.cmd, {
 //             mask: mask_setting,
@@ -239,7 +239,7 @@ app.disable("x-powered-by");
 //           let mask_setting = cfg["setting"][stage];
 //           const rindex = Math.floor(Math.random() * wouldyou.length);
 //           let topic = wouldyou[rindex];
-//           topic_selected.push(topic);
+//           question_selected.push(topic);
 //           console.log(
 //             "- sending stage control to room: " +
 //               room +
@@ -277,7 +277,7 @@ app.disable("x-powered-by");
 //           let mask_setting = cfg["setting"][stage];
 //           const rindex = Math.floor(Math.random() * quest.length);
 //           let topic = quest[rindex];
-//           topic_selected.push(topic);
+//           question_selected.push(topic);
 //           console.log(
 //             "- sending stage control to room: " +
 //               room +
@@ -332,7 +332,7 @@ app.disable("x-powered-by");
 // function processStop(room, accident_stop) {
 //   console.log("+ process stop ");
 //   if (accident_stop) {
-//     topic_selected = [];
+//     question_selected = [];
 //   }
 
 //   survey_in_progress = false;
