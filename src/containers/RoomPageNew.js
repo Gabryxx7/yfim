@@ -32,6 +32,7 @@ export default function RoomPageNew(props) {
 
 function RoomPage(props) {
 	const sessionMap = useContext(SessionContext);
+	const useJoinForm = props.useJoinForm ?? true;
 	const [faceProcessor, setFaceProcessor] = useState(null);
 	const socket = useRef(null);
 	const [prompt, setPrompt] = useState("Waiting for your conversation partner to join the call...")
@@ -166,7 +167,10 @@ function RoomPage(props) {
 		socket.current.on(CMDS.SOCKET.MESSAGE, (data) => RTCManager.onMessage(data));
 		socket.current.on(CMDS.SOCKET.CONTROL, (data) => RTCManager.onControl(data));
 		// setSocket(socket);
-    	socket.current.emit(CMDS.SOCKET.JOIN_ROOM);
+		if(!useJoinForm){
+		// CHANGE THIS TO IMMEDIATELY JOIN THE ROOM
+    		socket.current.emit(CMDS.SOCKET.JOIN_ROOM);
+		}
 	}, [RTCManager])
 
 	useEffect(() => {
@@ -227,7 +231,7 @@ function RoomPage(props) {
 			stageState={stageState}
 		/>
 			
-		<div class={`main-call-container ${bridge}`}>
+		<div className={`main-call-container ${bridge}`}>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}
 			<div className='main-room-container' style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
@@ -244,7 +248,15 @@ function RoomPage(props) {
 				rtcManager={RTCManager}
 				faceProcessor={faceProcessor} />
 			</div>
-			 <Introduction stageState={stageState}/>
+			 <Introduction
+			 stageState={stageState}
+			 useJoinForm={useJoinForm}
+			 onUsernameFormSubmit={(name) => {
+				console.log(`New user ${name}, state: ${stageState}`)
+				if(stageState == STAGE.STATUS.NONE){
+					socket.current.emit(CMDS.SOCKET.JOIN_ROOM, {name: name});
+				}
+			 }}/>
 			 <ToastCommunications />
     
 			{/* <MediaContainer

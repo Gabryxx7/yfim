@@ -101,7 +101,7 @@ class Room{
   }
 
   addUser(user){
-    const res = {code: 1, msg: `User ${user.id} succesfully added to room ${this.id}`}
+    const res = {code: 1, msg: `User ${user.id} ${user.name} succesfully added to room ${this.id}`}
     if(user === null || user === undefined){
       res.code = -2;
       res.msg = `Attempted to add a ${user} user to room ${this.id}`;
@@ -126,7 +126,9 @@ class Room{
       console.log(`Room ${this.id} is full, calling onRoomFull(room)`);
       this.onRoomFull(this);
     }
-    user.name = `User_${this.size-1}`;
+    if(user.name == null){
+      user.name = `User_${this.size-1}`;
+    }
     user.room = this;
     if(this.size <= 1){
       user.type = User.TYPE.HOST;

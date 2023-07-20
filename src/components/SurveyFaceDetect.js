@@ -49,7 +49,7 @@ export default function SurveyFaceDetect(props) {
         />
         <div className="survey_checkbox">
           <input type="checkbox" onChange={handleCheck} />
-          <span class="checkboxtext"> I am under 18 years old </span>
+          <span className="checkboxtext"> I am under 18 years old </span>
         </div>
 
         <div className={checked ? "survey_diable_checkbox" : "survey_checkbox"}>
@@ -59,7 +59,7 @@ export default function SurveyFaceDetect(props) {
             disabled={checked}
             checked={record}
           />
-          <span class="checkboxtext"> I agree to have my voice recorded</span>
+          <span className="checkboxtext"> I agree to have my voice recorded</span>
         </div>
         <button className="survey_ready_button" onClick={onSubmit}>
           START

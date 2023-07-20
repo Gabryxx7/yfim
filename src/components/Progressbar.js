@@ -3,8 +3,8 @@ export default function ProgressBar(props){
    const max = props.max ?? 100;
    const progress = props.progress ?? 0;
    return(
-     <div class="progress-container">
-       <div class="progress-bar"
+     <div className="progress-container">
+       <div className="progress-bar"
          style={{
            background: '#d4eeff',
            transition: "all 0.5s",
@@ -12,7 +12,7 @@ export default function ProgressBar(props){
            width: "100%",
            borderRadius: "50px",
          }}>
-       <div class="progress-bar-completed"
+       <div className="progress-bar-completed"
          style={{
            background: "#1da1f2",
            height: "100%",
@@ -21,7 +21,7 @@ export default function ProgressBar(props){
            width: `${progress/max*100}%`
          }}/>
          </div>
-         <span class="progress-text">{progress}/{max}</span>
+         <span className="progress-text">{progress}/{max}</span>
        </div>
    )
  }

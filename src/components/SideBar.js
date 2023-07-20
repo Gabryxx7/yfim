@@ -14,7 +14,8 @@ export default function SideBar(props) {
   const onTimerEnd = props.onTimerEnd ?? (() => {});
   const stageState = props.stageState;
   const [stageData, setStageData] = useState({
-    user: "No user",
+    user: "user",
+    userRole: "none",
     index: 0,
     name: "Session has not started yet...",
     totalStages: 0,
@@ -32,7 +33,8 @@ export default function SideBar(props) {
       console.log("Session started sidebar: ", session.data)
       const stageType = session.data?.stage?.step?.type;
       setStageData({...stageData,
-        user: session.user?.role,
+        userRole: session.user?.role,
+        user: session.user?.name,
         index: session.data?.stage?.index,
         name: session.data?.stage?.name,
         totalStages: session.data?.stages,
@@ -90,7 +92,7 @@ export default function SideBar(props) {
           </div>
       <div className="debug-info">
         <div className="user-info">
-          <div>{stageData.user}</div>
+          <div>{stageData.user} ({stageData.userRole})</div>
           <div>{stageData.stageType}</div>
         </div>
         {/* <div className="room-info">

@@ -96,7 +96,7 @@ function Announcement(props) {
         }}
       >
         <input type="checkbox" onChange={handleCheck} />
-        <span class="checkboxtext"> I am over 18 years old </span>
+        <span className="checkboxtext"> I am over 18 years old </span>
       </div>
 
       <div
@@ -105,7 +105,7 @@ function Announcement(props) {
         }}
       >
         <input type="checkbox" onChange={handleCheck2} />
-        <span class="checkboxtext"> I agree to record the video and voice</span>
+        <span className="checkboxtext"> I agree to record the video and voice</span>
       </div>
 
       <button

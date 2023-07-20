@@ -22,7 +22,7 @@ class User {
       this.room = null;
       this.type = User.TYPE.NONE;
       this.id = this.socket.id; // Just for the purpose of this project
-      this.name = User.TYPE.NONE;
+      this.name = null;
       this.joined = false;
       this.ready = true;
       this.rating = null;
@@ -116,7 +116,7 @@ class User {
         }
       })
       this.socket.on(CMDS.SOCKET.MESSAGE, (message) => this.broadcastMessage(CMDS.SOCKET.MESSAGE, message));
-      this.socket.on(CMDS.SOCKET.JOIN_ROOM, () => this.joinCreateRoom());
+      this.socket.on(CMDS.SOCKET.JOIN_ROOM, (userData) => this.joinCreateRoom(userData));
       this.socket.on(CMDS.SOCKET.LEAVE_ROOM, () => this.leaveRoom());
       this.socket.on(CMDS.SOCKET.CONTROL_ROOM, (data) => this.controlRoom(data));
       this.socket.on(CMDS.SOCKET.ROOM_IDLE, (data) => this.roomInIdle(data));
@@ -208,6 +208,7 @@ class User {
         user: {
           room: this.room?.id,
           role: this.type,
+          name: this.name,
           id: this.id
         }
       };
@@ -224,8 +225,11 @@ class User {
       }
     }
   
-    joinCreateRoom(){
+    joinCreateRoom(userData){
       console.log("Received Join/Create Room Request");
+      if(userData.name != null && userData.name != undefined){
+        this.name = userData.name;
+      }
       this.started = true;
       const url = this.socket.request.headers.referer;
       const urlRoomData = url.split("/room")[1];
@@ -245,7 +249,7 @@ class User {
         if(userRoom.size > 1){
           this.socket.to(this.room.id).emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.JOIN_REQUEST, msg: `User ${this} is requesting to join the call`}); // Broadcast to room this.room.id except for the sender
           this.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.STATUS.PENDING_APPROVAL, msg: `Waiting for host to approve request`});
-          userRoom.host.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST, userId: this.id});
+          userRoom.host.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST, userId: this.id, userName: this.name});
         }
         else{
           this.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.START_CALL}); // Broadcast to room this.room.id except for the sender

@@ -27,7 +27,7 @@ const InvitationMsg = (props) => {
    const closeToast = props.closeToast;
 	return(<div className="toast-msg">
 		 <p>A user is requesting to join the call...</p>
-		 <div class="actions">
+		 <div className="actions">
 		 <button
 			onClick={() => {
             console.log(props)

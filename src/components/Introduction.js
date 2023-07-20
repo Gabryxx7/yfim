@@ -1,9 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { STAGE } from '../managers/Definitions'
 
 export default function Introduction(props) {
   const stageState = props.stageState ?? STAGE.STATUS.IN_PROGRESS;
+  const useJoinForm = props.useJoinForm ?? false;
+  const nameInput = useRef();
+  const [name, setName] = useState(null);
+  const onUsernameFormSubmit = props.onUsernameFormSubmit ?? (() => {});
+
+  useEffect(() => {
+    if(name == null) return;
+
+  }, [name])
   return (
+    <div className="intro-container">
     <div className={`intro ${stageState}`}>
       <p className="title">YOUR FACE IS MUTED</p>
       <p className="text">
@@ -40,6 +50,21 @@ export default function Introduction(props) {
           }
         })()}
       </p>
+        {stageState == STAGE.STATUS.NONE && useJoinForm &&
+          <div className="intro-form">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                onUsernameFormSubmit(nameInput.current.value);
+                setName(nameInput.current.value);
+              }}>
+              <label htmlFor="user-name"> What is your name?</label>
+              <input type="text" id="user-name" name="name" ref={nameInput} disabled={name != null} required />
+              {name == null && <input type="submit" id="join-btn" className="primary-button" value="Join" name="join-room" />}
+              {name != null && <div> Welcome, <strong>{name}</strong>! We are just setting up a few more things...</div>}
+            </form>
+          </div>}
+    </div>
     </div>
   );
 }
