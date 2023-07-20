@@ -31,9 +31,18 @@ export default class FaceProcessor extends VideoProcessor {
       }
    }
 
-   startRecording(){
+   startRecording(session){
       delete this.chunks;
       this.chunks = [];
+		this.chunks.push({
+			user: session.user?.name,
+			date: new Date().toISOString().split(".")[0],
+			sessionId: session.data?.sessionId,
+			stage: session.data?.stage?.name,
+			stageIndex: session.data?.stage?.index,
+			topic: session.data?.stage?.topic,
+			prompt: session.data?.stage?.prompt
+		})
       this.recording = true;
    }
 

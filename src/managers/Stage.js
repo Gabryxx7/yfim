@@ -1,4 +1,4 @@
-const { STAGE } = require("./Definitions");
+const { CMDS, STAGE } = require("./Definitions");
 const { Topics } = require("../../assets/Topics");
 
 class Stage {
@@ -6,10 +6,9 @@ class Stage {
     this.session = session;
     this.room = room;
     this.config = config;
-    this.name = this.config.name ? this.config.name : "";
-    this.name =
-      parent != null ? `${parent.name} - ${this.config.type}` : this.name;
+    this.name = this.config.name ?? this.config.type;
     this.parent = parent;
+    this.name = parent != null ? `${parent.name} - ${this.name}` : this.name;
     this.prefix = parent != null ? "\t" : "";
     this.index = idx;
     this.id = idx;
@@ -22,6 +21,7 @@ class Stage {
     this.startTime = -1;
     this.endTime = -1;
     this.timeLeft = -1;
+    this.syncTimers = false; // If set to true it will wait for the clients to complete their own timer instead of forcing the stage/step to end
     this.status = STAGE.STATUS.NONE;
     this.extra = {};
     this.steps = [];
@@ -35,13 +35,52 @@ class Stage {
     }
   }
 
+  getQuestionData(){
+    if(this.extra?.prompt != null){
+      return {};
+    }
+    if(this.parent != null){
+      console.log("Parent's prompt " + this.parent.extra?.prompt)
+      return this.parent.extra;
+    }
+    try{
+      let topic = this.config.topic ?? this.parent.config.topic;
+      const prompts = Topics[topic];
+      const rindex = Math.floor(Math.random() * prompts.length);
+      let question = prompts[rindex];
+      return {topic: topic, prompt: question};
+    } catch(error){
+      console.error("error getting new question: ", error);
+    }
+    return {};
+  }
+
+  getMaskData(){
+    if(this.extra?.mask != null){
+      return {};
+    }
+    try{
+      let maskData = this.params.mask_settings ?? this.parent.params.mask_settings;
+      if(maskData != null && maskData != undefined){
+        return {mask: maskData};
+      }
+    } catch(error){
+      console.warn("No mask settings for this stage/step");
+    }
+    return {};
+  }
+
   initialize() {
     this.startDateTime = new Date().getTime();
     this.startTime = performance.now();
     this.elapsed = 0;
     console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
     this.room.setUsersReady(false);
-    this.extra = {'topic': this.config.topic};
+    this.extra = {
+      ...this.extra,
+      ...this.getQuestionData(),
+      ...this.getMaskData()
+    };
 
     // If it does have multiple steps, then we should initialize the first step
     if (this.steps.length > 0) {
@@ -55,38 +94,32 @@ class Stage {
       }
       return; // We should stop here since the stage updates with its internal steps and it does not have a progress on its own
     }
-
     // If the stage does not have any step, then the current step is the stage itself
     this.status = STAGE.STATUS.IN_PROGRESS;
-
-    if (this.type == STAGE.TYPE.VIDEO_CHAT) {
-      try{
-        // let mask_setting = this.session.masksConfig[this.params.mask_id];
-        // mask_setting = mask_setting?.setting ? mask_setting.setting[2] : {};
-        this.extra['mask'] = this.params?.mask_settings;
-      } catch(error){
-        console.error("error getting mask settings: ", error);
-      }
-      try{
-        let prompts = Topics[this.config.topic];
-        const rindex = Math.floor(Math.random() * prompts.length);
-        let question = prompts[rindex];
-        this.extra['prompt'] = question;
-        this.session.question_selected.push(question);
-      } catch(error){
-        console.error("error getting new question: ", error);
-      }
-    }
-    else if (this.type == STAGE.TYPE.SURVEY) {
-      if(this.params.test){
-        this.extra.test = true;
-      }
-    }
   }
 
-  setStatus(status){
-    console.log(`Setting Status for Stage ${this.name}: ${status}`)
-    this.status = status;
+  moveToNextStep(){
+    if(this.steps.length > 0){
+      console.log(`Stage ${this.name} Step ${this.currentStep.name} COMPLETED`)
+      this.currentStep.status = STAGE.STATUS.COMPLETED;
+      this.currentStepIdx += 1;
+      if (this.currentStepIdx >= this.steps.length) {
+        this.status = STAGE.STATUS.COMPLETED;
+      }
+      else{
+        this.currentStep = this.steps[this.currentStepIdx];
+        this.currentStep?.initialize();
+        const sessionData = this.session.getData();
+        this.session.chatsManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, sessionData)
+        this.session.controlManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, sessionData)
+      }
+    }
+    else{
+      this.status = STAGE.STATUS.COMPLETED;
+    }
+    if(this.status == STAGE.STATUS.COMPLETED){
+      console.log(`Stage ${this.name} COMPLETED`)
+    }
   }
 
   getData(){
@@ -119,34 +152,23 @@ class Stage {
   }
 
   updateProgress() {
-    this.elapsed = (performance.now() - this.startTime) / 1000;
-    console.log(`${this.prefix}Elapsed ${this.name}: ${this.elapsed}`);
-    if (this.duration > 0) {
-      this.timeLeft = this.duration - this.elapsed;
-      if (this.timeLeft <= 0) {
-        this.timeLeft = 0;
-        this.complete();
-        return;
-      }
-    }
-    if (this.steps.length > 0) {
-      this.currentStep.update();
-      if (this.currentStep.status == STAGE.STATUS.COMPLETED) {
-        this.currentStepIdx += 1;
-        if (this.currentStepIdx >= this.steps.length) {
-          this.status = STAGE.STATUS.COMPLETED;
+    if(this.syncTimers){
+      this.elapsed = (performance.now() - this.startTime) / 1000;
+      // console.log(`${this.prefix}Elapsed ${this.name}: ${this.elapsed}`);
+      if (this.duration > 0) {
+        this.timeLeft = this.duration - this.elapsed;
+        if (this.timeLeft <= 0) {
+          this.timeLeft = 0;
+          this.moveToNextStep();
           return;
         }
-        this.currentStep = this.steps[this.currentStepIdx];
-        this.currentStep?.initialize();
       }
+    }
+    if(this.currentStep != null){
+      this.currentStep.update();
     }
     // If there is not set duration and it's not a multi-step stage
     // Completion will be set by an external event such a socket message
-  }
-
-  complete() {
-    this.status = STAGE.STATUS.COMPLETED;
   }
 
   update() {

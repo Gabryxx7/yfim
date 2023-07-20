@@ -39,7 +39,7 @@ export default function SideBar(props) {
         user: session.user?.name,
         sessionId: session.data?.sessionId,
         index: session.data?.stage?.index,
-        name: session.data?.stage?.name,
+        name: session.data?.stage?.step?.name,
         totalStages: session.data?.stages,
         stageType: stageType,
         topic: session.data?.stage?.topic

@@ -15,10 +15,11 @@ try{
 
 const SessionConfig = [
   {
-    "name": "Test Video 1",
+    "name": "Test 1",
     "topic": QUESTION.TYPE.ICEBREAKER,
     "steps": [
       {
+        "name": "Video",
         "type": STAGE.TYPE.VIDEO_CHAT,
         "duration": 10,
         "params": {
@@ -26,17 +27,9 @@ const SessionConfig = [
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.JAWOUTLINE, FACEAPI.LANDMARK.NOSE]
           },
         }
-      }
-    ]
-  },
-  {
-    "name": "Test Survey 1",
-    "topic": QUESTION.TYPE.ICEBREAKER,
-    "steps": [
+      },
       {
-        "params": {
-          "test": true,
-        },
+        "name": "Survey",
         "type": STAGE.TYPE.SURVEY,
       }
     ]
@@ -46,7 +39,7 @@ const SessionConfig = [
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
-        "duration": 10,
+        "duration": 100,
         "params": {
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH]
@@ -72,7 +65,7 @@ const SessionConfig = [
     "steps": [
       {
         "type": STAGE.TYPE.VIDEO_CHAT,
-        "duration": 10,
+        "duration": 100,
         "params": {
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE]
@@ -89,7 +82,7 @@ const SessionConfig = [
         "name": "Chat",
         "type": STAGE.TYPE.VIDEO_CHAT,
         "duration_uncomment": 500,
-        "duration": 30,
+        "duration": 300,
         "params": {
           "mask_settings": {
             "show_features": [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.NOSE]
@@ -99,7 +92,7 @@ const SessionConfig = [
       {
         "name": STAGE.TYPE.SURVEY,
         "type": STAGE.TYPE.SURVEY,
-        "duration": 100,
+        "duration": 1000,
         "params": {
           "param1": ""
         }

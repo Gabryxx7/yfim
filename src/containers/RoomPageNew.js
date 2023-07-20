@@ -65,7 +65,8 @@ function RoomPage(props) {
 						stage: sessionMap.session.data?.stage?.name,
 						stageIndex: sessionMap.session.data?.stage?.index,
 						survey: sender.data,
-						topic: sessionMap.session.data?.stage?.topic
+						topic: sessionMap.session.data?.stage?.topic,
+						prompt: sessionMap.session.data?.stage?.prompt
 					},
 					filename: baseFilename});
 			})
@@ -81,13 +82,13 @@ function RoomPage(props) {
 		}
 		if(stageState == STAGE.STATUS.COMPLETED){
 			if(stageType == STAGE.TYPE.SURVEY){
-				setPrompt("Waiting for your conversation partner to complete the survey...");
+				// setPrompt("Waiting for your conversation partner to complete the survey...");
 			}
 			return;
 		}
 		if(stageState == STAGE.STATUS.IN_PROGRESS){
 			if(stageType == STAGE.TYPE.SURVEY){
-				setPrompt("We have some questions for you...");
+				// setPrompt("We have some questions for you...");
 			}
 			else if(stageType == STAGE.TYPE.VIDEO_CHAT){
 				const newPrompt = sessionMap.session.data?.stage?.step?.prompt;
@@ -249,6 +250,7 @@ function RoomPage(props) {
 			<TestComponent index={1} user={user}/> */}
 			<div className='main-room-container' style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
 			<VideoContainer
+				stageState={stageState}
 				socket={socket}
 				onStreamAdded={() => {
 					setBridge(CMDS.RTC.STATUS.ESTABLISHED)

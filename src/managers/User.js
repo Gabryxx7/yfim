@@ -219,9 +219,9 @@ class User {
     }
 
     onUserStageCompleted(data){
-      console.log("Stage completed");
+      console.log("User completed stage");
       if(data != null && data != undefined){
-        console.log("Stage completed data: ", data);
+        console.log("User completion data: ", data);
         fs.writeFileSync("./uploads/"+  data.filename, JSON.stringify(data.data, null, 3));
       }
       this.ready = true;

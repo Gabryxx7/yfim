@@ -26,7 +26,7 @@ export default function VideoContainer(props) {
 	const sessionMap = useContext(SessionContext);
 	const faceProcessor = props.faceProcessor;
 	const [mediaRecorder, setMediaRecorder] = useState(null);
-	const recorderReady = useRef(false);
+	const stageState = props.stageState ?? null;
 	const mediaChunks = useRef([]);
 	const socket = props.socket;
 	const rtcManager = props.rtcManager;
@@ -36,6 +36,15 @@ export default function VideoContainer(props) {
 	const remoteStream = useRef();
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
 	const onStreamAdded = props.onStreamAdded;
+
+	useEffect(() => {
+		if(stageState == null) return;
+		if(stageState == STAGE.STATUS.COMPLETED){
+			if(mediaRecorder != null && mediaRecorder.state == "recording"){
+				mediaRecorder.stop();
+			}
+		}
+	}, [stageState])
 
 	// when the other side added a media stream, show it on screen
 	const onAddStream = (e) => {
@@ -114,7 +123,7 @@ export default function VideoContainer(props) {
 				console.log("Starting MediaRecorder ", mediaRecorder);
 				mediaRecorder.start();
 				console.log("Recording started!")
-				faceProcessor.startRecording();
+				faceProcessor.startRecording(session);
 				mediaRecorder.ondataavailable = (e) => {
 					mediaChunks.current.push(e.data);
 				}
@@ -184,14 +193,14 @@ export default function VideoContainer(props) {
 						console.warn("Error storing video and face api files...", error);
 					}
 				}
-				const recordTestDuration = 5000;
-				toast("Recording Started!", {
-					autoClose: recordTestDuration,
-					pauseOnFocusLoss: false,
-					draggable: false,
-					pauseOnHover: false
-				})
-				setTimeout(() => mediaRecorder.stop(), recordTestDuration);
+				// const recordTestDuration = 5000;
+				// toast("Recording Started!", {
+				// 	autoClose: recordTestDuration,
+				// 	pauseOnFocusLoss: false,
+				// 	draggable: false,
+				// 	pauseOnHover: false
+				// })
+				// setTimeout(() => mediaRecorder.stop(), recordTestDuration);
 			}
 		});
 	}, [mediaRecorder])

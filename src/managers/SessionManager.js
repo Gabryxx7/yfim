@@ -44,7 +44,7 @@ class SessionManager {
     const allUsersReady = room.allUsersReady();
     console.log("All users ready in room " + room.id);
     if(allUsersReady){
-      this.currentStage.setStatus(STAGE.STATUS.COMPLETED);
+      this.currentStage.moveToNextStep();
     }
   }
 
