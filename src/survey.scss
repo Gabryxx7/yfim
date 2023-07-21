@@ -191,4 +191,6 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 .sd-title{
   color: white !important;
   text-align: center;
+  padding: 0.2rem !important;
+  font-size: 2rem !important;
 }
