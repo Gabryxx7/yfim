@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { STAGE } from '../managers/Definitions'
 
 export default function Introduction(props) {
-  const stageState = props.stageState ?? STAGE.STATUS.IN_PROGRESS;
+  const stageState = props.stageState ?? {reason: "", state: STAGE.STATUS.IN_PROGRESS};
   const useJoinForm = props.useJoinForm ?? false;
   const nameInput = useRef();
   const [name, setName] = useState(null);
@@ -13,12 +13,12 @@ export default function Introduction(props) {
 
   }, [name])
   return (
-    <div className={`intro-container ${stageState}`}>
-    <div className={`intro ${stageState}`}>
+    <div className={`intro-container ${stageState.state}`}>
+    <div className={`intro ${stageState.state}`}>
       <p className="title">YOUR FACE IS MUTED</p>
       <p className="text">
         {(() => {
-          if(stageState == STAGE.STATUS.NONE){
+          if(stageState.state == STAGE.STATUS.NONE){
             return(<>
               <i>Your Face is Muted</i> explores how a lack of non-verbal cues
                 <br />
@@ -30,7 +30,7 @@ export default function Introduction(props) {
                 for your conversation partner.
               </>);
           }
-          if(stageState == STAGE.STATUS.IN_PROGRESS){
+          if(stageState.state == STAGE.STATUS.IN_PROGRESS){
             return(<>
               This is a three-part experience that will take 3 minutes.
               <br />
@@ -50,7 +50,7 @@ export default function Introduction(props) {
           }
         })()}
       </p>
-        {stageState == STAGE.STATUS.NONE && useJoinForm &&
+        {stageState.state == STAGE.STATUS.NONE && useJoinForm &&
           <div className="intro-form">
             <form 
               onSubmit={(e) => {

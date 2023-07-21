@@ -39,7 +39,7 @@ export default function VideoContainer(props) {
 
 	useEffect(() => {
 		if(stageState == null) return;
-		if(stageState == STAGE.STATUS.COMPLETED){
+		if(stageState.state == STAGE.STATUS.COMPLETED){
 			if(mediaRecorder != null && mediaRecorder.state == "recording"){
 				mediaRecorder.stop();
 			}

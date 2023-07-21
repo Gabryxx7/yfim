@@ -40,7 +40,7 @@ class SessionManager {
       });
   }
 
-  onUserStageCompleted(room){
+  onUserStepCompleted(room){
     const allUsersReady = room.allUsersReady();
     console.log("All users ready in room " + room.id);
     if(allUsersReady){

@@ -31,10 +31,10 @@ export default function Timer(props){
   }
 
   useEffect(() => {
-    if(stageState == STAGE.STATUS.COMPLETED){
+    if(stageState.state == STAGE.STATUS.COMPLETED){
       setTimerState(TIMER_STATE.STOPPED);
     }
-    if(stageState == STAGE.STATUS.IN_PROGRESS){
+    if(stageState.state == STAGE.STATUS.IN_PROGRESS){
       setTimeString("00:00")
       setTimerState(TIMER_STATE.RUNNING);
     }

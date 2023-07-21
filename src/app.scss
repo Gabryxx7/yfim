@@ -358,7 +358,8 @@ input[type="checkbox"] {
   transition: all 0.2s;
 }
 .sidebar-container {
-  max-height: 20%; //Initially hidden
+  padding: 1rem 3rem;
+  max-height: 20vh; //Initially hidden
   width: 100vw;
   border-bottom: 1px solid #575757b0;
   overflow: hidden;
@@ -413,9 +414,9 @@ input[type="checkbox"] {
   .info{
     font-family: "Fira Code";
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-auto-flow: row;
-    place-content: space-evenly;
+    // grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-flow: column;
+    place-content: space-between;
     place-items: center;
     width: 100%;
     position: relative;
@@ -442,13 +443,21 @@ input[type="checkbox"] {
     display: flex;
     flex-direction: row;
     font-size: 0.75rem;
+    place-items: center;
+    place-content: center;
+    gap: 1rem;
     .user-info{
       display: flex;
       flex-direction: column;
+      place-items: center;
+      place-content: center;
+      font-size: 0.7rem;
     }
     .room-info{
       display: flex;
       flex-direction: column;
+      place-items: center;
+      place-content: center;
     }
   }
 
@@ -556,9 +565,12 @@ input[type="checkbox"] {
 }
 
 .toast-msg{
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   display: flex;
-  place-content: center;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  place-content: space-evenly;
   place-items: center;
   flex-direction: column;
   a{
@@ -566,8 +578,20 @@ input[type="checkbox"] {
   }
   .actions{
     display: flex;
+    place-content: space-evenly;
+    width: 100%;
     gap: 0.5rem;
   }
+}
+
+.Toastify__toast-theme--dark {
+  background: #060606b0;
+  border: 0.5px solid #7676768f;
+  backdrop-filter: blur(20px);
+  color: var(--toastify-text-color-dark);
+}
+.Toastify__toast-body{
+  padding: 0.7rem 0.5rem 1rem 0.5rem;
 }
 
 .Toastify__toast-container {
@@ -611,7 +635,7 @@ input[type="checkbox"] {
   border: none;
   color: white;
   font-size: 0.9em;
-  margin: 0 5px 20px 5px;
+  // margin: 0 5px 20px 5px;
   width: 7em;
   line-height: 3ex;
   padding: 1ex 0.7em;
@@ -619,6 +643,14 @@ input[type="checkbox"] {
   -webkit-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
+  &.disabled{
+    background-color: #707b8e;
+    color: #c5c5c5;
+    cursor: default;
+    &:hover{
+      filter: none;
+    }
+  }
   &:hover{
     filter: brightness(0.6);
   }

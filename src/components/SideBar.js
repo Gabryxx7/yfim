@@ -5,13 +5,39 @@ import { SessionContext } from "../classes/Session";
 import { STAGE } from '../managers/Definitions'
 import ProgressBar from './Progressbar';
 
+const SidebarTesting = (props) => {
+  const stageData = props.stageData ?? {};
+  const stageState = props.stageState ?? {};
+  const onSkipClicked = props.onSkipClicked ?? (() => {});
+  return(
+    <div className="debug-info">
+      <div className="user-info">
+        <div>{stageData.user} ({stageData.userRole})</div>
+        <div>{stageData.stageType} - {stageData.topic}</div>
+        <div>{stageData.sessionId}</div>
+      </div>
+        <div
+          className={`primary-button ${stageState.state == STAGE.STATUS.COMPLETED ? 'disabled': ''}`}
+          style={{
+            padding: '0.5rem 0rem'
+          }}
+          onClick={onSkipClicked}>Skip</div>
+      {/* <div className="room-info">
+        <div>Waiting for your partner...</div>
+      </div> */}
+    </div>
+  )
+}
+
 export default function SideBar(props) {
 	const sessionMap = useContext(SessionContext);
+  const socket = props.socket;
   const [sessionRunning, setSessionRunning] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [duration, setDuration] = useState(0)
   const prompt = props.prompt ?? "PROMPT";
   const onTimerEnd = props.onTimerEnd ?? (() => {});
+  const onSkipClicked = props.onSkipClicked ?? (() => {});
   const stageState = props.stageState;
   const [stageData, setStageData] = useState({
     user: "user",
@@ -72,43 +98,38 @@ export default function SideBar(props) {
 
   return (
     <div className="sidebar-container"
-      style={(() => {
-        const padding = sessionRunning ? ''+barPadding : '1rem';
-        // const maxHeight = sessionRunning ? '20vh' : '0vh';
-        const maxHeight = '20vh';
-        return {padding,maxHeight}
-      })()}>
+      // style={(() => {
+      //   const padding = sessionRunning ? ''+barPadding : '1rem';
+      //   // const maxHeight = sessionRunning ? '20vh' : '0vh';
+      //   const maxHeight = '20vh';
+      //   return {padding,maxHeight}
+      // })()}
+      >
       <div className="info">
-               <Timer
-                active={sessionRunning}
-                stageState={stageState}
-                onTimerEnd={onTimerEnd}
-                elapsed={timeElapsed}
-                countdown={true}
-                duration={duration}
-                coloring={true}>
-             </Timer>
-          <div className="sidebar-block">
-            <div>{stageData.name} ({stageState})</div>
-            {sessionRunning && <ProgressBar
-              max={stageData.totalStages} 
-              progress={stageData.index+1}/> }
-          </div>
-      <div className="debug-info">
-        <div className="user-info">
-          <div>{stageData.user} ({stageData.userRole})</div>
-          <div>{stageData.stageType} - {stageData.topic}</div>
-          <div>{stageData.sessionId}</div>
+          <Timer
+          active={sessionRunning}
+          stageState={stageState}
+          onTimerEnd={onTimerEnd}
+          elapsed={timeElapsed}
+          countdown={true}
+          duration={duration}
+          coloring={true}>
+        </Timer>
+        <div className="sidebar-block">
+          <div>{stageData.name} ({stageState.state})</div>
+          {sessionRunning && <ProgressBar
+            max={stageData.totalStages} 
+            progress={stageData.index+1}/> }
         </div>
-        {/* <div className="room-info">
-          <div>Waiting for your partner...</div>
-        </div> */}
-      </div>
+          <SidebarTesting
+            onSkipClicked={onSkipClicked}
+            stageData={stageData}
+            stageState={stageState}
+          />
       </div>
       <div
       // className={`sidebar-prompt ${sessionRunning ? '' : 'hidden'}`}
-        className={`sidebar-prompt`}
-      >
+        className={`sidebar-prompt`}>
         {prompt}</div>
     </div>
   );

@@ -19,3 +19,6 @@ nohup.out
 
 # Misc
 package-lock.json
+uploads/*/*
+uploads/
+uploads

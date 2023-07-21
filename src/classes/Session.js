@@ -26,6 +26,19 @@ class Session extends TimedEvent{
       super(name, updateInterval)
       this.user = {};
    }
+
+   getSessionData(){
+      const data = {
+         user: this.user?.name,
+         date: new Date().toISOString().split(".")[0],
+         sessionId: this.data?.sessionId,
+         stage: this.data?.stage?.name,
+         stageIndex: this.data?.stage?.index,
+         topic: this.data?.stage?.topic,
+         prompt: this.data?.stage?.prompt
+      }
+      return data;
+   }
 }
 
 

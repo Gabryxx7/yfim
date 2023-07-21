@@ -4,9 +4,8 @@ import "survey-react/survey.css";
 import { CMDS, DATA} from "../managers/Definitions";
 import Sidebar from "../components/Sidebar";
 import WebRTCManager from "../classes/RTCManager"
-import {  toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastCommunications, InvitationMsg, WaitingMsg, NewRoleMsg, PendingApprovalMsg } from "../components/ToastCommunications";
+import { ToastCommunications, TOASTS } from "../components/ToastCommunications";
 import { SessionProvider, SessionContext } from "../classes/Session";
 import TestComponent from "../components/SessionContextUpdateExample"
 import VideoContainer from "../classes/VideoContainer";
@@ -39,7 +38,7 @@ function RoomPage(props) {
 	const [RTCManager, setRTCManager] = useState(null)
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
-	const [stageState, setStageState] = useState(STAGE.STATUS.NONE);
+	const [stageState, setStageState] = useState({reason: "", state: STAGE.STATUS.NONE});
 	const [stageType, setStageType] = useState(STAGE.TYPE.VIDEO_CHAT);
 
 	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
@@ -52,23 +51,7 @@ function RoomPage(props) {
 			surveyModel.current = new Model(TestSurvey);
 			surveyModel.current.onComplete.add((sender, options) => {
 				console.log(JSON.stringify(sender.data, null, 3));
-				setStageState(STAGE.STATUS.COMPLETED);
-				console.log("STAGE COMPLETED (event)");
-				const date = new Date().toISOString().split(".")[0];
-				let baseFilename = `YFIM_SURVEY_${sessionMap.session.user?.name}_${date}.json`;
-				const surveyData = sender.data;
-				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED, {
-					data: {
-						user: sessionMap.session.user?.name,
-						date: date,
-						sessionId: sessionMap.session.data?.sessionId,
-						stage: sessionMap.session.data?.stage?.name,
-						stageIndex: sessionMap.session.data?.stage?.index,
-						survey: sender.data,
-						topic: sessionMap.session.data?.stage?.topic,
-						prompt: sessionMap.session.data?.stage?.prompt
-					},
-					filename: baseFilename});
+				setStageState({reason: "", surveyData: sender.data, state: STAGE.STATUS.COMPLETED});
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 		}
@@ -76,17 +59,27 @@ function RoomPage(props) {
 
 
 	useEffect(() => {
-		if(stageState == STAGE.STATUS.NONE){
+		if(stageState.state == STAGE.STATUS.NONE){
 			setPrompt("Waiting for your conversation partner to join the call...");
+			// TOASTS.TEST.show({onAction: (res) => console.log("Toast clicked! " +res)})
 			return;
 		}
-		if(stageState == STAGE.STATUS.COMPLETED){
+		if(stageState.state == STAGE.STATUS.COMPLETED){
+			console.log(`STAGE COMPLETED (${stageState.reason})`);
+			const sessionData = sessionMap.session.getSessionData();
+			let baseFilename = `YFIM_SURVEY_${sessionMap.session.user?.name}_${sessionData.date}.json`;
+			const completionData = {data: sessionData};
 			if(stageType == STAGE.TYPE.SURVEY){
+				if(stageState.surveyData != null && stageState.surveyData != undefined){
+					completionData.data.survey = stageState.surveyData;
+				}
+				completionData.filename = baseFilename;
 				// setPrompt("Waiting for your conversation partner to complete the survey...");
 			}
+			socket.current.emit(CMDS.SOCKET.STEP_COMPLETED, completionData);
 			return;
 		}
-		if(stageState == STAGE.STATUS.IN_PROGRESS){
+		if(stageState.state == STAGE.STATUS.IN_PROGRESS){
 			if(stageType == STAGE.TYPE.SURVEY){
 				// setPrompt("We have some questions for you...");
 			}
@@ -108,10 +101,7 @@ function RoomPage(props) {
 	const onRoomUpdate = (data) => {
 		if(sessionMap.session?.user?.role != data?.user?.role){
 			if(data?.user?.role?.toLowerCase() == 'host'){
-				toast.info(<NewRoleMsg role={data?.user?.role}/>, {
-					autoClose: 3000,
-					toastId: "newRoleToast"
-				})
+				TOASTS.NEW_ROLE.show({role:data?.user?.role});
 			}
 		}
 		console.log(`Updated user Role ${data?.user?.role}`)
@@ -123,7 +113,7 @@ function RoomPage(props) {
 		sessionMap.updateSession(data);
 		sessionMap.session.start();
 		setStageType(sessionMap.session.data?.stage?.step?.type);
-		setStageState(STAGE.STATUS.IN_PROGRESS);
+		setStageState({reason: "", state: STAGE.STATUS.IN_PROGRESS});
 
 		if(surveyModel.current != null){
 			surveyModel.current.clear();
@@ -195,18 +185,10 @@ function RoomPage(props) {
 	useEffect(() => {
 		// console.log("connectionStatus ", connectionStatus)
 		if(connectionStatus == "connected"){
-			toast(<div className="toast-msg">A user joined the room!</div>, {
-				type: "success",
-				toastId: "userJoined",
-				autoClose: 5000
-			});
+			TOASTS.USER_JOINED.show();
 		}
 		else if(connectionStatus == "disconnected"){
-			toast(<div className="toast-msg">A user left the room!</div>, {
-				type: "error",
-				toastId: "userLeft",
-				autoClose: 5000
-			});
+			TOASTS.USER_LEFT.show();
 		}
 	}, [connectionStatus]);
 
@@ -214,32 +196,30 @@ function RoomPage(props) {
 		if(bridge == null) return;
 		console.log("New bridge", bridge);
 		if(bridge == "none"){
-			toast.loading(<WaitingMsg />, {
-				toastId: "waiting"
-			});
+			TOASTS.WAITING.show();
 			return;
 		}
-		toast.dismiss("waiting");
+		TOASTS.WAITING.dismiss();
 		if(bridge == CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST){
-			toast.warn(<InvitationMsg onInvitationAnswer={onInvitationAnswer}/>, {
-				toastId: "peerRequestId"
-			});
+			TOASTS.JOIN_REQUEST.show({onAction: onInvitationAnswer});
 		} else if(bridge == CMDS.RTC.STATUS.PENDING_APPROVAL){
-			toast.info(<PendingApprovalMsg />, {
-				toastId: "pendingApproval"
-			});
+			TOASTS.PENDING_APPROVAL.show();
 		} else{
-			toast.dismiss("pendingApproval");
+			TOASTS.PENDING_APPROVAL.dismiss();
 		}
 	}, [bridge])
 
 	return (
 		<>
 		<Sidebar 
+			socket={socket}
+			onSkipClicked={() => {
+				setStageState({reason: "Skip clicked", state: STAGE.STATUS.COMPLETED});
+			}}
 			onTimerEnd={() => {
-				setStageState(STAGE.STATUS.COMPLETED)
+				setStageState({reason: "time limit reached", state: STAGE.STATUS.COMPLETED});
 				console.log("STAGE COMPLETED (time limit reached)");
-				socket.current.emit(CMDS.SOCKET.STAGE_COMPLETED);
+				socket.current.emit(CMDS.SOCKET.STEP_COMPLETED);
 			}}
 			prompt={prompt}
 			stageState={stageState}
@@ -257,7 +237,7 @@ function RoomPage(props) {
 				}}
 				onRemotePlay={() => {
 					sessionMap.session.start();
-					setStageState(STAGE.STATUS.IN_PROGRESS);
+					setStageState({reason: "", state: STAGE.STATUS.IN_PROGRESS});
 				}}
 				connectionStatus={connectionStatus}
 				rtcManager={RTCManager}
@@ -268,7 +248,7 @@ function RoomPage(props) {
 			 useJoinForm={useJoinForm}
 			 onUsernameFormSubmit={(name) => {
 				console.log(`New user ${name}, state: ${stageState}`)
-				if(stageState == STAGE.STATUS.NONE){
+				if(stageState.state == STAGE.STATUS.NONE){
 					socket.current.emit(CMDS.SOCKET.JOIN_ROOM, {name: name});
 				}
 			 }}/>
