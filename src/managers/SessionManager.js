@@ -21,7 +21,9 @@ class SessionManager {
     this.elapsed = 0;
     this.currentStage = null;
     this.currentStageIdx = -1;
-    this.stagesConfig = SessionConfig;
+    this.config = SessionConfig;
+    this.availableConditions = structuredClone(this.config.available_conditions);
+    this.stagesConfig = this.config.stages;
     this.question_selected = [];
     this.stages = [];
     // this.chatsManager = new ChatsManager(this.sio, this);

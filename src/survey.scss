@@ -17,7 +17,7 @@
     --sjs-font-size: 18px;
     --sjs-font-pagedescription-weight: 600;
     --sjs-general-dim-forecolor-light: #CCCCCC;
-    --sjs-font-editorfont-color: #333333;
+    --sjs-font-editorfont-color: #c6c6c6;
   }
 
 $primary: var(--sjs-primary-backcolor, var(--primary, #ffffff));
@@ -182,7 +182,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 }
 
 .sd-rating__item {
-  border: 1px solid rgb(163, 163, 163, 0.2);
+  border: 1px solid #c6c6c6;
 }
 
 .sd-container-modern__title{

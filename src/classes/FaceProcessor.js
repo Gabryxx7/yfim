@@ -17,18 +17,20 @@ export default class FaceProcessor extends VideoProcessor {
 	}
 
    setMaskData(maskData){
-      if(maskData.show_features != null){
-         for (let l of LandmarksData){
-            l.visible = false;
-            for(let feature of maskData.show_features){
-               if(l.name.toUpperCase() == feature.toUpperCase()){
-                  l.visible = true;
-                  break;
-               }
-            }
-				// console.log(`Updated Mask Data ${l.name} ${l.visible}` )
-         }
-      }
+		for (let l of LandmarksData){
+			if(maskData.show_features == null || maskData.show_features.length <= 0){
+				l.visible = true;
+				continue;
+			}
+			l.visible = false;
+			for(let feature of maskData.show_features){
+				if(l.name.toUpperCase() == feature.toUpperCase()){
+					l.visible = true;
+					break;
+				}
+			}
+			// console.log(`Updated Mask Data ${l.name} ${l.visible}` )
+		}
    }
 
    startRecording(session){

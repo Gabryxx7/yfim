@@ -1,6 +1,8 @@
 const { CMDS, STAGE } = require("./Definitions");
 const { Topics } = require("../../assets/Topics");
 
+
+const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 class Stage {
   constructor(room, session, config, parent = null, idx = -1) {
     this.session = session;
@@ -61,6 +63,21 @@ class Stage {
     }
     try{
       let maskData = this.params.mask_settings ?? this.parent.params.mask_settings;
+      const randomize = maskData.pick_random_condition ?? false;
+      if(randomize && !maskData.show_features){
+          try{
+            const randIdx = randomInRange(0, this.session.availableConditions.length);
+            let condition = this.session.availableConditions[randIdx];
+            if(maskData.no_repetitions){
+              condition = this.session.availableConditions.splice(randIdx)[0];
+            }
+            maskData.show_features = condition;
+            console.log(`New Condition idx ${randIdx}`, condition);
+            console.log(`Remaining conditions`, this.session.availableConditions);
+          } catch(error){
+          console.warn("error getting randomized condition", error);
+        }
+      }
       if(maskData != null && maskData != undefined){
         return {mask: maskData};
       }

@@ -171,6 +171,18 @@ https://www.happychat.tech
 
 Release under The MIT License (MIT), copyright: Tilman Dingler, 2021
 
+# NGINX Upload settings
+Remember to increase the size limit of nginx:
+[Title](https://www.cyberciti.biz/faq/linux-unix-bsd-nginx-413-request-entity-too-large/)
+```sudo nano /etc/nginx/nginx.conf```
 
+Add the following line to http or server or location context to increase the size limit in nginx.conf, enter:
+```
+# set client body size to 100 MB #
+client_max_body_size 100M;
+```
+
+Reload
+```sudo systemctl reload nginx.service```
 # Windows fix
 https://github.com/krakenjs/zoid-demo/issues/6

@@ -35,6 +35,8 @@ class Session extends TimedEvent{
          stage: this.data?.stage?.name,
          stageIndex: this.data?.stage?.index,
          topic: this.data?.stage?.topic,
+         stage_mask: this.data?.stage?.mask,
+         step_mask: this.data?.stage?.step?.mask,
          prompt: this.data?.stage?.prompt
       }
       return data;

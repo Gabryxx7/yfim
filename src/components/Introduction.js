@@ -58,7 +58,8 @@ export default function Introduction(props) {
                 onUsernameFormSubmit(nameInput.current.value);
                 setName(nameInput.current.value);
               }}>
-              <label htmlFor="user-name"> What is your name?</label>
+              {/* <label htmlFor="user-name"> What is your name?</label> */}
+              <label htmlFor="user-name"> What is your Participant ID?</label>
               <input type="text" id="user-name" name="name" ref={nameInput} disabled={name != null} required />
               {name == null && <input type="submit" id="join-btn" className="primary-button" value="Join" name="join-room" />}
               {name != null && <div> Welcome, <strong>{name}</strong>! We are just setting up a few more things...</div>}
