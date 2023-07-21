@@ -1,8 +1,8 @@
 
-const { CMDS, DATA} = require('./Definitions');
-const { Room } = require('../managers/Room')
-const { User } = require('../managers/User')
-const { console  } = require("../utils/colouredLogger")
+import { CMDS, DATA} from './Definitions.js';
+import Room from '../managers/Room.js';
+import User from '../managers/User.js';
+import console from "../utils/colouredLogger.js";
 
 class NamespaceManager {
     constructor(sio, name, namespace, sessionManager, socketClass=null, onConnectionHandler=null) {
@@ -67,4 +67,4 @@ class NamespaceManager {
 
 }
 
-module.exports = { NamespaceManager }
+export default NamespaceManager;

@@ -1,13 +1,12 @@
-const hash = require("object-hash");
-const { NamespaceManager } = require('../managers/NamespaceManager')
-const { CMDS, STAGE, TIMES } = require('./Definitions')
-const { Stage } = require('../managers/Stage')
-const { Room } = require('../managers/Room')
-const { User } = require('../managers/User')
-const { ControlUser } = require('./ControlUser')
-const { console  } = require("../utils/colouredLogger")
-const { SessionConfig } = require('../../assets/SessionConfig')
-const { Topics } = require('../../assets/Topics')
+import hash from "object-hash";
+import NamespaceManager from '../managers/NamespaceManager.js';
+import { CMDS, STAGE, TIMES } from './Definitions.js';
+import Stage from '../managers/Stage.js';
+import Room from '../managers/Room.js';
+import User from '../managers/User.js';
+import ControlUser from './ControlUser.js';
+import console from "../utils/colouredLogger.js";
+import SessionConfig from '../../assets/SessionConfig.js';
 
 class SessionManager {
   constructor(sio) {
@@ -100,8 +99,8 @@ class SessionManager {
       this.startDateTime = new Date().getTime();
       this.id = this.generateSessionId(this.startDateTime);
 
-      let mask_id = Math.floor(Math.random() * 3);
-      let config = require(`../MaskSetting/endWithEyes.json`);
+      // let mask_id = Math.floor(Math.random() * 3);
+      // let config = require(`../MaskSetting/endWithEyes.json`);
       let host = room.getUsersByType(User.TYPE.HOST);
       if(host.length > 0){
         if(host.length > 1) console.warn(`Warning: More than one host found! ${host} Selecting the first one: ${host[0]}`);
@@ -258,4 +257,4 @@ class SessionManager {
 
 
 
-module.exports = {  SessionManager }
+export default SessionManager;

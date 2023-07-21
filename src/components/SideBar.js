@@ -1,9 +1,9 @@
 import React from 'react';
 import { useState, useEffect, useRef, useContext } from 'react';
-import Timer from "../containers/Timer";
-import { SessionContext } from "../classes/Session";
-import { STAGE } from '../managers/Definitions'
-import ProgressBar from './Progressbar';
+import Timer from "../containers/Timer.js";
+import { SessionContext } from "../classes/Session.js";
+import { STAGE } from '../managers/Definitions.js'
+import ProgressBar from './Progressbar.js';
 
 const SidebarTesting = (props) => {
   const stageData = props.stageData ?? {};

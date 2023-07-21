@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
-import { CMDS, DATA, STAGE } from "../managers/Definitions";
+import { CMDS, DATA, STAGE } from "../managers/Definitions.js";
 import "react-toastify/dist/ReactToastify.css";
-import { SessionContext } from "../classes/Session";
-const FileSaver = require("file-saver");
+import { SessionContext } from "../classes/Session.js";
+import FileSaver from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
-import {  toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import * as JSZip from 'jszip'
 
 const setVideoConstraints = (video) => {

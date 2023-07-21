@@ -1,6 +1,6 @@
-const { CMDS, DATA, TIMES } = require('./Definitions')
-const { console  } = require("../utils/colouredLogger");
-const fs = require('fs');
+import { CMDS, DATA, TIMES } from './Definitions.js'
+import console from "../utils/colouredLogger.js";
+import fs from 'fs';
 
 
 /** 
@@ -399,4 +399,4 @@ class User {
     }
   }
   
-module.exports = { User }
+export default  User ;

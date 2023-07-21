@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import { survey_Final } from "../../assets/Survey_Final";
+import { survey_Final } from "../../assets/Survey_Final.js";
 import * as Survey from "survey-react";
 import "survey-react/survey.css";
-import SurveyIntro from "../components/SurveyIntro";
-import SurveyFaceDetect from "../components/SurveyFaceDetect";
-import SurveyOngoing from "../components/SurveyOngoing";
-import SurveyReady from "../components/SurveyReady";
-import SurveyThankyou from "../components/SurveyThankyou";
-import { CMDS, DATA, TIMES} from '../managers/Definitions'
+import SurveyIntro from "../components/SurveyIntro.js";
+import SurveyFaceDetect from "../components/SurveyFaceDetect.js";
+import SurveyOngoing from "../components/SurveyOngoing.js";
+import SurveyReady from "../components/SurveyReady.js";
+import SurveyThankyou from "../components/SurveyThankyou.js";
+import { CMDS, DATA, TIMES} from '../managers/Definitions.js'
 // survey-react : https://www.npmjs.com/package/survey-react
 
 export default function SurveyPage(props) {

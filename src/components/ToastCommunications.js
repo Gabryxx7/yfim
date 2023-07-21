@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import "survey-react/survey.css";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { SessionProvider, SessionContext } from "../classes/Session";
+import { SessionProvider, SessionContext } from "../classes/Session.js";
 
 /**
  * I MIGHT have overengineered this...

@@ -1,6 +1,6 @@
 import { createStore, combineReducers } from "redux";
 import { sessionReducer, sessionService } from 'redux-react-session';
-import { initControlParams, controlParamsReducer } from "./reducers/control-reducer";
+import { initControlParams, controlParamsReducer } from "./reducers/control-reducer.js";
 
 // localStorage.getItem("reduxState")
 // ? JSON.parse(localStorage.getItem("reduxState"))

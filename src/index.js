@@ -1,19 +1,20 @@
 import React from "react";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
-import store from "./store";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import Home from "./containers/HomePage";
-// import RoomPage from "./containers/RoomPage";
-import RoomPage from "./containers/RoomPageNew";
-import { FaceVideoTest, SurveyTest } from "./containers/TestContainers";
-import RoomControl from "./containers/RoomControl";
-import SurveyPage from "./containers/SurveyPage";
-import NotFound from "./components/NotFound";
-import DataMonitor from "./containers/DataMonitor";
+import store from "./store.js";
+import Home from "./containers/HomePage.js";
+// import RoomPage from "./containers/RoomPage.js";
+import RoomPage from "./containers/RoomPageNew.js";
+import { FaceVideoTest, SurveyTest } from "./containers/TestContainers.js";
+import RoomControl from "./containers/RoomControl.js";
+import SurveyPage from "./containers/SurveyPage.js";
+import NotFound from "./components/NotFound.js";
+import DataMonitor from "./containers/DataMonitor.js";
+// import styles from "/Users/marinig/Documents/GitHub/yfim/src/surveyStyle.scss";
+import "./app.scss"
 
-import styles from "./app.scss";
-import ProjectionPage from "./containers/ProjectionPage";
+import ProjectionPage from "./containers/ProjectionPage.js";
 
 render(
   <Provider store={store}>
@@ -38,4 +39,4 @@ render(
   document.getElementById("app")
 );
 
-if (module.hot) module.hot.accept();
+// if (module.hot) module.hot.accept();

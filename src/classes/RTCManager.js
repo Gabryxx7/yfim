@@ -1,5 +1,5 @@
 
-import { CMDS } from '../managers/Definitions'
+import { CMDS } from '../managers/Definitions.js'
 
 export default class WebRTCManager {
 	constructor(socketRef, sessionMap) {

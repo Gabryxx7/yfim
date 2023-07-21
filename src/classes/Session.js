@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useCallback } from "react";
-import {TimedEvent} from "../classes/TimedEvent";
+import {TimedEvent} from "../classes/TimedEvent.js";
 
 
 class Session extends TimedEvent{
@@ -35,9 +35,9 @@ class Session extends TimedEvent{
          stage: this.data?.stage?.name,
          stageIndex: this.data?.stage?.index,
          topic: this.data?.stage?.topic,
+         prompt: this.data?.stage?.prompt,
          stage_mask: this.data?.stage?.mask,
-         step_mask: this.data?.stage?.step?.mask,
-         prompt: this.data?.stage?.prompt
+         step_mask: this.data?.stage?.step?.mask
       }
       return data;
    }

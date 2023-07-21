@@ -1,4 +1,4 @@
-import { FACEAPI } from "../managers/Definitions";
+import { FACEAPI } from "../managers/Definitions.js";
 
 class Interpolation{
     static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));

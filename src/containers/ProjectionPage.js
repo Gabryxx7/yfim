@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { CMDS, DATA} from '../managers/Definitions'
+import { CMDS, DATA} from '../managers/Definitions.js'
 import io from "socket.io-client";
 const v_yellow =
   "https://yourfaceismute.s3.ap-southeast-2.amazonaws.com/Gradient-yellow.mp4";

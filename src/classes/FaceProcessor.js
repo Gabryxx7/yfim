@@ -1,8 +1,7 @@
-import VideoProcessor from "./VideoProcessor";
-const FileSaver = require("file-saver");
+import VideoProcessor from "./VideoProcessor.js";
 // import * as faceapi from "face-api.js"; // Updated face-api, check below
 import * as faceapi from "@vladmandic/face-api"; // https://github.com/justadudewhohacks/face-api.js/issues?q=undefined+backend+#issuecomment-681001997
-import { LandmarksData } from "../classes/DrawableLandmark"
+import { LandmarksData } from "../classes/DrawableLandmark.js"
 
 
 // faceapi doc: https://justadudewhohacks.github.io/face-api.js/docs/index.html
@@ -18,12 +17,12 @@ export default class FaceProcessor extends VideoProcessor {
 
    setMaskData(maskData){
 		for (let l of LandmarksData){
-			if(maskData.show_features == null || maskData.show_features.length <= 0){
+			if(maskData.visibleFeatures == null || maskData.visibleFeatures.length <= 0){
 				l.visible = true;
 				continue;
 			}
 			l.visible = false;
-			for(let feature of maskData.show_features){
+			for(let feature of maskData.visibleFeatures){
 				if(l.name.toUpperCase() == feature.toUpperCase()){
 					l.visible = true;
 					break;
@@ -36,15 +35,7 @@ export default class FaceProcessor extends VideoProcessor {
    startRecording(session){
       delete this.chunks;
       this.chunks = [];
-		this.chunks.push({
-			user: session.user?.name,
-			date: new Date().toISOString().split(".")[0],
-			sessionId: session.data?.sessionId,
-			stage: session.data?.stage?.name,
-			stageIndex: session.data?.stage?.index,
-			topic: session.data?.stage?.topic,
-			prompt: session.data?.stage?.prompt
-		})
+		this.chunks.push(session.getSessionData());
       this.recording = true;
    }
 

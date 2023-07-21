@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { STAGE } from '../managers/Definitions'
+import { STAGE } from '../managers/Definitions.js'
 
 export default function Introduction(props) {
   const stageState = props.stageState ?? {reason: "", state: STAGE.STATUS.IN_PROGRESS};

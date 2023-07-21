@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { Link } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
-import Switch from "../components/Switch";
 import { Slider } from "@mui/material";
 import ReactFileReader from "react-file-reader";
-import GYModal from "../components/Modal";
 import Select from "react-select";
-import { CMDS, DATA} from '../managers/Definitions'
+import GYModal from "../components/Modal.js";
+import Switch from "../components/Switch.js";
+import { CMDS, DATA} from '../managers/Definitions.js'
+import FileSaver from "file-saver";
 
 const colourStyles = {
   option: (styles, { data, isDisabled, isFocused, isSelected }) => {
@@ -130,7 +131,6 @@ const initState = {
     recording: false,
   },
 };
-var FileSaver = require("file-saver");
 
 export default function RoomControl(props) {
   const [params, setParams] = useState(initState);

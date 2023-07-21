@@ -1,5 +1,5 @@
-const { CMDS, STAGE } = require("./Definitions");
-const { Topics } = require("../../assets/Topics");
+import { CMDS, STAGE } from "./Definitions.js";
+import Topics from "../../assets/Topics.js";
 
 
 const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
@@ -62,16 +62,17 @@ class Stage {
       return {};
     }
     try{
-      let maskData = this.params.mask_settings ?? this.parent.params.mask_settings;
+      let maskData = this.config.maskSettings ?? this.parent.config.maskSettings;
       const randomize = maskData.pick_random_condition ?? false;
-      if(randomize && !maskData.show_features){
+      if(randomize && !maskData.visibleFeatures){
           try{
+            console.log(`Available conditions ${this.session.availableConditions.length}`, this.session.availableConditions);
             const randIdx = randomInRange(0, this.session.availableConditions.length);
             let condition = this.session.availableConditions[randIdx];
             if(maskData.no_repetitions){
-              condition = this.session.availableConditions.splice(randIdx)[0];
+              condition = this.session.availableConditions.splice(randIdx, 1)[0];
             }
-            maskData.show_features = condition;
+            maskData.visibleFeatures = condition;
             console.log(`New Condition idx ${randIdx}`, condition);
             console.log(`Remaining conditions`, this.session.availableConditions);
           } catch(error){
@@ -96,7 +97,8 @@ class Stage {
     this.extra = {
       ...this.extra,
       ...this.getQuestionData(),
-      ...this.getMaskData()
+      ...this.getMaskData(),
+      ...this.config
     };
 
     // If it does have multiple steps, then we should initialize the first step
@@ -203,4 +205,4 @@ class Stage {
   }
 }
 
-module.exports = { Stage };
+export default Stage ;

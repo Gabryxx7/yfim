@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { timeColorMapDefault, getTimerColor } from "../classes/TimedEvent"
-import { STAGE } from "../managers/Definitions"
+import { timeColorMapDefault, getTimerColor } from "../classes/TimedEvent.js"
+import { STAGE } from "../managers/Definitions.js"
 
 const TIMER_STATE = {
   NONE: "none",

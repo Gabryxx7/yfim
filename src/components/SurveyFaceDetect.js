@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ConsentForm from "./ConsentForm";
+import ConsentForm from "./ConsentForm.js";
 
 export default function SurveyFaceDetect(props) {
   const [rating, setRating] = useState("kids");

@@ -1,5 +1,5 @@
-const { CMDS, DATA} = require('./Definitions');
-const { User } = require('./User');
+import { CMDS, DATA} from './Definitions.js';
+import User from './User.js';
 
 class ControlUser extends User{
     constructor(socket, manager, sessionManager) {
@@ -46,5 +46,5 @@ class ControlUser extends User{
       this.sessionManager.onProcessReady(data);
     }
 }
-module.exports = { ControlUser }
+export default ControlUser;
   

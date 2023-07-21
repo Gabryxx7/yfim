@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Communication from "../components/Communication";
-import { CMDS } from '../managers/Definitions'
+import { CMDS } from '../managers/Definitions.js'
 
 
 

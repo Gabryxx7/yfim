@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import SurveyComponent from "../components/SurveyComponent";
+import SurveyComponent from "../components/SurveyComponent.js";
 
 class FaceVideoTest extends Component {
   constructor(props) {

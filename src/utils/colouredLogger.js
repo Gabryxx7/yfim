@@ -10,7 +10,7 @@ const COLORS = {
 
 
 // args should be a normal array made from the function's arguments like Array.from(arguments)
-colouredConsoleOutput = function(color, args, fun){
+const colouredConsoleOutput = function(color, args, fun){
   const LOG_PREFIX = color;
   var args = Array.from(args);
   // OR you can use: Array.prototype.slice.call( arguments );
@@ -55,4 +55,4 @@ console.room = function(){
 }
 
 
-module.exports = { console }
+export default console;

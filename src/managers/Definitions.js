@@ -122,7 +122,7 @@ const makeParam = (required, defValue=null) => {
   return res;
 }
 
-overrideFields = (model, overrides) => {
+const overrideFields = (model, overrides) => {
   for(let k in model){
     if(!model[k]._isModel)
       continue
@@ -166,4 +166,4 @@ const DATA = {
 }
 
 
-module.exports = { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES }
+export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES }

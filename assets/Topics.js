@@ -1,5 +1,5 @@
-// import { QUESTION } from "../src/managers/Definitions"
-const { QUESTION } = require("../src/managers/Definitions");
+// import { QUESTION } from "../src/managers/Definitions.js"
+import { QUESTION } from "../src/managers/Definitions.js";
 
 const Topics = {};
 Topics[QUESTION.TYPE.WOULDYOU] = [
@@ -125,5 +125,5 @@ Topics[QUESTION.TYPE.ICEBREAKER] = [
     "What would you do if you had an extra hour in the day?"
 ]
 
-// export { Topics }
-module.exports = { Topics }
+export default Topics;
+// module.exports = { Topics }

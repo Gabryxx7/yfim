@@ -1,44 +1,65 @@
-const express = require("express");
-const path = require("path");
-const multer = require('multer');
-const fs = require("fs");
-const http = require("http");
-const https = require("https");
-const sio = require("socket.io");
-const favicon = require("serve-favicon");
-const compression = require("compression");
-const bodyParser = require("body-parser");
-require("dotenv").config();
-var hash = require("object-hash");
-const { EntryPlugin } = require("webpack");
-const { SessionManager } = require("./src/managers/SessionManager")
-const { console  } = require("./src/utils/colouredLogger")
+import express from "express";
+import path from "path";
+import multer from "multer";
+import fs from "fs";
+import http from "http";
+import https from "https";
+import { Server } from 'socket.io';
+// import sio from "sio";
+import favicon from "serve-favicon";
+import compression from "compression";
+import bodyParser from "body-parser";
+import SessionManager from "./src/managers/SessionManager.js";
+import console  from "./src/utils/colouredLogger.js";
+import Nano from "nano";
+import { URL } from 'url'; // in Browser, the URL in native accessible on window
+
+const __filename = new URL('', import.meta.url).pathname;
+// Will contain trailing slash
+const __dirname = new URL('.', import.meta.url).pathname;
+
+// const express = require("express");
+// const path = require("path");
+// const multer = require('multer');
+// const fs = require("fs");
+// const http = require("http");
+// const https = require("https");
+// const sio = require("socket.io");
+// const favicon = require("serve-favicon");
+// const compression = require("compression");
+// const bodyParser = require("body-parser");
+// const { SessionManager } = require("./src/managers/SessionManager")
+// const { console  } = require("./src/utils/colouredLogger")
 
 // CouchDB
 const COUCHDB_URL = process.env.COUCHDB_URL || 'http://localhost:5984';
 // const nano = require("nano")("http://admin:admin@localhost:5984");
-const nano = require("nano")(COUCHDB_URL);
+// const nano = require("nano")(COUCHDB_URL);
+const nano = Nano(COUCHDB_URL);
 const tableName = "occlusion_mask";
 
+// require("dotenv").config();
+import dotenv from 'dotenv'
+dotenv.config()
 // const db = nano.db.use(tableName);
 
-nano.db
-  .create(process.env.DB_NAME)
-  .then((data) => {
-    // success - response is in 'data'
-    console.log("New database created: " + process.env.DB_NAME);
-    couch = nano.use(process.env.DB_NAME);
-    app.set("couch", couch);
-  })
-  .catch((err) => {
-    // failure - error information is in 'err'
-    console.log("Connected to existing database: " + process.env.DB_NAME);
-    couch = nano.use(process.env.DB_NAME);
-    app.set("couch", couch);
-  });
+// nano.db
+//   .create(process.env.DB_NAME)
+//   .then((data) => {
+//     // success - response is in 'data'
+//     console.log("New database created: " + process.env.DB_NAME);
+//     couch = nano.use(process.env.DB_NAME);
+//     app.set("couch", couch);
+//   })
+//   .catch((err) => {
+//     // failure - error information is in 'err'
+//     console.log("Connected to existing database: " + process.env.DB_NAME);
+//     couch = nano.use(process.env.DB_NAME);
+//     app.set("couch", couch);
+//   });
 
 
-server_port = process.env.PORT || 3000
+const server_port = process.env.PORT || 3000
 const app = express(),
   options = {
     key: fs.readFileSync(__dirname + "/rtc-video-room-key.pem"),
@@ -49,7 +70,8 @@ const app = express(),
     process.env.NODE_ENV === "production"
       ? http.createServer(app).listen(port)
       : https.createServer(options, app).listen(port),
-  io = sio(server);
+      // io = sio(server);
+      io = new Server(server);
 
   console.log(`\nServing on port: ${server_port}`);
   console.log(`Room 1 control: on port: https://localhost:${server_port}/control/1/`);

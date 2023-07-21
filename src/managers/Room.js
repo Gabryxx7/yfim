@@ -1,7 +1,7 @@
-const { User } = require('../managers/User')
-const { console  } = require("../utils/colouredLogger")
+import User from '../managers/User.js';
+import console from "../utils/colouredLogger.js";
 
-class Room{
+export default class Room{
   static TYPE = {
     CONTROL: "control",
     USER: "user"
@@ -164,5 +164,3 @@ class Room{
     return users;
   }
 }
-  
-module.exports = { Room }

@@ -1,23 +1,25 @@
 import React, { useEffect, useState, useRef, useContext, useReducer, useCallback } from "react";
 import io from "socket.io-client";
 import "survey-react/survey.css";
-import { CMDS, DATA} from "../managers/Definitions";
-import Sidebar from "../components/Sidebar";
-import WebRTCManager from "../classes/RTCManager"
+import { CMDS, DATA} from "../managers/Definitions.js";
+import Sidebar from "../components/Sidebar.js";
+import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastCommunications, TOASTS } from "../components/ToastCommunications";
-import { SessionProvider, SessionContext } from "../classes/Session";
-import TestComponent from "../components/SessionContextUpdateExample"
-import VideoContainer from "../classes/VideoContainer";
-import FaceProcessor from "../classes/FaceProcessor";
-import { STAGE } from "../managers/Definitions"
+import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
+import { SessionProvider, SessionContext } from "../classes/Session.js";
+import TestComponent from "../components/SessionContextUpdateExample.js"
+import VideoContainer from "../classes/VideoContainer.js";
+import FaceProcessor from "../classes/FaceProcessor.js";
+import { STAGE } from "../managers/Definitions.js"
 import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
-import "../survey.scss";
-import Introduction from "../components/Introduction";
-
-const { PostChatSurvey, TestSurvey } = require("../../assets/PostChatSurvey");
+// import "../surveyStyle";
+import Introduction from "../components/Introduction.js";
+import SURVEYS from "../../assets/PostChatSurvey.js";
+// import { createRequire } from "module";
+// const require = createRequire(import.meta.url);
+// var SURVEYS = require("../../assets/PostChatSurvey.js");
 
 export default function RoomPageNew(props) {
 	const sessionMap = useContext(SessionContext);
@@ -46,15 +48,15 @@ function RoomPage(props) {
 	const surveyModel = useRef(null)
 
 	useEffect(() => {
-		if(surveyModel.current == null){
-			// surveyModel.current = new Model(PostChatSurvey);
-			surveyModel.current = new Model(TestSurvey);
-			surveyModel.current.onComplete.add((sender, options) => {
-				console.log(JSON.stringify(sender.data, null, 3));
-				setStageState({reason: "", surveyData: sender.data, state: STAGE.STATUS.COMPLETED});
-			})
-			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
-		}
+		// if(surveyModel.current == null){
+		// 	surveyModel.current = new Model(SURVEYS.POST_VIDEO_CHAT);
+		// 	surveyModel.current = new Model(SURVEYS.TEST);
+		// 	surveyModel.current.onComplete.add((sender, options) => {
+		// 		console.log(JSON.stringify(sender.data, null, 3));
+		// 		setStageState({reason: "", surveyData: sender.data, state: STAGE.STATUS.COMPLETED});
+		// 	})
+		// 	surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
+		// }
 	}, [])
 
 
@@ -115,9 +117,25 @@ function RoomPage(props) {
 		setStageType(sessionMap.session.data?.stage?.step?.type);
 		setStageState({reason: "", state: STAGE.STATUS.IN_PROGRESS});
 
+		const surveyId = SURVEYS[sessionMap.session.data?.stage?.step?.surveyId] ?? null;
+		console.log("SURVEY ID", surveyId)
 		if(surveyModel.current != null){
-			surveyModel.current.clear();
-			surveyModel.current.render();
+			if(surveyId != null && surveyModel.current.surveyId == surveyId.surveyId){
+				surveyModel.current.clear();
+				surveyModel.current.render();
+				return;
+			}
+		}
+		try{
+			surveyModel.current = new Model(SURVEYS[surveyId.id].model);
+			surveyModel.current.onComplete.add((sender, options) => {
+				console.log(JSON.stringify(sender.data, null, 3));
+				setStageState({reason: "", surveyData: sender.data, state: STAGE.STATUS.COMPLETED});
+			})
+			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
+		}
+		catch(error){
+			console.warn(`Could not find survey with ID ${surveyId}`);
 		}
 	}
 
