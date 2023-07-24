@@ -1,12 +1,9 @@
-body,
-input,
-button {
-  font-size: 1.1rem;
-  margin: 0;
-  font-family: Sans-Serif;
-  background-color: #121212;
-}
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Montserrat:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
+@import './style/survey';
+@import './style/toasts';
+@import './style/intro';
+@import './style/sidebar';
+@import './style/videos';
 
 @keyframes blinker {  
   from { opacity: 1; }
@@ -33,6 +30,16 @@ button {
     font-size: 1em;
   }
 }
+
+body,
+input,
+button {
+  font-size: 1.1rem;
+  margin: 0;
+  font-family: Sans-Serif;
+  background-color: #121212;
+}
+
 input:focus,
 button:focus {
   outline: 0;
@@ -58,59 +65,6 @@ input[type="checkbox"] {
   transform: scale(2);
   padding: 10px;
   margin-inline: 10px;
-}
-
-.sv_main {
-  font-size: 15px;
-  background-color: black;
-}
-.sv_body {
-  background-color: black;
-}
-.sv_main .sv_container .sv_body {
-  padding: 1em 1em 1.6428em 1em;
-  background-color: black;
-}
-.sv_main .sv_container .sv_body .sv_p_root .sv_page_title {
-  font-size: 0;
-  background-color: black;
-}
-.sv_main.sv_default_css .sv_p_root > .sv_row:nth-child(2n) {
-  background-color: black;
-  border: black;
-}
-.sv_main.sv_default_css .sv_p_root > .sv_row:nth-child(2n + 1) {
-  background-color: black;
-  border: black;
-}
-.sv_complete_btn {
-  height: 60px;
-  font-size: 25px;
-}
-.sv_p_root {
-  background-color: black;
-}
-.sv_custom_header {
-  background-color: black;
-}
-.sv_row {
-  font-size: 1.5em;
-  background-color: black;
-  color: white;
-  border-color: black;
-}
-.sv_nav {
-  padding: 1em 0;
-  min-height: 2em;
-  background-color: black;
-}
-.sv_main input[type="button"],
-.sv_main button {
-  width: 100%;
-  margin: 0 auto;
-  background-color: white;
-  color: black;
-  font-size: 20px;
 }
 
 .checkboxtext {
@@ -195,34 +149,6 @@ input[type="checkbox"] {
   width: 100%;
   height: 100%;
 }
-.guest-hangup .auth .you-left {
-  display: inline;
-}
-.full .room-occupied,
-.host-hangup .auth .remote-left,
-.recent-room {
-  display: block;
-}
-.recent-room {
-  color: #4285f4;
-  margin: 1ex 1em;
-}
-.established .local-video {
-  // top: -8rem;
-  // right: 1rem;
-  top: 0.5rem;
-  right: 0.5rem;
-  margin: 0.5rem;
-  /* max-height: 10rem; */
-  max-width: 10rem;
-  max-height: 12rem;
-  max-width: 12rem;
-  height: auto;
-  width: auto;
-  z-index: 35;
-  border-radius: 6px;
-  box-shadow: 0px 0px 12px 5px #212020a1;
-}
 .canvas {
   position: absolute;
   height: 100%;
@@ -237,52 +163,6 @@ input[type="checkbox"] {
   margin: auto;
   font-size: 20px;
 }
-.survey_topic {
-  // overflow: scroll;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  z-index: 20;
-  text-align: center;
-  background-color: black;
-  margin: auto;
-}
-
-.survey_topic_container {
-  width: 50%;
-  margin: 0 auto;
-}
-.survey_diable_checkbox {
-  text-align: left;
-  margin: 10px;
-  color: grey;
-}
-.survey_checkbox {
-  text-align: left;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-.survey_ready_button {
-  background-color: white;
-  color: black;
-  width: 100%;
-  height: 50px;
-  margin-top: 20px;
-}
-.survey_topic_head {
-  color: white;
-  font-size: 40px;
-  margin: 0 auto;
-  font-weight: bold;
-  padding: 50px;
-}
-.survey_topic_text {
-  color: white;
-  font-size: 20px;
-  margin: 0 auto;
-  font-weight: bold;
-}
-
 .intro-container{
   position: absolute;
   display: flex;
@@ -357,135 +237,6 @@ input[type="checkbox"] {
   overflow: hidden !important;
   transition: all 0.2s;
 }
-.sidebar-container {
-  padding: 1rem 3rem;
-  max-height: 20vh; //Initially hidden
-  width: 100vw;
-  border-bottom: 1px solid #575757b0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  display: flex;
-  position: relative;
-  top: 0;
-  flex-direction: column;
-  place-items: center;
-  place-content: center;
-  z-index: 30;
-  /* height: 15vh; */
-  text-align: center;
-  // padding: 1rem 0.5rem 0.5rem 11rem; //Remote video on the left
-  // padding: 1rem 11rem 0.5rem 0.5rem; // Remote video on the right
-  box-sizing: border-box;
-  backdrop-filter: blur(25px);
-  background-color: #121212;
-  font-size: 0.9rem;
-  // border-radius: 14px;
-  box-shadow: 0px 0px 8px 3px #2424245e;
-
-  & > * {
-    position: relative;
-    width: 100%;
-    padding-bottom: 0.5rem;
-    padding-top: 0.5rem;
-    &::before, ::after{
-      display: none;
-      content: "";
-      position: absolute;
-      width: 90%;
-      height: 0.8px;
-      background-color: #b5b5b52c;
-    }
-    &:first-child{
-      // padding-bottom: 0.5rem;
-      &::after{
-        // display: block;
-        bottom: 0;
-      }
-    }
-    &:last-child{
-      padding-top: 1rem;
-      &::before{
-        display: block;
-        top: 0;
-      }
-    }
-  }
-
-  .info{
-    font-family: "Fira Code";
-    display: grid;
-    // grid-template-columns: 1fr 1fr 1fr;
-    grid-auto-flow: column;
-    place-content: space-between;
-    place-items: center;
-    width: 100%;
-    position: relative;
-  }
-
-  .timer{
-    &.none {
-      font-size: 130%;
-    }
-    &.running {
-      font-size: 200%;
-    }
-    &.stopped {
-      font-size: 160%;
-      color: rgb(213, 213, 213, 0.5);
-    }
-    &.paused {
-      font-size: 160%;
-      color: rgb(213, 213, 213, 0.5);
-    }
-  }
-
-  .debug-info{
-    display: flex;
-    flex-direction: row;
-    font-size: 0.75rem;
-    place-items: center;
-    place-content: center;
-    gap: 1rem;
-    .user-info{
-      display: flex;
-      flex-direction: column;
-      place-items: center;
-      place-content: center;
-      font-size: 0.7rem;
-    }
-    .room-info{
-      display: flex;
-      flex-direction: column;
-      place-items: center;
-      place-content: center;
-    }
-  }
-
-  .sidebar-prompt{
-    font-family: 'Montserrat', sans-serif;
-    display: flex;
-    place-content: center;
-    place-items: center;
-    font-size: 1.6rem;
-    font-weight: 500;
-    transition: all 0.2s;
-  }
-  .sidebar-block {
-    position: relative;
-    width: 100%;
-    text-align: center;
-    display: flex;
-    place-content: center;
-    place-items: center;
-    flex-direction: column;
-    height: 100%;
-    gap: 0.15rem;
-    font-size: 90%;
-    div {
-      width: 100%;
-    }
-  }
-}
 
 .survey-container{
   background-size: cover;
@@ -547,64 +298,6 @@ input[type="checkbox"] {
   width: 100%;
 }
 
-.remote-video, .local-video {
-  position: absolute;
-  display: block;
-  height: 100%;
-  max-width: 100%;
-  max-height: none;
-  width: auto;
-  object-fit: cover;
-  .scaled {
-    width: 100%;
-    max-height: 100%;
-    max-width: none;
-    height: auto;
-    object-fit: scale-down;
-  }
-}
-
-.toast-msg{
-  font-size: 0.9rem;
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  height: 100%;
-  place-content: space-evenly;
-  place-items: center;
-  flex-direction: column;
-  a{
-    font-size: 0.95rem !important;
-  }
-  .actions{
-    display: flex;
-    place-content: space-evenly;
-    width: 100%;
-    gap: 0.5rem;
-  }
-}
-
-.Toastify__toast-theme--dark {
-  background: #060606b0;
-  border: 0.5px solid #7676768f;
-  backdrop-filter: blur(20px);
-  color: var(--toastify-text-color-dark);
-}
-.Toastify__toast-body{
-  padding: 0.7rem 0.5rem 1rem 0.5rem;
-}
-
-.Toastify__toast-container {
-  height: auto !important;
-  width: auto !important;
-  min-width: 15rem !important;
-
-  .Toastify__toast {
-    cursor: default;
-    box-shadow: 0 1px 10px 0 rgb(91 90 90 / 10%), 0 2px 15px 0 rgb(123 123 123 / 5%);
-  }
-
-}
 .auth {
   position: fixed;
   bottom: 0;
@@ -619,12 +312,6 @@ input[type="checkbox"] {
 .toolBar {
   z-index: 30;
   position: absolute;
-}
-.sv_window {
-  position: fixed;
-  top: 20px;
-  right: 10px;
-  width: 25%;
 }
 .primary-button {
   border-radius: 4px;
@@ -753,7 +440,9 @@ input[type="checkbox"] {
 }
 
 
-main{margin: auto;
+main, .main-room{
+  position: relative;
+  margin: auto;
   display: flex;
   flex-direction: column;
   place-content: center;
@@ -762,6 +451,8 @@ main{margin: auto;
   justify-items: center;
   // width: 80vw;
   width: 100vw;
+}
+.main-room{
   height: 100vh;
 }
 
@@ -809,201 +500,4 @@ main{margin: auto;
     }
 
   }
-}
-
-/* You can add your custom css here.*/
-:root {
-  --background: #111111;
-  // --background: #070707;
-  --background-dim: #111111;
-  --sjs-general-backcolor-dim: #111111; 
-  --background-dim-light: #333333;
-  --background-semitransparent: #333333EE;
-  --primary-foreground: #dddddd;
-  --foreground: #dddddd;
-  --foreground-light: #ffffff;
-  --foreground-disabled: #CCCCCC;
-  --sjs-general-dim-forecolor: #CCCCCC;
-  --border: #333333;
-  --border-light: #555555;
-  --sjs-general-backcolor-dark: #CCCCCC;
-  --sjs-font-size: 18px;
-  --sjs-font-pagedescription-weight: 600;
-  --sjs-general-dim-forecolor-light: #CCCCCC;
-  --sjs-font-editorfont-color: #c6c6c6;
-}
-
-$primary: var(--sjs-primary-backcolor, var(--primary, #ffffff));
-$primary-light: var(--sjs-primary-backcolor-light, var(--primary-light, rgba(25, 179, 148, 0.1)));
-$primary-background-dark: var(--sjs-primary-backcolor-dark, rgb(20, 164, 139));
-$primary-foreground: var(--sjs-primary-forecolor, var(--primary-foreground, #fff));
-$primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
-
-$secondary: var(--sjs-secondary-backcolor, var(--secondary, #ff9814));
-$secondary-light: var(--sjs-secondary-backcolor-light, var(--secondary-light, rgba(255, 152, 20, 0.25)));
-$secondary-backcolor-semi-light: var(--sjs-secondary-backcolor-semi-light, rgba(255, 152, 20, 0.1));
-$secondary-forecolor: var(--sjs-secondary-forecolor, #fff);
-$secondary-forecolor-light: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
-
-$editor-background: var(
---sjs-editorpanel-backcolor,
-var(--sjs-editor-background, var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9)))
-);
-$question-background: var(
---sjs-questionpanel-backcolor,
-var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff)))
-);
-
-// $background: var(--sjs-general-backcolor, var(--background, #222222eb));
-$background: var(--sjs-general-backcolor, var(--background, #222222eb));
-$background-dim: var(--sjs-general-backcolor-dim, var(--background-dim, #f3f3f3));
-$background-dim-light: var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9));
-$background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
-$background-dark: var(--sjs-questionpanel-hovercolor, var(--sjs-general-backcolor-dark, rgb(248, 248, 248)));
-$background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-backcolor-dim-dark, rgb(243, 243, 243)));
-
-$corner-radius: var(--sjs-corner-radius, 4px);
-$editor-corner-radius: var(--sjs-editorpanel-cornerRadius, var(--sjs-corner-radius, 4px));
-$panel-corner-radius: var(--sjs-questionpanel-cornerRadius, var(--sjs-corner-radius, 4px));
-
-$foreground: var(--sjs-general-forecolor, var(--foreground, #616161));
-$foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #909090));
-$foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
-$foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
-
-$border: var(--sjs-border-default, var(--border, #d6d6d6));
-$border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
-$border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
-
-$shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
-$shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
-$shadow-large: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
-$shadow-inner: var(--sjs-shadow-inner, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
-
-$red: var(--sjs-special-red, var(--red, #e60a3e));
-$red-light: var(--sjs-special-red-light, var(--red-light, rgba(230, 10, 62, 0.1)));
-$red-forecolor: var(--sjs-special-red-forecolor, #ffffff);
-$yellow: var(--sjs-special-yellow, var(--yellow, #ff9814));
-$yellow-light: var(--sjs-special-yellow-light, var(--yellow-light, rgba(255, 152, 20, 0.1)));
-$yellow-forecolor: var(--sjs-special-yellow-forecolor, #ffffff);
-$green: var(--sjs-special-green, var(--green, #19b394));
-$green-light: var(--sjs-special-green-light, var(--green-light, rgba(25, 179, 148, 0.1)));
-$green-forecolor: var(--sjs-special-green-forecolor, #ffffff);
-$blue: var(--sjs-special-blue, #437fd9);
-$blue-light: var(--sjs-special-blue-light, var(--blue-light, rgba(67, 127, 217, 0.1)));
-$blue-forecolor: var(--sjs-special-blue-forecolor, #ffffff);
-
-$font-family: var(--font-family);
-$font-size: var(--sjs-font-size, 16px);
-
-$font-surveytitle-family: var(--sjs-font-surveytitle-family, var(--font-family));
-$font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);
-$font-surveytitle-size: var(--sjs-font-surveytitle-size, calc(2 * var(--sjs-font-size, $font-size)));
-
-$font-pagetitle-family: var(--sjs-font-pagetitle-family, var(--font-family));
-$font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);
-$font-pagetitle-color: var(--sjs-font-pagetitle-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
-$font-pagetitle-size: var(--sjs-font-pagetitle-size, calc(1.5 * var(--sjs-font-size, $font-size)));
-
-$font-pagedescription-family: var(--sjs-font-pagedescription-family, var(--font-family));
-$font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
-$font-pagedescription-color: var(
---sjs-font-pagedescription-color,
-var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
-);
-$font-pagedescription-size: var(--sjs-font-pagedescription-size, calc(1 * var(--sjs-font-size, $font-size)));
-
-$font-questiontitle-family: var(--sjs-font-questiontitle-family, var(--font-family));
-$font-questiontitle-weight: var(--sjs-font-questiontitle-weight, 600);
-$font-questiontitle-color: var(
---sjs-font-questiontitle-color,
-var(--sjs-general-forecolor, var(--foreground, #161616))
-);
-$font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(1 * var(--sjs-font-size, $font-size)));
-
-$font-questiondescription-family: var(--sjs-font-questiondescription-family, var(--font-family));
-$font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
-$font-questiondescription-color: var(
---sjs-font-questiondescription-color,
-var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
-);
-$font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 * var(--sjs-font-size, $font-size)));
-
-$font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
-$font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
-$font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
-$font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
-$base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
-
-@function calcSize($multiplier) {
-$result: calc(#{$multiplier} * #{$base-unit});
-@return $result;
-}
-
-@function calcFontSize($multiplier) {
-$result: calc(#{$multiplier} * #{$font-size});
-@return $result;
-}
-
-@function calcLineHeight($multiplier) {
-$result: calc(#{$multiplier} * #{$font-size});
-@return $result;
-}
-
-@function calcCornerRadius($multiplier) {
-$result: calc(#{$multiplier} * #{$corner-radius});
-@return $result;
-}
-
-@mixin smallBold {
-font-family: var(--font-family, $font-family);
-font-style: normal;
-font-weight: 600;
-font-size: calcFontSize(0.75);
-line-height: calcLineHeight(1);
-}
-
-@mixin defaultBold {
-font-family: var(--font-family, $font-family);
-font-style: normal;
-font-weight: 600;
-font-size: calcFontSize(1);
-line-height: calcLineHeight(1.5);
-}
-
-@mixin defaultFont {
-font-family: var(--font-family, $font-family);
-font-style: normal;
-font-size: calcFontSize(1);
-line-height: calcLineHeight(1.5);
-}
-
-@mixin borderLight {
-border: calcSize(0.25) solid $border-light;
-border-radius: calcCornerRadius(1);
-}
-
-
-.sd-imagepicker{
-flex-wrap: nowrap;
-}
-
-.sd-rating{
-display: flex;
-width: auto !important;
-place-content: space-evenly !important;
-}
-
-.sd-rating__item {
-border: 1px solid #c6c6c6;
-}
-
-.sd-container-modern__title{
-padding: 1rem;
-}
-.sd-title{
-color: white !important;
-text-align: center;
-padding: 0.2rem !important;
-font-size: 2rem !important;
 }

@@ -16,7 +16,7 @@ import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
 // import "../surveyStyle";
 import Introduction from "../components/Introduction.js";
-import SURVEYS from "../../assets/PostChatSurvey.js";
+import { SURVEYS, SURVEY_CSS_CLASSES, } from "../../assets/PostChatSurvey.js";
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 // var SURVEYS = require("../../assets/PostChatSurvey.js");
@@ -228,7 +228,7 @@ function RoomPage(props) {
 	}, [bridge])
 
 	return (
-		<>
+		<div class='main-room'>
 		<Sidebar 
 			socket={socket}
 			onSkipClicked={() => {
@@ -248,6 +248,7 @@ function RoomPage(props) {
 			<TestComponent index={1} user={user}/> */}
 			<div className='main-room-container' style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
 			<VideoContainer
+				recordingEnabled={true}
 				stageState={stageState}
 				socket={socket}
 				onStreamAdded={() => {
@@ -271,30 +272,10 @@ function RoomPage(props) {
 				}
 			 }}/>
 			 <ToastCommunications />
-    
-			{/* <MediaContainer
-				room={this.props.match.params.room}
-				roomPage={this}
-				session={this.state.session}
-				media={(media) => (this.media = media)}
-				socket={this.socket}
-				getUserMedia={this.getUserMedia}
-				username={this.props.match.params.room}
-			/>*/}
 			<div style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'none' : 'block'}`}}>
 			{surveyModel.current != null &&  <Survey className="survey-container" model={surveyModel.current} /> }
 			</div>
-			{/* <CommunicationContainer socket={socket} RTCManager={RTCManager} /> */}
-
-			{/* <Communication
-				// {...state}
-				toggleVideo={() => console.log("Toggle Video")}
-				toggleAudio={() => console.log("Toggle Audio")}
-				send={() => send()}
-				handleInput={(e) => handleInput(e)}
-				handleInvitation={(e) => handleInvitation(e)}
-			/> */}
 		</div>
-		</>
+		</div>
 	);
 }

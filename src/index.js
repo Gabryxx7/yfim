@@ -8,7 +8,6 @@ import Home from "./containers/HomePage.js";
 import RoomPage from "./containers/RoomPageNew.js";
 import { FaceVideoTest, SurveyTest } from "./containers/TestContainers.js";
 import RoomControl from "./containers/RoomControl.js";
-import SurveyPage from "./containers/SurveyPage.js";
 import NotFound from "./components/NotFound.js";
 import DataMonitor from "./containers/DataMonitor.js";
 // import styles from "/Users/marinig/Documents/GitHub/yfim/src/surveyStyle.scss";
@@ -22,11 +21,10 @@ render(
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/faceTest/" component={FaceVideoTest} />
-        <Route exact path="/surveyTest/" component={SurveyTest} />
+        <Route exact path="/surveyTest/:surveyId" component={SurveyTest} />
         <Route exact path="/room/:room/" component={RoomPage} />
         {/* <Route path="*" component={NotFound} /> */}
         <Route exact path="/control/:room" component={RoomControl} />
-        <Route exact path="/survey/:room/:user" component={SurveyPage} />
         <Route
           exact
           path="/projection/:room/:user"

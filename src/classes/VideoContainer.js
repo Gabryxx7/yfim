@@ -23,11 +23,12 @@ const setVideoConstraints = (video) => {
 export default function VideoContainer(props) {
 	const sessionMap = useContext(SessionContext);
 	const faceProcessor = props.faceProcessor;
+	const recordingEnabled = props.recordingEnabled ?? false;
 	const [mediaRecorder, setMediaRecorder] = useState(null);
 	const stageState = props.stageState ?? null;
 	const mediaChunks = useRef([]);
-	const socket = props.socket;
-	const rtcManager = props.rtcManager;
+	const socket = props.socket ?? null;
+	const rtcManager = props.rtcManager ?? null;
 	const canvasRef = useRef();
 	const localVideo = useRef();
 	const remoteVideo = useRef();
@@ -38,8 +39,10 @@ export default function VideoContainer(props) {
 	useEffect(() => {
 		if(stageState == null) return;
 		if(stageState.state == STAGE.STATUS.COMPLETED){
-			if(mediaRecorder != null && mediaRecorder.state == "recording"){
-				mediaRecorder.stop();
+			if(recordingEnabled){
+				if(mediaRecorder != null && mediaRecorder.state == "recording"){
+					mediaRecorder.stop();
+				}
 			}
 		}
 	}, [stageState])
@@ -91,10 +94,12 @@ export default function VideoContainer(props) {
 		}
 		localVideo.current.addEventListener("play",  () => {
 			console.log("Local video PLAY");
-			const newMediaRecorder = new MediaRecorder(localVideo.current.srcObject);
-			console.log("Created media recorder", newMediaRecorder)
-			setMediaRecorder(newMediaRecorder);
-			// faceProcessor.start();
+			if(recordingEnabled){
+				const newMediaRecorder = new MediaRecorder(localVideo.current.srcObject);
+				console.log("Created media recorder", newMediaRecorder)
+				setMediaRecorder(newMediaRecorder);
+				// faceProcessor.start();
+			}
 		});
 
 		// attach local media to the peer connection
@@ -217,7 +222,9 @@ export default function VideoContainer(props) {
 			sessionMap.session.localVideo = localVideo.current;
 			initLocalVideo()
 				.then(async () => {
-					rtcManager.localVideo = localVideo.current;
+					if(rtcManager != null){
+						rtcManager.localVideo = localVideo.current;
+					}
 					faceProcessor.setVideo(localVideo.current);
 					return faceProcessor.loadModels();
 				})
@@ -262,7 +269,7 @@ export default function VideoContainer(props) {
 					<h1 style={{ color: "white" }}>{this.state.attention}</h1>
 				</GYModal> */}
 
-				{socket.current != null && (
+				{socket?.current != null && (
 					<video className="remote-video" id="remote-video" ref={remoteVideo} autoPlay></video>
 				)}
 				<video className="local-video" id="local-video" ref={localVideo} autoPlay muted></video>

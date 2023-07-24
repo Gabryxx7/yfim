@@ -93,12 +93,14 @@ const makeESMQuestion = (type, number, esmType, prompt) => {
       title: prompt,
       type: "panel",
       name: `${type}-Assessment ${number}`,
+      id: `${type}-${number}`,
       elements: elements
     }
   }
   let q = {
     name: `${type}-Assessment ${number} ${esmType.name}`,
     type: "rating",
+    displayMode: "buttons",
     isRequired: true,
     title: prompt
   }
@@ -129,7 +131,9 @@ const makeLikertQuestion = (type, name, prompt) => {
   return {
     type: "rating",
     name: `${type}-${name}`,
+    id: `${type}-${name}`,
     title: prompt,
+    displayMode: "buttons",
     minRateDescription: likertChoices[0],
     maxRateDescription: likertChoices[likertChoices.length-1],
     isRequired: true,
@@ -155,10 +159,12 @@ TestSurvey.pages.push({
   title: "Test question",
   description: "Test question",
   name: "Test question",
+  cssClasses: "test-page",
   elements: [
     {
       type: "rating",
       name: "test",
+      displayMode: "buttons",
       title: "Test question",
       rateMin: 0,
       rateMax: 10,
@@ -226,6 +232,7 @@ PostChatSurvey.pages.push({
 PostChatSurvey.pages.push({
   title: "General Feedback",
   name: "General Feedback",
+  cssClasses: "other-assessment",
   elements: [
     makeLikertQuestion("Other", "Inteface", "The interface helped me make sense of my conversation partner's emotions"),
     makeLikertQuestion("Other", "Empathy", "I was able to empathise with my conversation partner's point of view"),
@@ -251,6 +258,77 @@ for(let key in SURVEYS){
       surveyId: SURVEYS[key].surveyId
     }
 }
+
+//https://github.com/surveyjs/survey-library/blob/master/src/defaultCss/cssstandard.ts
+const SURVEY_CSS_CLASSES = {
+  container: "survey-container",
+  title: "survey-title",
+  page: {
+    pageTitle: "page-title",
+    page: {
+      root: "page-root",
+      title: "page-title"
+    }
+  },
+  panel: {
+    panel: {
+      content: "panel-content"
+    },
+    content: "panel-content",
+    title: "question-title"
+  },
+  question: {
+    mainRoot: "question-root",
+    content: "question-content",
+    title: "question-title",
+    answered: "question-answered",
+    titleRequired: "question-title-required"
+  },
+  rating: {
+    root: "question-root-rating",
+    item: "sv_q_rating_item",
+    selected: "active",
+  }
+};
+
+function isObject(obj){
+    return obj != null && obj.constructor.name === "Object"
+}
+
+const updateClasses = (cssClasses, overrides) => {
+  for(let key in overrides){
+    if(key in cssClasses){
+      if(isObject(overrides[key]) && isObject(cssClasses[key])){
+        cssClasses[key] = updateClasses(cssClasses[key], overrides[key]);
+      }else{
+        cssClasses[key] += " " + overrides[key];
+      }
+    }
+  }
+  return cssClasses;
+}
+
+const updateSurveyClasses = (_, options) => {
+  console.log("Options", options);
+  if("panel" in options){
+    updateClasses(options.cssClasses, SURVEY_CSS_CLASSES.panel);
+  } else if("question" in options){
+    updateClasses(options.cssClasses, SURVEY_CSS_CLASSES.question);
+  } else if("page" in options){
+    updateClasses(options.cssClasses, SURVEY_CSS_CLASSES.page);
+  }
+  else{
+    updateClasses(options.cssClasses, SURVEY_CSS_CLASSES);
+  }
+  if(options?.question?.jsonObj != null){
+    if(options.question.jsonObj?.name.toLowerCase().includes("self")){
+      options.cssClasses.mainRoot += " " + "question-self";
+    }
+    else{
+      options.cssClasses.mainRoot += " " + "question-other";
+    }
+  }
+}
 // module.exports = { SURVEYS }
 // export { SURVEYS }
-export default SURVEYS;
+export { SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses };

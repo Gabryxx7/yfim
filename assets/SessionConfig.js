@@ -1,7 +1,7 @@
 
 import { STAGE, FACEAPI, QUESTION } from "../src/managers/Definitions.js"
 // const { STAGE, FACEAPI, QUESTION } = require("../src/managers/Definitions.js")
-import SURVEYS from "./PostChatSurvey.js"
+import { SURVEYS, SURVEY_CSS_CLASSES } from "./PostChatSurvey.js"
 // const { SURVEYS } = require("./PostChatSurvey.js")
 
 
