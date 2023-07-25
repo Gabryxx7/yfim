@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
 import { CMDS, DATA, STAGE } from "../managers/Definitions.js";
 import "react-toastify/dist/ReactToastify.css";
-import { SessionContext } from "../classes/Session.js";
+import { SessionContext } from "../classes/ClientSession.js";
 import FileSaver from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'

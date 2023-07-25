@@ -129,8 +129,7 @@ class Stage {
         this.currentStep = this.steps[this.currentStepIdx];
         this.currentStep?.initialize();
         const sessionData = this.session.getData();
-        this.session.chatsManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, sessionData)
-        this.session.controlManager.nsio.emit(CMDS.SOCKET.SESSION_UPDATE, sessionData)
+        this.session.notifyClients(CMDS.SOCKET.SESSION_UPDATE, sessionData);
       }
     }
     else{

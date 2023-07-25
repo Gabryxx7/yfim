@@ -15,10 +15,9 @@ class User {
       HOST: "host",
       GUEST: "guest"
     }
-    constructor(socket, manager, sessionManager) {
+    constructor(socket, nsManager) {
       this.socket = socket;
-      this.manager = manager;
-      this.sessionManager = sessionManager;
+      this.nsManager = nsManager;
       this.room = null;
       this.type = User.TYPE.NONE;
       this.id = this.socket.id; // Just for the purpose of this project
@@ -152,9 +151,11 @@ class User {
         var user = this.room.getUserById(userId);
         if(accepted){
           user.socket.join(this.room.id);
-          this.sessionManager.startSession(this.manager.rooms[this.room.id]);
+          if(this.room.allUsersReady()){
+            this.room.startSession();
+          }
         }
-        this.manager.nsio.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: feedback, user: user.id, userType: user.type});
+        this.nsManager.nsio.to(this.room.id).emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: feedback, user: user.id, userType: user.type});
       }
     }
 
@@ -169,9 +170,9 @@ class User {
       this.leaveRoom(this);
       this.broadcastMessage(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.HANGUP})
       // this.socket.broadcast.to(room).emit("hangup");
-      // console.log(`Sockets in room ${this.roomToString(this.manager.nsio, this.room.id)}`)
+      // console.log(`Sockets in room ${this.roomToString(this.nsManager.nsio, this.room.id)}`)
       // clearInterval(timmer);
-      this.sessionManager.onProcessStop("test", `${this} Disconnected`);
+      this.room?.session.onProcessStop("test", `${this} Disconnected`);
     }
 
     printRooms(namespace, roomId=null){
@@ -195,7 +196,7 @@ class User {
         }
 
         if(this.room.size <= 0){
-          this.manager.deleteRoom(this.room.id);
+          this.nsManager.deleteRoom(this.room);
         }
         this.room = null;
       }catch(error){
@@ -226,8 +227,8 @@ class User {
         fs.writeFileSync("./uploads/"+  data.filename, JSON.stringify(data.data, null, 3));
       }
       this.ready = true;
-      if(this.room){
-        this.sessionManager.onUserStepCompleted(this.room);
+      if(this.room != null){
+        this.room.session.onUserStepCompleted(this.room);
       }
     }
   
@@ -242,9 +243,9 @@ class User {
       const roomId = "room_"+urlRoomData.split("/")[1]
       // console.log(this.room.id, urlRoomData)
       // this.type = url[url.length - 1];
-      let userRoom = this.manager.getRoom(roomId);
+      let userRoom = this.nsManager.getRoom(roomId);
       if(userRoom === null){
-        userRoom = this.manager.createRoom(roomId);
+        userRoom = this.nsManager.createRoom(roomId);
       }
       const joinFeedback = userRoom.addUser(this);
       console.warn(`Adding [${this.type}] ${this.id} to room ${roomId}: ${joinFeedback.code} = '${joinFeedback.msg}`);
@@ -266,7 +267,7 @@ class User {
     controlRoom(data){
       const room = data.room;
       console.info("- received control-room message for room: " + room);
-      this.sessionManager.createRoom(room, this.socket, Room.TYPE.CONTROL)
+      this.room.session.createRoom(room, this.socket, Room.TYPE.CONTROL)
       // control_room_list[room] = this.socket;
     }
   
@@ -274,9 +275,9 @@ class User {
     roomInIdle(data){
       const { room } = data;
       // console.log(`room ${room} is idle now`);
-      this.sessionManager.controlManager.nsio.emit(CMDS.SOCKET.ROOM_IDLE);
+      this.room.session.controlnsManager.nsio.to(this.room.id).emit(CMDS.SOCKET.ROOM_IDLE);
       console.info("- room idle: " + this.room + " -> initiate process stop");
-      // this.sessionManager.onProcessStop(room, `${this} RoomIdle`);
+      // this.room.session.onProcessStop(room, `${this} RoomIdle`);
     }
   
     surveyConnect(data){
@@ -326,7 +327,7 @@ class User {
         }
         let duration = extend_time;
         console.log("moving on: after", duration);
-        this.manager.nsio.emit(CMDS.SOCKET.SURVEY_END, { stage_startTime, duration, stage });
+        this.nsManager.nsio.to(this.room.id).emit(CMDS.SOCKET.SURVEY_END, { stage_startTime, duration, stage });
         projectio.emit(CMDS.SOCKET.STAGE_CONTROL, { stage });
       }
     };
@@ -335,7 +336,7 @@ class User {
       if(this.room != null){
         const { room } = data;
         console.info("- resetting room: " + this.room);
-        this.manager.onProcessStop(room, `${this} RESET`);
+        this.room.session.onProcessStop(room, `${this} RESET`);
       }
     };
   
@@ -343,8 +344,8 @@ class User {
       const { room, user } = data;
       // console.info("- face-detected received in room: " + room + ", user: " + user);
   
-      // this.manager.nsio.emit(CMDS.SOCKET.FACE_DETECTED);
-      this.manager.nsio.emit(CMDS.SOCKET.FACE_DETECTED, user);
+      // this.nsManager.nsio.emit(CMDS.SOCKET.FACE_DETECTED);
+      this.nsManager.nsio.to(this.room.id).emit(CMDS.SOCKET.FACE_DETECTED, user);
     };
   
     onProcessControl(data){
@@ -360,34 +361,10 @@ class User {
       this.socket.broadcast.to(params_room).emit(CMDS.SOCKET.PROCESS_CONTROL);
     };
   
-  
     onProcessReady(data){
       // const { roomId, userId, rating, record } = data;
-      this.sessionManager.onProcessReady(data);
+      this.room.session.onProcessReady(data);
     }
-  
-  
-    onDataSend(received){
-      console.info(`- data-send: ${received}`);
-  
-      const { dataType, data, userId, roomId } = received;
-      var user = this.sessionManager.rooms[roomId].getUser(userId);
-      this.data[dataType].ready = true;
-      this.data[dataType].content = data;
-      
-      setTimeout(() => {
-        console.log("waiting for data uploading");
-        if (
-          emotion_ready["host"] &&
-          emotion_ready["guest"] &&
-          question_ready["host"] &&
-          question_ready["guest"]
-        ) {
-          console.info("- call store data");
-          storeData(room);
-        }
-      }, TIMES.DATA_UPLOAD_WAIT);
-    };
   
     onControl(data){
       console.info("- control");

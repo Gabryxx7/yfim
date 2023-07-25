@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useRef, useContext } from 'react';
 import Timer from "../containers/Timer.js";
-import { SessionContext } from "../classes/Session.js";
+import { SessionContext } from "../classes/ClientSession.js";
 import { STAGE } from '../managers/Definitions.js'
 import ProgressBar from './Progressbar.js';
 

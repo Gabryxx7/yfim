@@ -1,4 +1,5 @@
 import User from '../managers/User.js';
+import ServerSession from '../managers/ServerSession.js';
 import console from "../utils/colouredLogger.js";
 
 export default class Room{
@@ -7,15 +8,17 @@ export default class Room{
     USER: "user"
   }
 
-  constructor(id, nsio, maxSize=-1, roomType=Room.TYPE.USER) {
+  constructor(id, nsManager, maxSize=-1, roomType=Room.TYPE.USER) {
     this.id = id;
-    this.nsio = nsio;
+    this.nsManager = nsManager;
+    this.nsio = this.nsManager.nsio;
     this.adapter = this.nsio.adapter.rooms.get(this.id);
     this.roomType = roomType;
     this.size = 0;
     this.maxSize = maxSize;
     this.users = {};
     this.host = null;
+    this.session = new ServerSession([this.nsManager], this);
 
     this.onRoomFull = (room) => {};
     this.onUserLeave = (user) => {};
@@ -46,6 +49,10 @@ export default class Room{
       }
     }
     return count >= total;
+  }
+
+  startSession(){
+    this.session.start();
   }
 
   getUsersRating(){
@@ -140,11 +147,6 @@ export default class Room{
     return res;
   }
 
-  newUser(userId, userType=User.TYPE.NONE){
-    this.users[userId] = new User(userId, userType);
-    this.size += 1;
-    return this.users[userId];
-  }
 
   getUser(user){
     return this.getUserById(user.id);

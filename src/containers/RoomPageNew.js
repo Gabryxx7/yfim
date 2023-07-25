@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar.js";
 import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
-import { SessionProvider, SessionContext } from "../classes/Session.js";
+import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
 import TestComponent from "../components/SessionContextUpdateExample.js"
 import VideoContainer from "../classes/VideoContainer.js";
 import FaceProcessor from "../classes/FaceProcessor.js";

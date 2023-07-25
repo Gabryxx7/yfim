@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { SessionContext } from "../classes/Session.js";
+import { SessionContext } from "../classes/ClientSession.js";
 
 export default function TestComponent(props) {
 	const sessionMap = useContext(SessionContext);
