@@ -3,7 +3,7 @@ import NamespaceManager from '../managers/NamespaceManager.js';
 import { CMDS, STAGE, TIMES } from './Definitions.js';
 import Stage from '../managers/Stage.js';
 import Room from '../managers/Room.js';
-import User from '../managers/User.js';
+import { User } from '../managers/User.js';
 import ControlUser from './ControlUser.js';
 import console from "../utils/colouredLogger.js";
 import SessionConfig from '../../assets/SessionConfig.js';

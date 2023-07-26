@@ -1,7 +1,7 @@
 
 import { CMDS, DATA} from './Definitions.js';
 import Room from '../managers/Room.js';
-import User from '../managers/User.js';
+import { User } from '../managers/User.js';
 import console from "../utils/colouredLogger.js";
 
 class NamespaceManager {

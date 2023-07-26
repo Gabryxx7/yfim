@@ -42,6 +42,9 @@ function RoomPage(props) {
 	const [bridge, setBridge] = useState("none");
 	const [stageState, setStageState] = useState({reason: "", state: STAGE.STATUS.NONE});
 	const [stageType, setStageType] = useState(STAGE.TYPE.VIDEO_CHAT);
+	const [userData, setUserData] = useState({});
+	const [roomData, setRoomData] = useState({});
+	const [stageData, setStageData] = useState({});
 
 	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
 	// Where I only set the onComplete() callback on the first page render, this seems to do the trick (probably because of memoization?!)
@@ -100,7 +103,7 @@ function RoomPage(props) {
 	}, [prompt])
 	
 
-	const onRoomUpdate = (data) => {
+	const onUserUpdate = (data) => {
 		if(sessionMap.session?.user?.role != data?.user?.role){
 			if(data?.user?.role?.toLowerCase() == 'host'){
 				TOASTS.NEW_ROLE.show({role:data?.user?.role});
@@ -108,6 +111,12 @@ function RoomPage(props) {
 		}
 		console.log(`Updated user Role ${data?.user?.role}`)
 		sessionMap.updateUser(data);
+		setUserData(sessionMap.session?.user);
+	}
+
+	const onRoomUpdate = (data) => {
+		sessionMap.updateRoom(data);
+		setRoomData(sessionMap.session?.room);
 	}
 
 	const onSessionUpdate = (data) => {
@@ -139,10 +148,9 @@ function RoomPage(props) {
 		}
 	}
 
-	const onInvitationAnswer = (answer) => {
-		console.log("Invitation answer");
+	const onJoinRequestAnswer = (answer) => {
 		if(RTCManager.lastUserIdRequest != null){
-			console.log(`Emitting Invitation accept ${RTCManager.lastUserIdRequest}`)
+			console.log(`RTC: ${answer}ing join request from ${RTCManager.lastUserIdRequest}`);
 			socket.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: RTCManager.lastUserIdRequest});
 			RTCManager.lastUserIdRequest = null;
 		}
@@ -171,7 +179,9 @@ function RoomPage(props) {
 		// 	}
 		// });
 		socket.current.on(CMDS.SOCKET.RTC_COMMUNICATION, (data) => {
-			setBridge(data.bridge);
+			if(data.bridge != CMDS.RTC.ACTIONS.MESSAGE){
+				setBridge(data.bridge);
+			}
 			RTCManager.handleRTCCommunication(data);
 		})
 		socket.current.on(CMDS.SOCKET.CONNECT_ERROR, (err) => {
@@ -183,6 +193,7 @@ function RoomPage(props) {
       socket.current.on(CMDS.SOCKET.SESSION_UPDATE, (data) => onSessionUpdate(data));
 		// socket.current.on(CMDS.SOCKET.PROCESS_START, () => onProcessStart());
 		socket.current.on(CMDS.SOCKET.ROOM_UPDATE, (data) => onRoomUpdate(data));
+		socket.current.on(CMDS.SOCKET.USER_UPDATE, (data) => onUserUpdate(data));
 		// socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => onProcessStop(data));
 		socket.current.on(CMDS.SOCKET.RESET, () => resetParams());
 
@@ -212,14 +223,14 @@ function RoomPage(props) {
 
 	 useEffect(() => {
 		if(bridge == null) return;
-		console.log("New bridge", bridge);
+		console.log("RTC: Bridge Updated",bridge);
 		if(bridge == "none"){
 			TOASTS.WAITING.show();
 			return;
 		}
 		TOASTS.WAITING.dismiss();
 		if(bridge == CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST){
-			TOASTS.JOIN_REQUEST.show({onAction: onInvitationAnswer});
+			TOASTS.JOIN_REQUEST.show({onAction: onJoinRequestAnswer});
 		} else if(bridge == CMDS.RTC.STATUS.PENDING_APPROVAL){
 			TOASTS.PENDING_APPROVAL.show();
 		} else{
@@ -241,6 +252,8 @@ function RoomPage(props) {
 			}}
 			prompt={prompt}
 			stageState={stageState}
+			userData={userData}
+			roomData={roomData}
 		/>
 			
 		<div className={`main-call-container ${bridge}`}>

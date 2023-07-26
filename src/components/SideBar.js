@@ -2,17 +2,70 @@ import React from 'react';
 import { useState, useEffect, useRef, useContext } from 'react';
 import Timer from "../containers/Timer.js";
 import { SessionContext } from "../classes/ClientSession.js";
-import { STAGE } from '../managers/Definitions.js'
+import { STAGE, USER } from '../managers/Definitions.js'
 import ProgressBar from './Progressbar.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import '@fortawesome/fontawesome-free'
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {far} from '@fortawesome/free-regular-svg-icons'
+import {fas} from '@fortawesome/free-solid-svg-icons'
+import {fab} from '@fortawesome/free-brands-svg-icons'
+library.add(far,fas,fab);
+
+const StatusIconMap = (status) => {
+  const style = 'fa';
+  let faIcon = {};
+  let compStyle = {};
+  switch(status){
+    case USER.STATUS.NONE:{
+      faIcon = [style, 'x'];
+      compStyle= {color: 'red'};
+      break;
+    }
+    case USER.STATUS.IN_SESSION:{
+      faIcon = [style, 'clock'];
+      compStyle= {color: 'white'};
+      break;
+    }
+    case USER.STATUS.READY:{
+      faIcon = [style, 'check'];
+      compStyle= {color: 'green'};
+      break;
+    }
+  }
+  return <FontAwesomeIcon style={{...compStyle}} icon={faIcon} />
+}
+
+const RoomUser = (props) => {
+  return(
+    <div className="room-user">
+      <div className="status"> {StatusIconMap(props.user?.status)}</div>
+      <div className="name">{props.user?.name}</div>
+    </div>
+  )
+}
+
+const RoomInfo = (props) => {
+  return(
+    <div className="room-info">
+      <div className="room-name">{props.room?.id}</div>
+      <div className="users-list">
+        {props.room?.users?.map((user) => <RoomUser key={USER.id} user={user}/>)}
+      </div>
+    </div>)
+}
 
 const SidebarTesting = (props) => {
   const stageData = props.stageData ?? {};
   const stageState = props.stageState ?? {};
+  const userData = props.userData ?? {};
+  const roomData = props.roomData ?? {};
   const onSkipClicked = props.onSkipClicked ?? (() => {});
   return(
-    <div className="debug-info">
+    <div className="meta-info">
+      <RoomInfo room={roomData} />
       <div className="user-info">
-        <div>{stageData.user} ({stageData.userRole})</div>
+        <div>{userData.name} ({userData.role})</div>
         <div>{stageData.stageType} - {stageData.topic}</div>
         <div>{stageData.sessionId}</div>
       </div>
@@ -39,16 +92,9 @@ export default function SideBar(props) {
   const onTimerEnd = props.onTimerEnd ?? (() => {});
   const onSkipClicked = props.onSkipClicked ?? (() => {});
   const stageState = props.stageState;
-  const [stageData, setStageData] = useState({
-    user: "user",
-    sessionId: "sid",
-    userRole: "none",
-    index: 0,
-    name: "Session has not started yet...",
-    totalStages: 0,
-    stageType: "none",
-    topic: "none"
-  })
+  const userData = props.userData ?? {};
+  const roomData = props.roomData ?? {};
+  const [stageData, setStageData] = useState({});
 
   // var sidePadding = "11rem";
   // var remoteVideoSide = "right";
@@ -61,8 +107,6 @@ export default function SideBar(props) {
       console.log("Session started sidebar: ", session.data)
       const stageType = session.data?.stage?.step?.type;
       setStageData({...stageData,
-        userRole: session.user?.role,
-        user: session.user?.name,
         sessionId: session.data?.sessionId,
         index: session.data?.stage?.index,
         name: session.data?.stage?.step?.name,
@@ -125,6 +169,8 @@ export default function SideBar(props) {
             onSkipClicked={onSkipClicked}
             stageData={stageData}
             stageState={stageState}
+            userData={userData}
+            roomData={roomData}
           />
       </div>
       <div

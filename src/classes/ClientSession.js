@@ -6,7 +6,8 @@ class ClientSession extends TimedEvent{
    static Actions = {
       INCREMENT_COUNTER: "INCREMENT_COUNTER",
       UPDATE_USER: "UPDATE_USER",
-      UPDATE_SESSION: "UPDATE_SESSION"
+      UPDATE_SESSION: "UPDATE_SESSION",
+      UPDATE_ROOM: "UPDATE_ROOM"
    }
    static reducer = (session, action) => {
       console.log("Reducer " + action.type)
@@ -18,13 +19,17 @@ class ClientSession extends TimedEvent{
          session.id = action.data?.sessionId;
       }
       if (action.type === ClientSession.Actions.UPDATE_USER) {
-         session.user = action.data.user;
+         session.user = action.data;
+      }
+      if (action.type === ClientSession.Actions.UPDATE_ROOM) {
+         session.room = action.data;
       }
       return session;
     }
    constructor(name="TimedEventID", updateInterval=1000) {
       super(name, updateInterval)
       this.user = {};
+      this.room = {};
    }
 
    getSessionData(){
@@ -36,6 +41,7 @@ class ClientSession extends TimedEvent{
          stageIndex: this.data?.stage?.index,
          topic: this.data?.stage?.topic,
          prompt: this.data?.stage?.prompt,
+         room: this.room,
          stage_mask: this.data?.stage?.mask,
          step_mask: this.data?.stage?.step?.mask
       }
@@ -53,6 +59,7 @@ const SessionProvider = (props) => {
       session: sessionState,
       incrementCounter: (data) => sessionDispatch({type: ClientSession.Actions.INCREMENT_COUNTER, data: data}),
       updateUser: (data) => sessionDispatch({type: ClientSession.Actions.UPDATE_USER, data: data}),
+      updateRoom: (data) => sessionDispatch({type: ClientSession.Actions.UPDATE_ROOM, data: data}),
       updateSession: (data) => sessionDispatch({type: ClientSession.Actions.UPDATE_SESSION, data: data}),
    };
    return <SessionContext.Provider value={value}>{props.children}</SessionContext.Provider>;

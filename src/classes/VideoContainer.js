@@ -49,12 +49,12 @@ export default function VideoContainer(props) {
 
 	// when the other side added a media stream, show it on screen
 	const onAddStream = (e) => {
-		console.log("onaddstream", e);
+		console.log(`RTC: Adding MediaStream ${e?.stream?.id}`);
 		if (remoteVideo.current != null) {
 			remoteStream.current = e.stream;
 			remoteVideo.current.srcObject = e.stream;
 			remoteVideo.current.addEventListener("play", () => {
-				console.log("Remote Video Play");
+				console.log("RTC: Remote Video is now playing");
 				faceProcessor.setVideo(remoteVideo.current);
 				sessionMap.session.remoteVideo = remoteVideo.current;
 				// setVideoConstraints(remoteVideo.current);

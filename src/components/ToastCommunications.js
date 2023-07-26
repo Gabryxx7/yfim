@@ -17,7 +17,6 @@ import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
  * @returns 
  */
 const ToastWrapper = (props) => {
-   console.log(props);
    const {closeToast, toastProps, toastComponent} = props;
    return (
       <>
@@ -110,7 +109,7 @@ TOASTS.WAITING= new YFIMToast(
 /**
  * The wrapper will have now added the component props to the props object, so now we have both closeToast (and the toast props) and the component props we passed
  */
-const InvitationMsg = (props) => {
+const JoinRequestMsg = (props) => {
    const closeToast = props.closeToast;
    const onAction = props.onAction;
    const title = props.title ?? "No message";
@@ -137,7 +136,7 @@ const InvitationMsg = (props) => {
 
 
 TOASTS.JOIN_REQUEST= new YFIMToast(
-   InvitationMsg,
+   JoinRequestMsg,
    {
       type: "warning",
       toastId:  "join-request"
@@ -149,7 +148,7 @@ TOASTS.JOIN_REQUEST= new YFIMToast(
 
 
 TOASTS.TEST= new YFIMToast(
-   InvitationMsg,
+   JoinRequestMsg,
    {
       type: "warning",
       toastId:  "join-request"

@@ -1,15 +1,21 @@
 import hash from "object-hash";
-import NamespaceManager from '../managers/NamespaceManager.js';
 import { CMDS, STAGE, TIMES } from './Definitions.js';
 import Stage from '../managers/Stage.js';
-import User from '../managers/User.js';
+import { User } from '../managers/User.js';
 import console from "../utils/colouredLogger.js";
 import SessionConfig from '../../assets/SessionConfig.js';
 
 class ServerSession {
-  constructor(nsManagers, room=null) {
-      this.nsManagers = nsManagers;
-      this.running = false;
+  static STATUS = {
+    NONE: "None",
+    RUNNING: "Running",
+    PAUSED: "Paused",
+    STOPPED: "Stopped",
+    COMPLETED: "Completed",
+    ERROR: "Error"
+  }
+  constructor(room=null) {
+      this.status = ServerSession.STATUS.NONE;
       this.room = room;
       this.timer = null;
       this.startDateTime = -1;
@@ -24,13 +30,22 @@ class ServerSession {
       this.stages = [];
   }
 
-  onUserStepCompleted(room){
-   if(!this.running) return;
-    const allUsersReady = this.room.allUsersReady();
-    console.log("All users ready in room " + this.room.id);
-    if(allUsersReady){
-      this.currentStage.moveToNextStep();
+  isRunning(){
+    return this.status == ServerSession.STATUS.RUNNING;
+  }
+
+  updateSessionStatus(){
+    if (this.room.allUsersReady()) {
+      if(this.isRunning()){
+        console.log(`All users ready in room ${this.room.id}, completing STEP in session`);
+        this.currentStage.moveToNextStep();
+      }
+      else{
+        console.log(`All users ready in room ${this.room.id}, STARTING session`);
+        this.start();
+      }
     }
+    console.log(`NOT all users are ready in room ${this.room.id},`);
   }
 
   update(){
@@ -47,7 +62,7 @@ class ServerSession {
       this.currentStage.initialize();
 
       const sessionData = this.getData();
-      this.notifyClients(CMDS.SOCKET.SESSION_UPDATE, sessionData);
+      this.room.notifyRoom(CMDS.SOCKET.SESSION_UPDATE, sessionData);
     }
     this.currentStage.update();
     this.timer = setTimeout(() => {
@@ -55,20 +70,12 @@ class ServerSession {
     }, TIMES.SESSION_UPDATE_INTERVAL)
   }
 
-  notifyClients(event, data={}){
-   for(let nsManager of this.nsManagers){
-      nsManager.nsio.to(this.room.id).emit(event, data)
-      // this.chatsManager.to(this.room.id).nsio.emit(event, data)
-      // this.controlManager.to(this.room.id).nsio.emit(event, data)
-   }
-  }
-
-
   getData(){
     var data = {};
     try{
       data = {
         sessionId: this.id,
+        room: this.room.getData(),
         startTime: this.startTime,
         startDateTime: this.startDateTime,
         stages: this.stages.length,
@@ -126,8 +133,7 @@ class ServerSession {
           this.stages.push(new Stage(this.room, this, this.stagesConfig[i], null, i));
         }
       }
-
-      this.running = true;
+      this.status = ServerSession.STATUS.RUNNING;
       // This will take care of starting the next (or first) stage, notifying of a new session update at the end of each stage
       // And advancing until the end of all the stages
       this.update();
@@ -147,14 +153,14 @@ class ServerSession {
 
 
   onProcessStop(room, accident_stop){
-   if(!this.running) return;
-   this.running = false;
+   if(!this.isRunning()) return;
+   this.status = ServerSession.STATUS.STOPPED;
    console.info("+ Session process stop ");
    if(this.timer != null){
      clearInterval(this.timer);
    }
 
-   this.notifyClients(CMDS.SOCKET.PROCESS_STOP, { accident_stop });
+   this.room.notifyRoom(CMDS.SOCKET.PROCESS_STOP, { accident_stop });
  }
 }
 

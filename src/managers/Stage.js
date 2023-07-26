@@ -1,4 +1,4 @@
-import { CMDS, STAGE } from "./Definitions.js";
+import { CMDS, STAGE, USER } from "./Definitions.js";
 import Topics from "../../assets/Topics.js";
 
 
@@ -93,7 +93,7 @@ class Stage {
     this.startTime = performance.now();
     this.elapsed = 0;
     console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
-    this.room.setUsersReady(false);
+    this.room.setUsersStatus(USER.STATUS.IN_SESSION);
     this.extra = {
       ...this.extra,
       ...this.getQuestionData(),
@@ -129,7 +129,7 @@ class Stage {
         this.currentStep = this.steps[this.currentStepIdx];
         this.currentStep?.initialize();
         const sessionData = this.session.getData();
-        this.session.notifyClients(CMDS.SOCKET.SESSION_UPDATE, sessionData);
+        this.room.notifyRoom(CMDS.SOCKET.SESSION_UPDATE, sessionData);
       }
     }
     else{
@@ -150,7 +150,6 @@ class Stage {
         startTime: this.startTime,
         startDateTime: this.startDateTime,
         duration: this.duration,
-        room: this.room?.id,
         ...this.extra,
       };
       if(this.currentStep){

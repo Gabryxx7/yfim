@@ -36,6 +36,19 @@ const STAGE = {
   }
 }
 
+const USER = {
+	TYPE: {
+		NONE: "none",
+		HOST: "host",
+		GUEST: "guest",
+	},
+	STATUS: {
+		NONE: "none",
+    READY: "ready",
+		IN_SESSION: "in_session",
+	}
+}
+
 const TIMES = { 
   AUTOACCEPT_WAIT: 60000,
   LOSING_FACE_NOTIFY: 5000,
@@ -80,6 +93,7 @@ const CMDS = {
     RTC_COMMUNICATION:    "rtc-communication",
     JOIN_ROOM:            "join-room",
     ROOM_UPDATE:   "room-update",
+    USER_UPDATE:   "user-update",
     LEAVE_ROOM:           "leave-room",
     ROOM_IDLE:            "room-idle",
     MESSAGE:              "message",
@@ -166,4 +180,4 @@ const DATA = {
 }
 
 
-export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES }
+export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES, USER }

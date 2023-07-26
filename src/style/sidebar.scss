@@ -81,7 +81,7 @@
      }
    }
  
-   .debug-info{
+   .meta-info{
      display: flex;
      flex-direction: row;
      font-size: 0.75rem;
@@ -128,3 +128,22 @@
      }
    }
  }
+
+.room-info {
+  .room-name{
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+
+  .users-list {
+    display: flex;
+    gap: 0.2rem;
+    flex-direction: column;
+  }
+
+  .room-user{
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: row;
+  }
+}

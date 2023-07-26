@@ -16,7 +16,7 @@ export default class WebRTCManager {
 	}
 
   handleRTCCommunication(data){
-    console.log("Received RTC Communication", data)
+   //  console.log("Received RTC Communication", data)
     switch(data.bridge){
       case CMDS.RTC.ACTIONS.START_CALL: {
         break;
@@ -57,7 +57,7 @@ export default class WebRTCManager {
         break;
       }
       case CMDS.RTC.ACTIONS.MESSAGE: {
-			this.onMessage(data);
+			this.onMessage(data.data);
         break;
       }
       case CMDS.RTC.STATUS.PENDING_APPROVAL: {
@@ -97,8 +97,9 @@ export default class WebRTCManager {
   }
 
   onMessage(message) {
-	// console.log("Got new message ", message);
+	// console.log("Got new Message ", message);
     if (message.type === "offer") {
+		// console.log("Got new OFFER ", message?.sdp);
       // set remote description and answer
       this.pc
         .setRemoteDescription(new RTCSessionDescription(message))
@@ -107,13 +108,14 @@ export default class WebRTCManager {
         .then(() => this.sendDescription())
         .catch((event) => console.error("Error sending Answer ", event)); // An error occurred, so handle the failure to connect
     } else if (message.type === "answer") {
+		// console.log("Got new ANSWER ", message?.sdp);
       // set remote description
       this.pc.setRemoteDescription(new RTCSessionDescription(message));
     } else if (message.type === "candidate") {
+		// console.log("Got new CANDIDATE ", message?.candidate?.candidate);
       // add ice candidate
-		const candidate = message.candidate ?? {};
-      this.pc.addIceCandidate(candidate)
-			.catch((error) => console.error("Error adding ice candidate ", candidate, error))
+      this.pc.addIceCandidate(message.candidate)
+			.catch((error) => console.error("Error adding ice candidate ", message, error))
     }
   }
 
@@ -149,8 +151,8 @@ export default class WebRTCManager {
 	// send the offer to a server to be forwarded to the other peer
 	sendDescription() {
 		if (this.socketRef.current != null) {
-			// console.log("Sending description ", this.pc.localDescription)
-			this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.MESSAGE, data: this.pc.localDescription});
+			console.log("RTC: Sending Local description")
+			this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.MESSAGE, data:this.pc.localDescription});
 		}
 	}
 
@@ -262,7 +264,7 @@ export default class WebRTCManager {
 				},
 			],
 		});
-		console.log("RTCPeerCOnnection created");
+		console.log("RTC: PeerConnection created");
 
 		// this.pc.onconnectionstatechange = (event) => this.onConnectionStateChange(event);
 		this.pc.oniceconnectionstatechange = (event) => this.onIceConnectionStateChange(event);
@@ -271,10 +273,10 @@ export default class WebRTCManager {
 		this.pc.ontrack = (event) => this.onTrack(event);
 		this.pc.onaddstream = (event) => this.onAddStream(event);
 		this.pc.ondatachannel = (event) => this.onDataChannel(event);
-		console.log("RTCPeerCOnnection listeners added, initiating call...");
+		console.log("RTC: PeerConnection listeners added, initiating call...");
 
 		this.localVideo.srcObject.getTracks().forEach((track) => {
-			console.log('Adding track ', track);
+			console.log(`RTC: Adding local video track ${track.label} to PeerConnection`);
 			this.pc.addTrack(track, this.localVideo.srcObject)
 		});
 		try{
@@ -296,22 +298,27 @@ export default class WebRTCManager {
 		// data channel
 		this.dc = event.channel;
 		this.setupDataHandlers();
-		this.sendData({
-			peerMediaStream: {
-				video: this.localVideo.srcObject.getVideoTracks()[0].enabled,
-			},
-		});
-		//sendData('hello');
+		if (this.dc != undefined && this.dc != null) {
+			const msg = JSON.stringify({
+				peerMediaStream: {
+					video: this.localVideo.srcObject.getVideoTracks()[0].enabled,
+				},
+			});
+			this.dc.send(msg);
+		}
 	}
 
 
 	onIceCandidate(event) {
-		// console.log("onicecandidate", event);
+		console.log(`RTC: New ICE Candidate: ${event?.candidate?.candidate}`);
 		if (event.candidate) {
 			if (this.socketRef.current != null) {
-				this.socketRef.current.send({
-					type: "candidate",
-					candidate: event.candidate,
+				this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {
+					bridge: CMDS.RTC.ACTIONS.MESSAGE,
+					data:{
+						type: "candidate",
+						candidate: event.candidate
+					}
 				});
 			}
 		}
@@ -322,12 +329,6 @@ export default class WebRTCManager {
 		// console.log("iceconnection change ", pcstate);
 		if (pcstate === "failed" || pcstate === "closed" || pcstate === "disconnected") {
 			this.onConnectionStateChange(pcstate);
-		}
-	}
-
-	sendData(msg) {
-		if (this.dc != undefined && this.dc != null) {
-			this.dc.send(JSON.stringify(msg));
 		}
 	}
 }

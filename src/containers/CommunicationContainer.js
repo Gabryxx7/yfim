@@ -21,10 +21,10 @@ export default function CommunicationContainer(props) {
     hideAuth();
   }
 
-  const handleInvitation = (e) => {
+  const handleRequest = (e) => {
     e.preventDefault();
     if(autoacceptTimer != null) clearTimeout(autoacceptTimer);
-    console.log(`Emitting Invitation accept ${e.target.dataset.ref}: ${state.sid}`)
+    console.log(`RTC: ${e.target.dataset.ref}ing join request from ${state.sid}`);
     socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, sessionId: state.sid});
     // socketRef.current.emit(e.target.dataset.ref, state.sid); // I'm not sure why so many emit() calls had an array [cmd] as command
     hideAuth();
@@ -101,7 +101,7 @@ export default function CommunicationContainer(props) {
       toggleAudio={() => toggleAudio()}
       send={() => send()}
       handleInput={(e) => handleInput(e)}
-      handleInvitation={(e) => handleInvitation(e)}
+      handleRequest={(e) => handleRequest(e)}
     />
   );
 }

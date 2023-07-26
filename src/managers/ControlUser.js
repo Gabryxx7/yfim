@@ -1,5 +1,5 @@
 import { CMDS, DATA} from './Definitions.js';
-import User from './User.js';
+import { User } from './User.js';
 
 class ControlUser extends User{
     constructor(socket, manager, sessionManager) {

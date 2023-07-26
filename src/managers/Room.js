@@ -1,6 +1,7 @@
-import User from '../managers/User.js';
+import { User } from '../managers/User.js';
 import ServerSession from '../managers/ServerSession.js';
 import console from "../utils/colouredLogger.js";
+import { CMDS } from '../managers/Definitions.js'
 
 export default class Room{
   static TYPE = {
@@ -8,17 +9,19 @@ export default class Room{
     USER: "user"
   }
 
-  constructor(id, nsManager, maxSize=-1, roomType=Room.TYPE.USER) {
+  constructor(id, nsManagers, maxSize=-1, roomType=Room.TYPE.USER) {
     this.id = id;
-    this.nsManager = nsManager;
-    this.nsio = this.nsManager.nsio;
-    this.adapter = this.nsio.adapter.rooms.get(this.id);
+    if(!Array.isArray(nsManagers)){
+      nsManagers = [nsManagers];
+    }
+    this.nsManagers = nsManagers;
+    this.adapter = this.nsManagers[0].nsio.adapter.rooms.get(this.id);
     this.roomType = roomType;
     this.size = 0;
     this.maxSize = maxSize;
     this.users = {};
     this.host = null;
-    this.session = new ServerSession([this.nsManager], this);
+    this.session = new ServerSession(this);
 
     this.onRoomFull = (room) => {};
     this.onUserLeave = (user) => {};
@@ -33,10 +36,60 @@ export default class Room{
     return `${this.id} (${this.size}${overTotal})`;
   }
 
-  setUsersReady(ready){
-    for (let userId in this.users) {
-      this.users[userId].ready = ready;
+
+  getData(){
+    var data = {};
+    try{
+      data = {
+        id: this.id,
+        users: Object.entries(this.users).map(([key, user]) => user.getData()),
+        size: this.size,
+        maxSize: this.maxSize,
+        roomType: this.roomType
+      };
+    }catch(error){
+      console.error(`Error getting session data: `, error);
     }
+    return data;
+  }
+
+  emitToRoom(channel, event, data=null){
+    if(data != null){
+      channel.to(this.id).emit(event, data);
+    }
+    else{
+      channel.to(this.id).emit(event);
+    }
+
+  }
+  // If `socket` is provided, then the broadcast will be sent from that user's socket
+  // So it will notify everyone except for the sender
+  notifyRoom(event, data=null, socket=null){
+    // const dbg_msg = message?.type ? `Type: ${message?.type}` : `${message}`
+    const dbg_msg = data == null ? "NO DATA" : "WITH DATA";
+    if(socket != null){
+      console.log(`Broadcasting (except sender) ${event} to Room ${this.id}: ${dbg_msg}`);
+      this.emitToRoom(socket, event, data);
+      return;
+    }
+
+		console.log(`Broadcasting (to all) ${event} to Room ${this.id}: ${dbg_msg}`);
+    for(let nsManager of this.nsManagers){
+      this.emitToRoom(nsManager.nsio, event, data);
+       // this.chatsManager.to(this.room.id).nsio.emit(event, data)
+       // this.controlManager.to(this.room.id).nsio.emit(event, data)
+    }
+  }
+
+  notifyHost(event, data={}){
+    this.host.socket.emit(event, data);
+  }
+
+  setUsersStatus(status){
+    for (let userId in this.users) {
+      this.users[userId].setStatus(status);
+    }
+    this.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.getData());
   }
 
   allUsersReady(){
@@ -44,7 +97,7 @@ export default class Room{
     var total = 0;
     for (let userId in this.users) {
       total += 1;
-      if(this.users[userId].ready){
+      if(this.users[userId].isReady()){
         count += 1;
       }
     }
@@ -69,16 +122,18 @@ export default class Room{
 
   toString(){
     let prefix = "\t";
-    let res = `ROOM ${this.id}`;
-    res += `\n${prefix}Users in ${this.id}: [ `;
+    let res = `ROOM ${this.id} `;
+    res += `Users: [`;
+    let count = 0;
     for(let k in this.users){
       const u = this.users[k];
-      res += `[${u.type}] ${u.name} - ${u.id}, `
+      res += `\n${prefix} ${++count}. [${u.type}] ${u.name} (socket: ${u.id}) - status: ${u.status},`
     }
     res += `]`;
     const key = this.id;
     try{
       // const socketsInRoomStr = Array.from(namespace.adapter.rooms.get(key)).join(', ');
+      this.adapter = this.nsManagers[0].nsio.adapter.rooms.get(this.id);
       const socketsInRoomStr = Array.from(this.adapter).join(', ');
       res += `\n${prefix}In Socket.io room: ${key} = \{ ${socketsInRoomStr} \}`;
     } catch (error) {
@@ -126,7 +181,7 @@ export default class Room{
     }
     this.users[user.id] = user;
     user.socket.join(this.id);
-    this.adapter = this.nsio.adapter.rooms.get(this.id);
+    this.adapter = this.nsManagers[0].nsio.adapter.rooms.get(this.id);
     this.size += 1;
     this.onUserEnter(user);
     if(this.maxSize > 0 && this.size >= this.maxSize){
