@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext, useReducer, useCallback
 import io from "socket.io-client";
 import "survey-react/survey.css";
 import { CMDS, DATA} from "../managers/Definitions.js";
-import Sidebar from "../components/Sidebar.js";
+import Sidebar from "../components/SideBar.js";
 import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
