@@ -263,12 +263,6 @@ export default function VideoContainer(props) {
 					// }
 				})()}
 
-				{/* {this.state.loading && <Thankyou result={this.state.result} userRole={this.props.roomPage.state.user_role} />} */}
-
-				{/* <GYModal title="Attention" visible={this.state.visible}>
-					<h1 style={{ color: "white" }}>{this.state.attention}</h1>
-				</GYModal> */}
-
 				{socket?.current != null && (
 					<video className="remote-video" id="remote-video" ref={remoteVideo} autoPlay></video>
 				)}

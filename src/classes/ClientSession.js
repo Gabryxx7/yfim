@@ -1,8 +1,9 @@
 import React, { createContext, useReducer, useCallback } from "react";
-import {TimedEvent} from "./TimedEvent.js";
+import { TIMES } from '../managers/Definitions.js';
+import { Timer } from "../managers/Timer.js"
 
 
-class ClientSession extends TimedEvent{
+class ClientSession extends Timer{
    static Actions = {
       INCREMENT_COUNTER: "INCREMENT_COUNTER",
       UPDATE_USER: "UPDATE_USER",
@@ -26,8 +27,8 @@ class ClientSession extends TimedEvent{
       }
       return session;
     }
-   constructor(name="TimedEventID", updateInterval=1000) {
-      super(name, updateInterval)
+   constructor() {
+      super(TIMES.SESSION_UPDATE_INTERVAL)
       this.user = {};
       this.room = {};
    }

@@ -173,7 +173,7 @@ class User {
 		// this.socket.broadcast.to(room).emit("hangup");
 		// console.log(`Sockets in room ${this.roomToString(this.nsManager.nsio, this.room.id)}`)
 		// clearInterval(timmer);
-		this.room?.session.onProcessStop("test", `${this} Disconnected`);
+		this.room?.session.stop("test", `${this} Disconnected`);
 	}
 
 	printRooms(namespace, roomId = null) {
@@ -286,7 +286,7 @@ class User {
 		// console.log(`room ${room} is idle now`);
 		this.room.session.controlnsManager.nsio.to(this.room.id).emit(CMDS.SOCKET.ROOM_IDLE);
 		console.info("- room idle: " + this.room + " -> initiate process stop");
-		// this.room.session.onProcessStop(room, `${this} RoomIdle`);
+		// this.room.session.stop(room, `${this} RoomIdle`);
 	}
 
 	surveyConnect(data) {
@@ -342,7 +342,7 @@ class User {
 		if (this.room != null) {
 			const { room } = data;
 			console.info("- resetting room: " + this.room);
-			this.room.session.onProcessStop(room, `${this} RESET`);
+			this.room.session.stop(room, `${this} RESET`);
 		}
 	}
 
