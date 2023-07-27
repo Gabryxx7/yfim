@@ -2,7 +2,7 @@ import React from "react";
 import ToolBar from "../components/ToolBar";
 import { Typography } from "@mui/material";
 import io from "socket.io-client";
-import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
+import { CMDS, DATA} from '../managers/Definitions.js'
 
 const useStyles = makeStyles((theme) => ({
   toolBar: {

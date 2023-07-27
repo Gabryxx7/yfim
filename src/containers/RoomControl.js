@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { Link } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
-import Switch from "../components/Switch";
 import { Slider } from "@mui/material";
 import ReactFileReader from "react-file-reader";
-import GYModal from "../components/Modal";
 import Select from "react-select";
-import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
+import GYModal from "../components/Modal.js";
+import Switch from "../components/Switch.js";
+import { CMDS, DATA} from '../managers/Definitions.js'
+import FileSaver from "file-saver";
 
 const colourStyles = {
   option: (styles, { data, isDisabled, isFocused, isSelected }) => {
@@ -130,7 +131,6 @@ const initState = {
     recording: false,
   },
 };
-var FileSaver = require("file-saver");
 
 export default function RoomControl(props) {
   const [params, setParams] = useState(initState);
@@ -141,7 +141,7 @@ export default function RoomControl(props) {
   const [maskConfig, setMaskConfig] = useState(null);
   const classes = useStyles();
   const room = props.match.params.room;
-  const socket_url = `/${NAMESPACES.CONTROL}`;
+  const socket_url = `/${CMDS.NAMESPACES.CONTROL}`;
   const socket = io(socket_url, {
     autoConnect: false
   });
@@ -149,13 +149,13 @@ export default function RoomControl(props) {
     console.log(`Connecting to socket ${socket_url}`)
     socket.connect();
     console.log(socket)
-    socket.emit(SOCKET_CMDS.CONTROL_ROOM, { room: room });
+    socket.emit(CMDS.SOCKET.CONTROL_ROOM, { room: room });
     socket.on("process-in-progress", (data) => {
       console.log(data);
       let time_diff = data.time_diff;
       alert(`process in ongoing, ${time_diff} seconds left`);
     });
-    socket.on(SOCKET_CMDS.PROCESS_STOP, () => {
+    socket.on(CMDS.SOCKET.PROCESS_STOP, () => {
       alert("process stop");
     });
   }, []);
@@ -194,7 +194,7 @@ export default function RoomControl(props) {
       },
     };
     console.log(data);
-    socket.emit(SOCKET_CMDS.CONTROL, data);
+    socket.emit(CMDS.SOCKET.CONTROL, data);
   }
 
   function onProcessStart() {
@@ -207,7 +207,7 @@ export default function RoomControl(props) {
     }
     console.log(cfg);
     if (maskOption != null && selectedOption != null) {
-      socket.emit(SOCKET_CMDS.PROCESS_CONTROL, {
+      socket.emit(CMDS.SOCKET.PROCESS_CONTROL, {
         room: room,
         cfg: cfg,
         topic: selectedOption.value,
@@ -219,13 +219,13 @@ export default function RoomControl(props) {
 
   function onForceStart() {
     console.log("force process start, asking for ready");
-    socket.emit(SOCKET_CMDS.PROCESS_READY, {
+    socket.emit(CMDS.SOCKET.PROCESS_READY, {
       room: room,
       user: 'host',
       // rating: rating,
       // record: record
     });
-    socket.emit(SOCKET_CMDS.PROCESS_READY, {
+    socket.emit(CMDS.SOCKET.PROCESS_READY, {
       room: room,
       user: 'guest',
       // rating: rating,

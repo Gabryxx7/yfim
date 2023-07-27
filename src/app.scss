@@ -1,12 +1,14 @@
-body,
-input,
-button {
-  font-size: 1.6vw;
-  margin: 0;
-  font-family: Sans-Serif;
-  background-color: #111;
-}
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Montserrat:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
+@import './style/survey';
+@import './style/toasts';
+@import './style/intro';
+@import './style/sidebar';
+@import './style/videos';
+
+@keyframes blinker {  
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
 
 @font-face {
   font-family: 'Roboto', sans-serif;
@@ -28,6 +30,16 @@ button {
     font-size: 1em;
   }
 }
+
+body,
+input,
+button {
+  font-size: 1.1rem;
+  margin: 0;
+  font-family: Sans-Serif;
+  background-color: #121212;
+}
+
 input:focus,
 button:focus {
   outline: 0;
@@ -53,59 +65,6 @@ input[type="checkbox"] {
   transform: scale(2);
   padding: 10px;
   margin-inline: 10px;
-}
-
-.sv_main {
-  font-size: 15px;
-  background-color: black;
-}
-.sv_body {
-  background-color: black;
-}
-.sv_main .sv_container .sv_body {
-  padding: 1em 1em 1.6428em 1em;
-  background-color: black;
-}
-.sv_main .sv_container .sv_body .sv_p_root .sv_page_title {
-  font-size: 0;
-  background-color: black;
-}
-.sv_main.sv_default_css .sv_p_root > .sv_row:nth-child(2n) {
-  background-color: black;
-  border: black;
-}
-.sv_main.sv_default_css .sv_p_root > .sv_row:nth-child(2n + 1) {
-  background-color: black;
-  border: black;
-}
-.sv_complete_btn {
-  height: 60px;
-  font-size: 25px;
-}
-.sv_p_root {
-  background-color: black;
-}
-.sv_custom_header {
-  background-color: black;
-}
-.sv_row {
-  font-size: 1.5em;
-  background-color: black;
-  color: white;
-  border-color: black;
-}
-.sv_nav {
-  padding: 1em 0;
-  min-height: 2em;
-  background-color: black;
-}
-.sv_main input[type="button"],
-.sv_main button {
-  width: 100%;
-  margin: 0 auto;
-  background-color: white;
-  color: black;
-  font-size: 20px;
 }
 
 .checkboxtext {
@@ -190,44 +149,6 @@ input[type="checkbox"] {
   width: 100%;
   height: 100%;
 }
-.guest-hangup .auth .you-left {
-  display: inline;
-}
-.full .room-occupied,
-.host-hangup .auth .remote-left,
-.recent-room {
-  display: block;
-}
-.recent-room {
-  color: #4285f4;
-  margin: 1ex 1em;
-}
-.remote-video {
-  display: block;
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: cover;
-}
-.local-video {
-  max-height: 100%;
-  max-width: 100%;
-  right: 0;
-  top: 0;
-  object-fit: cover;
-  transition: all 0.3s;
-}
-.established .local-video {
-  top: -8rem;
-  right: 1rem;
-  margin: 0.5rem;
-  max-height: 12rem;
-  max-width: 12rem;
-  height: auto;
-  width: auto;
-  z-index: 35;
-  border-radius: 6px;
-  box-shadow: 0px 0px 12px 5px #212020a1;
-}
 .canvas {
   position: absolute;
   height: 100%;
@@ -238,90 +159,56 @@ input[type="checkbox"] {
 .consent_form {
   z-index: 20;
   text-align: left;
-  background-color: black;
+  background-color: #121212;
   margin: auto;
   font-size: 20px;
 }
-.survey_topic {
-  // overflow: scroll;
+.intro-container{
   position: absolute;
-  height: 100%;
-  width: 100%;
-  z-index: 20;
-  text-align: center;
-  background-color: black;
-  margin: auto;
-}
-
-.survey_topic_container {
-  width: 50%;
-  margin: 0 auto;
-}
-.survey_diable_checkbox {
-  text-align: left;
-  margin: 10px;
-  color: grey;
-}
-.survey_checkbox {
-  text-align: left;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-.survey_ready_button {
-  background-color: white;
-  color: black;
-  width: 100%;
-  height: 50px;
-  margin-top: 20px;
-}
-.survey_topic_head {
-  color: white;
-  font-size: 40px;
-  margin: 0 auto;
-  font-weight: bold;
-  padding: 50px;
-}
-.survey_topic_text {
-  color: white;
-  font-size: 20px;
-  margin: 0 auto;
-  font-weight: bold;
-}
-
-.topic {
-  position: absolute;
-  font-family: 'Montserrat';
   display: flex;
-  flex-direction: column;
   place-content: center;
   place-items: center;
-  width: 80%;
-  z-index: 20;
-  text-align: center;
-  margin: auto;
-  // top: 50%;
-  left: 0;
+  z-index: 80;
+  top: 0;
+  bottom: 0;
   right: 0;
-  padding: 3rem 1rem;
-  box-sizing: border-box;
-  backdrop-filter: blur(25px);
-  background-color: #0000009c;
-  border-radius: 14px;
-  box-shadow: 0px 0px 8px 3px rgba(36,36,36,.368627451);
+  left: 0;
+  &:not(.none){
+    display: none;
+  }
+
+  .intro {
+    width: 70%;
+    font-family: "Montserrat";
+    display: flex;
+    gap: 3rem;
+    flex-direction: column;
+    place-content: center;
+    place-items: center;
+    text-align: center;
+    padding: 5rem 6rem 4rem 6rem;
+    box-sizing: border-box;
+    backdrop-filter: blur(25px);
+    background-color: rgba(0, 0, 0, 0.6117647059);
+    border-radius: 14px;
+    box-shadow: 0px 0px 8px 3px rgba(36, 36, 36, 0.368627451);
+
+    * {
+      width: 100%;
+      color: #fff;
+      margin: 0;
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: bold;
+    }
+    .text {
+      font-size: 1.3rem;
+    }
+  }
 }
 
-.topic_head {
-  color: #fff;
-  font-size: 3rem;
-  margin: 0 auto;
-  font-weight: bold;
-  padding: 2rem;
-}
-.topic_text {
-  color: #fff;
-  font-size: 1.3rem;
-  margin: 0 auto;
-}
 .chatblock {
   position: absolute;
   height: 40%;
@@ -333,7 +220,6 @@ input[type="checkbox"] {
   text-align: left;
 }
 .timer {
-  font-size: 2em;
   box-sizing: border-box;
   // backdrop-filter: blur(25px);
   // background-color: #000000ca;
@@ -344,97 +230,21 @@ input[type="checkbox"] {
   place-items: center;
   place-content: center;
 }
-.sidebar_container {
-  max-height: 20vh; //Initially hidden
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  display: flex;
-  position: relative;
-  top: 0;
-  flex-direction: column;
-  place-items: center;
-  place-content: center;
-  width: 100vw;
-  z-index: 30;
-  /* height: 15vh; */
-  text-align: center;
-  // padding: 1rem 0.5rem 0.5rem 11rem; //Remote video on the left
-  padding: 1rem 11rem 0.5rem 0.5rem; // Remote video on the right
-  box-sizing: border-box;
-  backdrop-filter: blur(25px);
-  background-color: #000000ca;
-  font-size: 1.2rem;
-  // border-radius: 14px;
-  box-shadow: 0px 0px 8px 3px #2424245e;
 
-  & > * {
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    &::after{
-      content: "";
-      position: absolute;
-      bottom: 0;
-      width: 90%;
-      height: 0.8px;
-      background-color: #a4a4a470;
-    }
-    &:first-child{
-      padding-top: 0;
-      padding-bottom: 1rem;
-    }
-    &:last-child{
-      padding-top: 1rem;
-      padding-bottom: 0;
-      &::after{
-        display: none;
-      }
-    }
-  }
-
-  .info{
-    font-family: "Fira Code";
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-auto-flow: row;
-    place-content: space-evenly;
-    place-items: center;
-    width: 100%;
-    font-size: 0.8em;
-    position: relative;
-  }
-
-  .sidebar_prompt{
-    font-family: 'Montserrat', sans-serif;
-    display: flex;
-    place-content: center;
-    place-items: center;
-    font-size: 1.8rem;
-    font-weight: 500;
-  }
-  .sidebar_foot {
-    position: relative;
-    width: 80%;
-    font-size: 1rem;
-    text-align: center;
-    display: flex;
-    place-content: center;
-    place-items: center;
-    flex-direction: column;
-    height: 100%;
-    gap: 0.15rem;
-    & > span{
-      margin-right: 1rem;
-    }
-  }
+.hidden {
+  max-height: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transition: all 0.2s;
 }
 
 .survey-container{
   background-size: cover;
-  position: absolute;
-  top: 16vh;
+  position: relative;
+  // top: 16vh;
   z-index: 19;
-  background-color: rgba(0,0,0,0.2);
-  backdrop-filter: blur(10px);
+  // background-color: rgba(0,0,0,0.2);
+  // backdrop-filter: blur(10px);
 }
 
 .main-call-container,
@@ -462,6 +272,21 @@ input[type="checkbox"] {
       display: none;
     }
   }
+  .live-icon {
+    font-size: 1.1rem;
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 40;
+    animation: none;
+    color: #d3d3d35c;
+  }
+  &.established{
+    .live-icon {
+      animation: blinker 1.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;  
+      color: red;
+    }
+  }
 }
 
 .media-bridge{
@@ -469,16 +294,10 @@ input[type="checkbox"] {
   display: flex;
   place-items: center;
   place-content: center;
-  height: 100vh;
-  width: 100vw;
-}
-
-.local-video,
-.remote-video {
-  position: absolute;
   height: 100%;
   width: 100%;
 }
+
 .auth {
   position: fixed;
   bottom: 0;
@@ -494,13 +313,8 @@ input[type="checkbox"] {
   z-index: 30;
   position: absolute;
 }
-.sv_window {
-  position: fixed;
-  top: 20px;
-  right: 10px;
-  width: 25%;
-}
 .primary-button {
+  border-radius: 4px;
   text-decoration: none;
   display: inline-block;
   cursor: pointer;
@@ -508,15 +322,26 @@ input[type="checkbox"] {
   border: none;
   color: white;
   font-size: 0.9em;
-  margin: 0 5px 20px 5px;
-  width: 8em;
+  // margin: 0 5px 20px 5px;
+  width: 7em;
   line-height: 3ex;
   padding: 1ex 0.7em;
   text-align: center;
   -webkit-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   -moz-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
   box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
-  &.confirm{
+  &.disabled{
+    background-color: #707b8e;
+    color: #c5c5c5;
+    cursor: default;
+    &:hover{
+      filter: none;
+    }
+  }
+  &:hover{
+    filter: brightness(0.6);
+  }
+  &.accept{
     background-color: mediumseagreen;
   }
   &.reject{
@@ -536,7 +361,6 @@ input[type="checkbox"] {
 .room-occupied,
 .request-access,
 .waiting,
-.request-access,
 .grant-access,
 .waiting {
   overflow: hidden;
@@ -546,7 +370,7 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
   /* Initially we don't want any height, and we want the contents to be hidden */
-  max-height: 0;
+  // max-height: 0;
   transition: max-height 0.3s ease;
 }
 .full .auth .room-occupied,
@@ -615,6 +439,65 @@ input[type="checkbox"] {
   width: 100%;
 }
 
-.sd-imagepicker{
-  flex-wrap: nowrap;
+
+main, .main-room{
+  position: relative;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  place-content: center;
+  place-items: center;
+  justify-content: center;
+  justify-items: center;
+  // width: 80vw;
+  width: 100vw;
+}
+.main-room{
+  height: 100vh;
+}
+
+.intro-form form {
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+  /* height: 20%; */
+  place-content: center;
+  place-items: center;
+  label{
+    font-size: 1.8rem;
+    font-weight: 500;
+  }
+  input[type="text"]{
+    text-align: center;
+    font-size: 2rem;
+    transition: all 0.2s ease-in;
+    width: 80% !important;
+    max-width: none !important;
+    font-weight: 100;
+    margin: 0;
+    &:focus{
+      border-bottom-color: white !important
+    }
+    &:disabled {
+      color: #737373;
+      opacity: 0.6;
+    }
+  }
+  input[type="submit"], input[type="button"]{
+    background-color: rgb(148, 146, 200, 0.15);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.8);
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    width: 40% !important;
+    box-shadow: none;
+    padding: 1rem 0.5rem;
+    &:hover{
+      box-shadow: none;
+      background-color: rgba(255,255,255,0.2);
+    }
+
+  }
 }

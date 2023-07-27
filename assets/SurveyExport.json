@@ -1,0 +1,292 @@
+{
+   "showProgressBar": "top",
+   "progressBarType": "questions",
+   "widthMode": "static",
+   "width": "864px",
+   "pages": [
+      {
+         "title": "Emotional Self-Assessment",
+         "description": "Please anser the following questions considering how **YOU** felt",
+         "name": "Emotional Self-Assessment",
+         "elements": [
+            {
+               "title": "My emotion right before doing this survey was",
+               "type": "panel",
+               "name": "Self-Assessment Q1.1-2",
+               "elements": [
+                  {
+                     "name": "Self-Assessment Q1.1-2 valence",
+                     "type": "rating",
+                     "isRequired": true,
+                     "title": "My emotion right before doing this survey was",
+                     "rateMin": -3,
+                     "rateMax": 3,
+                     "minRateDescription": "Very Negative",
+                     "maxRateDescription": "Very Positive",
+                     "titleLocation": "hidden"
+                  },
+                  {
+                     "name": "Self-Assessment Q1.1-2 arousal",
+                     "type": "rating",
+                     "isRequired": true,
+                     "title": "My emotion right before doing this survey was",
+                     "rateMin": -3,
+                     "rateMax": 3,
+                     "minRateDescription": "Very Calm",
+                     "maxRateDescription": "Very Excited",
+                     "titleLocation": "hidden"
+                  }
+               ]
+            },
+            {
+               "name": "Self-Assessment Q1.3 attention",
+               "type": "rating",
+               "isRequired": true,
+               "title": "My attention level to my ongoing task right before doing this survey could be rated as",
+               "rateMin": -3,
+               "rateMax": 3,
+               "minRateDescription": "Very Bored",
+               "maxRateDescription": "Very Engaged"
+            },
+            {
+               "name": "Self-Assessment Q1.4 stress",
+               "type": "rating",
+               "isRequired": true,
+               "title": "My stress level right before doing this survey was",
+               "rateMin": -3,
+               "rateMax": 3,
+               "minRateDescription": "Not Stressed At All",
+               "maxRateDescription": "Very Stressed"
+            },
+            {
+               "name": "Self-Assessment Q1.5 emotion_duration",
+               "type": "rating",
+               "isRequired": true,
+               "title": "My emotion that I answered above has not changed for recent __ minutes.",
+               "rateValues": [
+                  {
+                     "value": -3,
+                     "text": "5min"
+                  },
+                  {
+                     "value": -2,
+                     "text": "10min"
+                  },
+                  {
+                     "value": -1,
+                     "text": "15min"
+                  },
+                  {
+                     "value": 0,
+                     "text": "20min"
+                  },
+                  {
+                     "value": 1,
+                     "text": "30min"
+                  },
+                  {
+                     "value": 2,
+                     "text": "60min"
+                  },
+                  {
+                     "value": 3,
+                     "text": "I am not sure"
+                  }
+               ]
+            },
+            {
+               "name": "Self-Assessment Q1.6 task_disturbance",
+               "type": "rating",
+               "isRequired": true,
+               "title": "Answering this survey disturbed my ongoing task",
+               "rateMin": -3,
+               "rateMax": 3,
+               "minRateDescription": "Not Disturbed At All",
+               "maxRateDescription": "Very Disturbed"
+            },
+            {
+               "name": "Self-Assessment Q1.7 emotion_change",
+               "type": "rating",
+               "isRequired": true,
+               "title": "How did your emotions change while you are answering the survey now?",
+               "rateMin": -3,
+               "rateMax": 3,
+               "minRateDescription": "I Felt More Negative",
+               "maxRateDescription": "I Felt More Positive"
+            }
+         ]
+      },
+      {
+         "title": "Assessment Of Your Partner",
+         "description": "Please anser the following questions considering how you think **YOUR CONVERSATION PARTNER** felt",
+         "name": "Assessment Of Your Partner",
+         "elements": [
+            {
+               "title": "My conversation partner's emotion right before doing this survey was",
+               "type": "panel",
+               "name": "Other-Assessment Q1.1-2",
+               "elements": [
+                  {
+                     "name": "Other-Assessment Q1.1-2 valence",
+                     "type": "rating",
+                     "isRequired": true,
+                     "title": "My conversation partner's emotion right before doing this survey was",
+                     "rateMin": -3,
+                     "rateMax": 3,
+                     "minRateDescription": "Very Negative",
+                     "maxRateDescription": "Very Positive",
+                     "titleLocation": "hidden"
+                  },
+                  {
+                     "name": "Other-Assessment Q1.1-2 arousal",
+                     "type": "rating",
+                     "isRequired": true,
+                     "title": "My conversation partner's emotion right before doing this survey was",
+                     "rateMin": -3,
+                     "rateMax": 3,
+                     "minRateDescription": "Very Calm",
+                     "maxRateDescription": "Very Excited",
+                     "titleLocation": "hidden"
+                  }
+               ]
+            },
+            {
+               "name": "Other-Assessment Q1.3 attention",
+               "type": "rating",
+               "isRequired": true,
+               "title": "My conversation partner's attention level to my ongoing task right before doing this survey could be rated as",
+               "rateMin": -3,
+               "rateMax": 3,
+               "minRateDescription": "Very Bored",
+               "maxRateDescription": "Very Engaged"
+            },
+            {
+               "name": "Other-Assessment Q1.4 stress",
+               "type": "rating",
+               "isRequired": true,
+               "title": "My conversation partner's stress level right before doing this survey was",
+               "rateMin": -3,
+               "rateMax": 3,
+               "minRateDescription": "Not Stressed At All",
+               "maxRateDescription": "Very Stressed"
+            },
+            {
+               "name": "Other-Assessment Q1.5 emotion_duration",
+               "type": "rating",
+               "isRequired": true,
+               "title": "My conversation partner's emotion that I answered above has not changed for recent __ minutes.",
+               "rateValues": [
+                  {
+                     "value": -3,
+                     "text": "5min"
+                  },
+                  {
+                     "value": -2,
+                     "text": "10min"
+                  },
+                  {
+                     "value": -1,
+                     "text": "15min"
+                  },
+                  {
+                     "value": 0,
+                     "text": "20min"
+                  },
+                  {
+                     "value": 1,
+                     "text": "30min"
+                  },
+                  {
+                     "value": 2,
+                     "text": "60min"
+                  },
+                  {
+                     "value": 3,
+                     "text": "I am not sure"
+                  }
+               ]
+            },
+            {
+               "name": "Other-Assessment Q1.6 task_disturbance",
+               "type": "rating",
+               "isRequired": true,
+               "title": "Answering this survey disturbed my conversation partner's ongoing task",
+               "rateMin": -3,
+               "rateMax": 3,
+               "minRateDescription": "Not Disturbed At All",
+               "maxRateDescription": "Very Disturbed"
+            }
+         ]
+      },
+      {
+         "title": "General Feedback",
+         "name": "General Feedback",
+         "elements": [
+            {
+               "type": "rating",
+               "name": "Other-Inteface",
+               "title": "The interface helped me make sense of my conversation partner's emotions",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            },
+            {
+               "type": "rating",
+               "name": "Other-Empathy",
+               "title": "I was able to empathise with my conversation partner's point of view",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            },
+            {
+               "type": "rating",
+               "name": "Other-Convey",
+               "title": "I was able to convey my opinion effectively to my conversation partner",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            },
+            {
+               "type": "rating",
+               "name": "Self-FreeExpression",
+               "title": "I felt free to express my (assigned) point of view",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            },
+            {
+               "type": "rating",
+               "name": "Self-PartnersEmpathy",
+               "title": "I felt like my conversation partner was empathising with my point of view",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            },
+            {
+               "type": "rating",
+               "name": "Self-DiscussionUseful",
+               "title": "The discussion helped me see a new aspect regarding the topic",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            },
+            {
+               "type": "rating",
+               "name": "General-PartnersEmpathy",
+               "title": "I felt like my conversation partner was empathising with my point of view",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            },
+            {
+               "type": "rating",
+               "name": "General-DiscussionUseful",
+               "title": "The discussion helped me see a new aspect regarding the topic",
+               "minRateDescription": "Strongly disagree",
+               "maxRateDescription": "Strongly agree",
+               "isRequired": true
+            }
+         ]
+      }
+   ]
+}

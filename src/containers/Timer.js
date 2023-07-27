@@ -1,44 +1,67 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import {timeColorMapDefault} from "../components/TimedEvent"
+import { timeColorMapDefault, getTimerColor } from "../classes/TimedEvent.js"
+import { STAGE } from "../managers/Definitions.js"
+
+const TIMER_STATE = {
+  NONE: "none",
+  RUNNING: "running",
+  PAUSED: "paused",
+  STOPPED: "stopped",
+};
 
 export default function Timer(props){
-  const duration = props.duration ?? null;
+  const active = props.active ?? true;
+  const elapsed = props.elapsed ?? null;
+  const timeLimit = props.duration ?? null;
   const countdown = props.countdown ?? false;
   const timeColorMap = props.timeColorMap ?? timeColorMapDefault;
   const [textColor, setTextColor]  = useState(timeColorMap[timeColorMap.length-1].color);
   const [timeString, setTimeString] = useState("00:00")
+  const onTimerEnd = props.onTimerEnd ?? (() => {});
+  const stageState = props.stageState ?? null; // Used to set the timer's state externally
+  const [timerState, setTimerState] = useState(TIMER_STATE.NONE)
 
-  const updateColor = (remaining) => {
-    for(let interval of timeColorMap){
-      if(interval.conditionFun(remaining)){
-        setTextColor(interval.color);
-        return;
-      }
+  const formatTime = (time) => {
+    if(time >= 0){
+      const mins = `${Math.floor((time / 60) % 60)}`.padStart(2, "0");
+      const secs = `${Math.floor((time) % 60)}`.padStart(2, "0");
+      return `${mins}:${secs}`;
     }
   }
-  const updateTimer = (elapsed) => {
-    var totalTime = elapsed;
-    if(duration){
-      var remaining = duration - elapsed;
-      if(countdown){
-        totalTime = remaining
-      }
-      updateColor(remaining)
-    }
-    if(totalTime >= 0){
-      const mins = `${Math.floor((totalTime / 60) % 60)}`.padStart(2, "0");
-      const secs = `${Math.floor((totalTime) % 60)}`.padStart(2, "0");
-      setTimeString(`${mins}:${secs}`)
-    }
-  };
 
   useEffect(() => {
-    updateTimer(props.timeRef);
-  }, [props.timeRef]);
+    if(stageState.state == STAGE.STATUS.COMPLETED){
+      setTimerState(TIMER_STATE.STOPPED);
+    }
+    if(stageState.state == STAGE.STATUS.IN_PROGRESS){
+      setTimeString("00:00")
+      setTimerState(TIMER_STATE.RUNNING);
+    }
+  }, [stageState])
+
+  useEffect(() => {
+    if(!active){
+      setTimeString("Waiting...")
+    }
+    if(timerState != TIMER_STATE.RUNNING) return;
+    var time = elapsed;
+    if(timeLimit > 0){
+      var remaining = timeLimit - elapsed
+      if(countdown){
+        time = remaining;
+      }
+      setTextColor(getTimerColor(time, timeColorMap))
+      if(remaining <= 0){
+        onTimerEnd();
+        setTimerState(TIMER_STATE.STOPPED);
+      }
+    }
+    setTimeString(formatTime(time))
+  }, [elapsed]);
 
   return (
-    <div className="timer" style={{color: `${textColor}`}}>
+    <div className={`timer ${timerState}`} style={{color: `${textColor}`}}>
       {timeString}
     </div>
   );

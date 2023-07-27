@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactJson from "react-json-view";
 import io from "socket.io-client";
-import { SOCKET_CMDS, DATA_TYPES, NAMESPACES } from '../managers/SocketCommands'
+import { CMDS, DATA} from '../managers/Definitions.js'
 
 var headers = new Headers();
 
@@ -15,8 +15,8 @@ export default function (props) {
   const [data_show, setData_show] = useState();
   const [data_num, setData_num] = useState(0);
   useEffect(() => {
-    const socket = io.connect(`/${NAMESPACES.CONTROL}`);
-    socket.emit(SOCKET_CMDS.DATA_CONNECT);
+    const socket = io.connect(`/${CMDS.NAMESPACES.CONTROL}`);
+    socket.emit(CMDS.SOCKET.DATA_CONNECT);
     socket.on("data-retrieve", (data) => {
       setResult(data);
       const len = data.length;

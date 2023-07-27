@@ -113,7 +113,7 @@ const Communication = (props) => (
       </form>
     </div>
     <div className="grant-access">
-      <p>A peer has sent you a message to join the room:</p>
+      <p>A peer is requesting to join your room:</p>
       <div>{props.message}</div>
       <button
         onClick={props.handleInvitation}
@@ -125,7 +125,7 @@ const Communication = (props) => (
       <button
         onClick={props.handleInvitation}
         data-ref="accept"
-        className="primary-button confirm"
+        className="primary-button accept"
       >
         Accept
       </button>
@@ -154,7 +154,7 @@ Communication.propTypes = {
   toggleVideo: PropTypes.func.isRequired,
   toggleAudio: PropTypes.func.isRequired,
   send: PropTypes.func.isRequired,
-  handleHangup: PropTypes.func.isRequired,
+  // handleHangup: PropTypes.func.isRequired,
   handleInput: PropTypes.func.isRequired,
   handleInvitation: PropTypes.func.isRequired,
 };

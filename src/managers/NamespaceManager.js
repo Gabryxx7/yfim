@@ -1,16 +1,16 @@
 
-const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('../managers/SocketCommands');
-const { Room } = require('../managers/Room')
-const { User } = require('../managers/User')
-const { console  } = require("../utils/colouredLogger")
+import { CMDS, DATA} from './Definitions.js';
+import Room from '../managers/Room.js';
+import { User } from '../managers/User.js';
+import console from "../utils/colouredLogger.js";
 
 class NamespaceManager {
-    constructor(sio, name, namespace, sessionManager, socketClass=null, onConnectionHandler=null) {
+    constructor(sio, name, namespace, sessionManager, userClass=null, onConnectionHandler=null) {
         this.sio = sio;
         this.name = name;
         this.namespace = namespace;
         this.sessionManager = sessionManager;
-        this.socketClass = socketClass;
+        this.userClass = userClass;
         this.onConnectionHandler = onConnectionHandler;
         this.started = false;
         this.connections = []
@@ -22,13 +22,13 @@ class NamespaceManager {
 
     onConnection(socket){
         console.info(`+ New socket connection! ID: ${socket.id}\t Connected to ${this.name} Namespace ${this.namespace}`);
-        socket.emit(SOCKET_CMDS.HELLO);
+        socket.emit(CMDS.SOCKET.HELLO);
         if(this.onConnectionHandler != null){
             this.onConnectionHandler(socket);
             return;
         }
-        if(this.socketClass != null){
-            let socketManager = new this.socketClass(socket, this, this.sessionManager);
+        if(this.userClass != null){
+            let socketManager = new this.userClass(socket, this);
             console.info(`\t+ Adding new socket manager of class ${socketManager.constructor.name} to ${this.name} connections`)
             this.connections.push();
         }
@@ -39,7 +39,7 @@ class NamespaceManager {
 
     createRoom(roomId){
         // this.rooms[roomId] = new Room(roomId, this.nsio, 2);
-        this.rooms[roomId] = new Room(roomId, this.nsio);
+        this.rooms[roomId] = new Room(roomId, this);
         this.rooms[roomId].onRoomFull = (room) => {
             // console.info(`Starting session on room ${room.id}`);
             // this.sessionManager.startSession(room);
@@ -67,4 +67,4 @@ class NamespaceManager {
 
 }
 
-module.exports = { NamespaceManager }
+export default NamespaceManager;

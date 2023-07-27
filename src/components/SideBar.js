@@ -1,80 +1,182 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import Timer from "../containers/Timer";
+import { useState, useEffect, useRef, useContext } from 'react';
+import Timer from "../containers/Timer.js";
+import { SessionContext } from "../classes/ClientSession.js";
+import { STAGE, USER } from '../managers/Definitions.js'
+import ProgressBar from './Progressbar.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import '@fortawesome/fontawesome-free'
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {far} from '@fortawesome/free-regular-svg-icons'
+import {fas} from '@fortawesome/free-solid-svg-icons'
+import {fab} from '@fortawesome/free-brands-svg-icons'
+library.add(far,fas,fab);
+
+const StatusIconMap = (status) => {
+  const style = 'fa';
+  let faIcon = {};
+  let compStyle = {};
+  switch(status){
+    case USER.STATUS.NONE:{
+      faIcon = [style, 'x'];
+      compStyle= {color: 'red'};
+      break;
+    }
+    case USER.STATUS.IN_SESSION:{
+      faIcon = [style, 'clock'];
+      compStyle= {color: 'white'};
+      break;
+    }
+    case USER.STATUS.READY:{
+      faIcon = [style, 'check'];
+      compStyle= {color: 'green'};
+      break;
+    }
+  }
+  return <FontAwesomeIcon style={{...compStyle}} icon={faIcon} />
+}
+
+const RoomUser = (props) => {
+  return(
+    <div className="room-user">
+      <div className="status"> {StatusIconMap(props.user?.status)}</div>
+      <div className="name">{props.user?.name}</div>
+    </div>
+  )
+}
+
+const RoomInfo = (props) => {
+  return(
+    <div className="room-info">
+      <div className="room-name">{props.room?.id}</div>
+      <div className="users-list">
+        {props.room?.users?.map((user) => <RoomUser key={USER.id} user={user}/>)}
+      </div>
+    </div>)
+}
+
+const SidebarTesting = (props) => {
+  const stageData = props.stageData ?? {};
+  const stageState = props.stageState ?? {};
+  const userData = props.userData ?? {};
+  const roomData = props.roomData ?? {};
+  const onSkipClicked = props.onSkipClicked ?? (() => {});
+  return(
+    <div className="meta-info">
+      <RoomInfo room={roomData} />
+      <div className="user-info">
+        <div>{userData.name} ({userData.role})</div>
+        <div>{stageData.stageType} - {stageData.topic}</div>
+        <div>{stageData.sessionId}</div>
+      </div>
+        <div
+          className={`primary-button ${stageState.state == STAGE.STATUS.COMPLETED ? 'disabled': ''}`}
+          style={{
+            padding: '0.5rem 0rem'
+          }}
+          onClick={onSkipClicked}>Skip</div>
+      {/* <div className="room-info">
+        <div>Waiting for your partner...</div>
+      </div> */}
+    </div>
+  )
+}
 
 export default function SideBar(props) {
+	const sessionMap = useContext(SessionContext);
+  const socket = props.socket;
+  const [sessionRunning, setSessionRunning] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [duration, setDuration] = useState(0)
-  const [stageInfo, setStageInfo] = useState({
-    sidePrompt: props.state?.side_prompt,
-    user: props.state?.user_role,
-    currentStageIdx: props.state?.session?.data?.stage?.currentIdx,
-    currentStageName: props.state?.session?.data?.stage?.name,
-    totalStages: props.state?.session?.data?.stage?.totalStages,
-  })
+  const prompt = props.prompt ?? "PROMPT";
+  const onTimerEnd = props.onTimerEnd ?? (() => {});
+  const onSkipClicked = props.onSkipClicked ?? (() => {});
+  const stageState = props.stageState;
+  const userData = props.userData ?? {};
+  const roomData = props.roomData ?? {};
+  const [stageData, setStageData] = useState({});
 
-  props.state?.session?.addOnUpdate((session) => {
-    setTimeElapsed(session.timeElapsed)
-  });
-  var sidePadding = "11rem";
-  var remoteVideoSide = "right";
-  const barPadding = `1rem ${remoteVideoSide == 'right' ? sidePadding : '0.5rem'} 0.5rem ${remoteVideoSide != "right" ? sidePadding : '0.5rem'}`
-  
+  // var sidePadding = "11rem";
+  // var remoteVideoSide = "right";
+  // let barPadding = `1rem ${remoteVideoSide == 'right' ? sidePadding : '0.5rem'} 0.5rem ${remoteVideoSide != "right" ? sidePadding : '0.5rem'}`
+  let barPadding = "0.5rem 1rem";
   useEffect(() => {
-    // console.log("Sidebar STATE update!");
-    setTimeElapsed(props.state?.session?.timeElapsed);
-    setDuration(props.state?.session?.data?.stage?.duration);
-    setStageInfo({
-      sidePrompt: props.state?.side_prompt,
-      user: props.state?.user_role,
-      currentStageIdx: props.state?.session?.data?.currentStage,
-      currentStageName: props.state?.session?.data?.stage?.name,
-      totalStages: props.state?.session?.data?.totalStages,
-    })
-    // console.log(props.state.session)
-  }, [props.state]);
+		console.log("Sidebar re-render");
+    sessionMap.session.addOnStart((session) => {
+      setSessionRunning(true);
+      console.log("Session started sidebar: ", session.data)
+      const stageType = session.data?.stage?.step?.type;
+      setStageData({...stageData,
+        sessionId: session.data?.sessionId,
+        index: session.data?.stage?.index,
+        name: session.data?.stage?.step?.name,
+        totalStages: session.data?.stages,
+        stageType: stageType,
+        topic: session.data?.stage?.topic
+      });
+      const newDuration = session.data?.stage?.step?.duration;
+      console.log("duration ", newDuration);
+      setDuration(newDuration);
+    });
+    sessionMap.session.addOnUpdate((session) => {
+      setTimeElapsed(session.timeElapsed);
+    });
+  }, [])
+
+  useEffect(() => {
+		console.log("Sidebar stage update");
+  }, [stageState])
+  // useEffect(() => {
+  //   // console.log("Sidebar STATE update!");
+  //   // setStageData({
+  //   //   prompt: props.state?.side_prompt,
+  //   //   user: props.state?.user_role,
+  //   //   index: props.state?.session?.data?.currentStage,
+  //   //   name: props.state?.session?.data?.stage?.name,
+  //   //   totalStages: props.state?.session?.data?.totalStages,
+  //   // })
+  //   // console.log(props.state.session)
+  // }, [props.state]);
 
 
 
   return (
-    <div className="sidebar_container"
-      style={(() => {
-        const padding = props.state?.session?.running ? ''+barPadding : '1rem';
-        const maxHeight = props.state?.session?.running ? '20vh' : '0vh';
-        return {padding,maxHeight}
-      })()}>
+    <div className="sidebar-container"
+      // style={(() => {
+      //   const padding = sessionRunning ? ''+barPadding : '1rem';
+      //   // const maxHeight = sessionRunning ? '20vh' : '0vh';
+      //   const maxHeight = '20vh';
+      //   return {padding,maxHeight}
+      // })()}
+      >
       <div className="info">
-            {props.state?.session?.running && <Timer
-                timeRef={timeElapsed}
-                countdown={true}
-                duration={duration}
-                coloring={true}>
-             </Timer>}
-          <div className="sidebar_foot">
-            <span>{stageInfo.currentStageName}</span>
-            <div class="progress-container">
-              <div class="progress-bar"
-                style={{
-                  background: '#d4eeff',
-                  transition: "all 0.5s",
-                  height: "0.5rem",
-                  width: "100%",
-                  borderRadius: "50px",
-                }}>
-              <div class="progress-bar-completed"
-                style={{
-                  background: "#1da1f2",
-                  height: "100%",
-                  borderRadius: "inherit",
-                  width: `${(stageInfo.currentStageIdx+1)/stageInfo.totalStages*100}%`
-                }}/>
-                </div>
-            <span class="progress-text">{stageInfo.currentStageIdx+1}/{stageInfo.totalStages}</span>
-            </div>
-          </div>
-       <span className="sidebar_user_role">{stageInfo.user}</span>
+          <Timer
+          active={sessionRunning}
+          stageState={stageState}
+          onTimerEnd={onTimerEnd}
+          elapsed={timeElapsed}
+          countdown={true}
+          duration={duration}
+          coloring={true}>
+        </Timer>
+        <div className="sidebar-block">
+          <div>{stageData.name} ({stageState.state})</div>
+          {sessionRunning && <ProgressBar
+            max={stageData.totalStages} 
+            progress={stageData.index+1}/> }
+        </div>
+          <SidebarTesting
+            onSkipClicked={onSkipClicked}
+            stageData={stageData}
+            stageState={stageState}
+            userData={userData}
+            roomData={roomData}
+          />
       </div>
-      <div className="sidebar_prompt">{stageInfo.sidePrompt}</div>
+      <div
+      // className={`sidebar-prompt ${sessionRunning ? '' : 'hidden'}`}
+        className={`sidebar-prompt`}>
+        {prompt}</div>
     </div>
   );
 }

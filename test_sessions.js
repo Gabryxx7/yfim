@@ -9,7 +9,7 @@ const compression = require("compression");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 var hash = require("object-hash");
-const { SingleEntryPlugin } = require("webpack");
+const { EntryPlugin } = require("webpack");
 const { SessionManager } = require("./src/managers/SessionManager")
 // const { ControlManager } = require("./src/managers/ControlManager")
 // const ChatsManager = require("./src/managers/ChatsManager")

@@ -1,18 +1,19 @@
 import React from "react";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
-import store from "./store";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import Home from "./containers/HomePage";
-import Room from "./containers/RoomPage";
-import { FaceVideoTest, SurveyTest } from "./containers/TestContainers";
-import RoomControl from "./containers/RoomControl";
-import SurveyPage from "./containers/SurveyPage";
-import NotFound from "./components/NotFound";
-import DataMonitor from "./containers/DataMonitor";
+import store from "./store.js";
+import Home from "./containers/HomePage.js";
+// import RoomPage from "./containers/RoomPage.js";
+import RoomPage from "./containers/RoomPageNew.js";
+import { FaceVideoTest, SurveyTest } from "./containers/TestContainers.js";
+import RoomControl from "./containers/RoomControl.js";
+import NotFound from "./components/NotFound.js";
+import DataMonitor from "./containers/DataMonitor.js";
+// import styles from "/Users/marinig/Documents/GitHub/yfim/src/surveyStyle.scss";
+import "./app.scss"
 
-import styles from "./app.scss";
-import ProjectionPage from "./containers/ProjectionPage";
+import ProjectionPage from "./containers/ProjectionPage.js";
 
 render(
   <Provider store={store}>
@@ -20,11 +21,10 @@ render(
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/faceTest/" component={FaceVideoTest} />
-        <Route exact path="/surveyTest/" component={SurveyTest} />
-        <Route exact path="/room/:room/" component={Room} />
+        <Route exact path="/surveyTest/:surveyId" component={SurveyTest} />
+        <Route exact path="/room/:room/" component={RoomPage} />
         {/* <Route path="*" component={NotFound} /> */}
         <Route exact path="/control/:room" component={RoomControl} />
-        <Route exact path="/survey/:room/:user" component={SurveyPage} />
         <Route
           exact
           path="/projection/:room/:user"
@@ -37,4 +37,4 @@ render(
   document.getElementById("app")
 );
 
-if (module.hot) module.hot.accept();
+// if (module.hot) module.hot.accept();

@@ -1,5 +1,5 @@
-const { SOCKET_CMDS, DATA_TYPES, NAMESPACES } = require('./SocketCommands');
-const { User } = require('./User');
+import { CMDS, DATA} from './Definitions.js';
+import { User } from './User.js';
 
 class ControlUser extends User{
     constructor(socket, manager, sessionManager) {
@@ -7,7 +7,7 @@ class ControlUser extends User{
     }
   
     setupCallbacks(){
-      this.socket.on(SOCKET_CMDS.PROCESS_STOP, (data) => this.onProcessStop(data));
+      this.socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => this.onProcessStop(data));
     }
 
   
@@ -29,7 +29,7 @@ class ControlUser extends User{
       console.log(current_cfg);
       console.log(current_rating);
   
-      this.socket.broadcast.to(params_room).emit(SOCKET_CMDS.PROCESS_CONTROL);
+      this.socket.broadcast.to(params_room).emit(CMDS.SOCKET.PROCESS_CONTROL);
     };
   
     onProcessStop(data){
@@ -38,7 +38,7 @@ class ControlUser extends User{
   
       const params_room = data.room;
       const accident_stop = `${this} Control STOP`;
-      this.socket.broadcast.to(params_room).emit(SOCKET_CMDS.PROCESS_STOP, { accident_stop });
+      this.socket.broadcast.to(params_room).emit(CMDS.SOCKET.PROCESS_STOP, { accident_stop });
     }
   
     onProcessReady(data){
@@ -46,5 +46,5 @@ class ControlUser extends User{
       this.sessionManager.onProcessReady(data);
     }
 }
-module.exports = { ControlUser }
+export default ControlUser;
   
