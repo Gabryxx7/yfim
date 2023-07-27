@@ -2,13 +2,13 @@ import React, { useEffect, useState, useRef, useContext, useReducer, useCallback
 import io from "socket.io-client";
 import "survey-react/survey.css";
 import { CMDS, DATA} from "../managers/Definitions.js";
-import Toolbar from "../components/Toolbar.js";
+import Toolbar from "./Toolbar.js";
 import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
 import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
-import TestComponent from "../components/SessionContextUpdateExample.js"
-import VideoContainer from "../classes/VideoContainer.js";
+import TestComponent from "../tests/SessionContextUpdateExample.js"
+import VideoContainer from "./VideoContainer.js";
 import FaceProcessor from "../classes/FaceProcessor.js";
 import { STAGE } from "../managers/Definitions.js"
 import { Model } from "survey-core";
@@ -29,7 +29,6 @@ export default function RoomSession(props) {
 		</SessionProvider>
 	);
 }
-
 
 function Room(props) {
 	const sessionMap = useContext(SessionContext);
@@ -162,8 +161,6 @@ function Room(props) {
 		console.log("Room page render");
 		socket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 		console.log(`Created Socket: `,socket.current);
-    	setRTCManager(new WebRTCManager(socket, sessionMap));
-		setFaceProcessor(new FaceProcessor());
 	}, []);
 
 	useEffect(() => {

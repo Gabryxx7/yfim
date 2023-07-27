@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import store from "./store.js";
 import RoomSession from "./containers/RoomSession.js";
-import { FaceVideoTest, SurveyTest } from "./containers/TestContainers.js";
+import { FaceVideoTest, SurveyTest } from "./tests/TestContainers.js";
 // import styles from "/Users/marinig/Documents/GitHub/yfim/src/surveyStyle.scss";
 import "./app.scss"
 

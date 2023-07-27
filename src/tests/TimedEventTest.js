@@ -1,4 +1,4 @@
-import {Timer} from "./Timer.js"
+import {Timer} from "../managers/Timer.js"
 
 
 class SessionTest extends Timer {
