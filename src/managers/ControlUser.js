@@ -2,15 +2,11 @@ import { CMDS, DATA} from './Definitions.js';
 import { User } from './User.js';
 
 class ControlUser extends User{
-    constructor(socket, manager, sessionManager) {
-      super(socket, manager, sessionManager);
-    }
-  
+
     setupCallbacks(){
       this.socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => this.onProcessStop(data));
     }
 
-  
     controlRoom(data){
       const room = data.room;
       console.info("- received control-room message for room: " + room);

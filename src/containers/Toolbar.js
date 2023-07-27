@@ -4,54 +4,13 @@ import Clock from "../components/Clock.js";
 import { SessionContext } from "../classes/ClientSession.js";
 import { STAGE, USER } from '../managers/Definitions.js'
 import ProgressBar from '../components/Progressbar.js';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import '@fortawesome/fontawesome-free'
-import {library} from '@fortawesome/fontawesome-svg-core'
-import {far} from '@fortawesome/free-regular-svg-icons'
-import {fas} from '@fortawesome/free-solid-svg-icons'
-import {fab} from '@fortawesome/free-brands-svg-icons'
-library.add(far,fas,fab);
-
-const StatusIconMap = (status) => {
-  const style = 'fa';
-  let faIcon = {};
-  let compStyle = {};
-  switch(status){
-    case USER.STATUS.NONE:{
-      faIcon = [style, 'x'];
-      compStyle= {color: 'red'};
-      break;
-    }
-    case USER.STATUS.IN_SESSION:{
-      faIcon = [style, 'clock'];
-      compStyle= {color: 'white'};
-      break;
-    }
-    case USER.STATUS.READY:{
-      faIcon = [style, 'check'];
-      compStyle= {color: 'green'};
-      break;
-    }
-  }
-  return <FontAwesomeIcon style={{...compStyle}} icon={faIcon} />
-}
-
-const RoomUser = (props) => {
-  return(
-    <div className="room-user">
-      <div className="status"> {StatusIconMap(props.user?.status)}</div>
-      <div className="name">{props.user?.name}</div>
-    </div>
-  )
-}
+import {RoomUsersList, RoomUser} from '../components/RoomUser.js'
 
 const RoomInfo = (props) => {
   return(
     <div className="room-info">
       <div className="room-name">{props.room?.id}</div>
-      <div className="users-list">
-        {props.room?.users?.map((user) => <RoomUser key={USER.id} user={user}/>)}
-      </div>
+      <RoomUsersList users={props.room?.users} />
     </div>)
 }
 

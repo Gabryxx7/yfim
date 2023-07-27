@@ -1,9 +1,9 @@
 import React, { createContext, useReducer, useCallback } from "react";
 import { TIMES } from '../managers/Definitions.js';
-import { Timer } from "../managers/Timer.js"
+import { TimedEvent } from "../managers/TimedEvent.js"
 
 
-class ClientSession extends Timer{
+class ClientSession extends TimedEvent{
    static Actions = {
       INCREMENT_COUNTER: "INCREMENT_COUNTER",
       UPDATE_USER: "UPDATE_USER",

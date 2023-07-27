@@ -7,6 +7,7 @@ import RoomSession from "./containers/RoomSession.js";
 import { FaceVideoTest, SurveyTest } from "./tests/TestContainers.js";
 // import styles from "/Users/marinig/Documents/GitHub/yfim/src/surveyStyle.scss";
 import "./app.scss"
+import ControlRoom from "./containers/ControlRoom.js";
 
 render(
   <Provider store={store}>
@@ -16,6 +17,7 @@ render(
         <Route exact path="/faceTest/" component={FaceVideoTest} />
         <Route exact path="/surveyTest/:surveyId" component={SurveyTest} />
         <Route exact path="/room/:room/" component={RoomSession} />
+        <Route exact path="/control/" component={ControlRoom} />
         {/* <Route path="*" component={NotFound} /> */}
         {/* <Route exact path="/control/:room" component={RoomControl} /> */}
         {/* <Route exact path="/projection/:room/:user" component={ProjectionPage}/> */}

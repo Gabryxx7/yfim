@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { timeColorMapDefault, getTimerColor } from "../managers/Timer.js"
+import { timeColorMapDefault, getTimerColor } from "../managers/TimedEvent.js"
 import { STAGE } from "../managers/Definitions.js"
 
 const CLOCK_STATE = {

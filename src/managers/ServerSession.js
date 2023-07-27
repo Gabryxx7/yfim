@@ -4,9 +4,9 @@ import Stage from '../managers/Stage.js';
 import { User } from '../managers/User.js';
 import console from "../utils/colouredLogger.js";
 import SessionConfig from '../../assets/SessionConfig.js';
-import {Timer} from "./Timer.js";
+import {TimedEvent} from "./TimedEvent.js";
 
-class ServerSession extends Timer {
+class ServerSession extends TimedEvent {
   constructor(room=null) {
       super(TIMES.SESSION_UPDATE_INTERVAL);
       this.room = room;
@@ -57,11 +57,11 @@ class ServerSession extends Timer {
     try{
       data = {
         sessionId: this.id,
-        room: this.room.getData(),
         startTime: this.startTick.time,
         startDateTime: this.startTick.date.getTime(),
         stages: this.stages.length,
-        stage: this.currentStage?.getData()
+        stage: this.currentStage?.getData(),
+        room: this.room?.id
       };
     }catch(error){
       console.error(`Error getting session data: `, error);

@@ -16,7 +16,7 @@ class User {
 	};
 	static STATUS = {
 		NONE: "none",
-    READY: "ready",
+    	READY: "ready",
 		IN_SESSION: "in_session",
 	};
 	constructor(socket, nsManager) {
@@ -156,7 +156,7 @@ class User {
 			var user = this.room.getUserById(userId);
 			if (accepted) {
 				user.socket.join(this.room.id);
-        this.room.session.updateSessionStatus();
+        		this.room.session.updateSessionStatus();
 			}
       this.room.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, { bridge: feedback, user: user.id, userType: user.type });
 		}
@@ -196,7 +196,8 @@ class User {
 				return false;
 			}
 
-      this.room?.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, { bridge: CMDS.RTC.ACTIONS.HANGUP }, this.socket);
+      	this.room?.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, { bridge: CMDS.RTC.ACTIONS.HANGUP }, this.socket);
+			this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData());
 			if (this.room.size <= 0) {
 				this.nsManager.deleteRoom(this.room);
 			}

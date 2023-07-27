@@ -45,7 +45,8 @@ export default class Room{
         users: Object.entries(this.users).map(([key, user]) => user.getData()),
         size: this.size,
         maxSize: this.maxSize,
-        roomType: this.roomType
+        roomType: this.roomType,
+        session: this.session?.getData()
       };
     }catch(error){
       console.error(`Error getting session data: `, error);
@@ -73,12 +74,15 @@ export default class Room{
       return;
     }
 
+    let ns = "";
 		console.log(`Broadcasting (to all) ${event} to Room ${this.id}: ${dbg_msg}`);
     for(let nsManager of this.nsManagers){
+      ns += `${nsManager.namespace}, `
       this.emitToRoom(nsManager.nsio, event, data);
        // this.chatsManager.to(this.room.id).nsio.emit(event, data)
        // this.controlManager.to(this.room.id).nsio.emit(event, data)
     }
+		console.log(`Namespaces broadcasted ${ns}`);
   }
 
   notifyHost(event, data={}){

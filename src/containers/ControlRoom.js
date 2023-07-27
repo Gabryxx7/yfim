@@ -2,34 +2,11 @@ import React, { useEffect, useState, useRef, useContext, useReducer, useCallback
 import io from "socket.io-client";
 import "survey-react/survey.css";
 import { CMDS, DATA} from "../managers/Definitions.js";
-import Toolbar from "./Toolbar.js";
-import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
 import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
-import TestComponent from "../tests/SessionContextUpdateExample.js"
-import VideoContainer from "./VideoContainer.js";
-import FaceProcessor from "../classes/FaceProcessor.js";
 import { STAGE } from "../managers/Definitions.js"
-import { Model } from "survey-core";
-import { Survey } from "survey-react-ui";
-import "survey-core/defaultV2.min.css";
-// import "../surveyStyle";
-import Introduction from "../components/Introduction.js";
-import { SURVEYS, SURVEY_CSS_CLASSES, } from "../../assets/PostChatSurvey.js";
-// import { createRequire } from "module";
-// const require = createRequire(import.meta.url);
-// var SURVEYS = require("../../assets/PostChatSurvey.js");
-
-export default function RoomSession(props) {
-	const sessionMap = useContext(SessionContext);
-	return (
-		<SessionProvider>
-			<Room {...props}/>
-		</SessionProvider>
-	);
-}
-
+import RoomControlPanel from "./RoomControlPanel.js";
 
 export default function ControlRoom(props) {
 	const sessionMap = useContext(SessionContext);
@@ -41,11 +18,11 @@ export default function ControlRoom(props) {
 	const [stageState, setStageState] = useState({reason: "", state: STAGE.STATUS.NONE});
 	const [stageType, setStageType] = useState(STAGE.TYPE.VIDEO_CHAT);
 	const [userData, setUserData] = useState({});
-	const [roomData, setRoomData] = useState({});
+	const [roomsData, setRoomsData] = useState({});
 	const [stageData, setStageData] = useState({});
 
    useEffect(() => {
-		controlSocket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
+		// controlSocket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 		controlSocket.current = io.connect(`/${CMDS.NAMESPACES.CONTROL}`);
 		console.log(`Created Socket: `,controlSocket.current);
       
@@ -53,6 +30,16 @@ export default function ControlRoom(props) {
 			if(data.bridge != CMDS.RTC.ACTIONS.MESSAGE){
 				setBridge(data.bridge);
 			}
+		})
+
+		// controlSocket.current.onAny((eventName, ...args) => {
+		// 	if(eventName !== CMDS.SOCKET.FACE_DETECTED){
+		// 		console.log(`Received event ${eventName}`, args)
+		// 	}
+		// });
+
+		controlSocket.current.on(CMDS.SOCKET.CONNECT, (data) => {
+			console.log("Control Socket connected");
 		})
 		controlSocket.current.on(CMDS.SOCKET.CONNECT_ERROR, (err) => {
 		  console.log(`connect_error due to ${err.message}`);
@@ -87,43 +74,31 @@ export default function ControlRoom(props) {
 		setUserData(sessionMap.session?.user);
 	}
 
-	const onRoomUpdate = (data) => {
-		sessionMap.updateRoom(data);
-		setRoomData(sessionMap.session?.room);
+	const onRoomUpdate = (room) => {
+		console.log("Room Update ", room);
+		setRoomsData((rooms) => {
+			rooms[room.id] = room;
+			return {...rooms};
+		});
 	}
 
 	const onSessionUpdate = (data) => {
-		console.log("Session update");
-		sessionMap.updateSession(data);
-		sessionMap.session.start();
-		setStageType(sessionMap.session.data?.stage?.step?.type);
-		setStageState({reason: "", state: STAGE.STATUS.IN_PROGRESS});
-
-		const surveyId = SURVEYS[sessionMap.session.data?.stage?.step?.surveyId] ?? null;
-		console.log("SURVEY ID", surveyId)
-		if(surveyModel.current != null){
-			if(surveyId != null && surveyModel.current.surveyId == surveyId.surveyId){
-				surveyModel.current.clear();
-				surveyModel.current.render();
-				return;
-			}
-		}
-		try{
-			surveyModel.current = new Model(SURVEYS[surveyId.id].model);
-			surveyModel.current.onComplete.add((sender, options) => {
-				console.log(JSON.stringify(sender.data, null, 3));
-				setStageState({reason: "", surveyData: sender.data, state: STAGE.STATUS.COMPLETED});
-			})
-			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
-		}
-		catch(error){
-			console.warn(`Could not find survey with ID ${surveyId}`);
+		console.log("Session update", data);
+		if(data?.rooms){
+			setRoomsData(data.rooms);
+		} else if(data?.sessionId) {
+			setRoomsData((rooms) => {
+				rooms[data.room].session = data;
+				return {...rooms};
+			});
 		}
 	}
 
    return(
       <div className="control-room">
-
+			<div className="rooms-list">
+				{Object.entries(roomsData).map(([key, room]) => <RoomControlPanel key={room.id} room={room}/>)}
+			</div>
       </div>
    )
 }

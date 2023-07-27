@@ -161,6 +161,8 @@ function Room(props) {
 		console.log("Room page render");
 		socket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 		console.log(`Created Socket: `,socket.current);
+		setRTCManager(new WebRTCManager(socket, sessionMap));
+	  	setFaceProcessor(new FaceProcessor());
 	}, []);
 
 	useEffect(() => {
@@ -236,7 +238,7 @@ function Room(props) {
 	}, [bridge])
 
 	return (
-		<div class='main-room'>
+		<div className='main-room'>
 		<Toolbar 
 			socket={socket}
 			onSkipClicked={() => {

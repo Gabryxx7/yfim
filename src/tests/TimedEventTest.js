@@ -1,7 +1,7 @@
-import {Timer} from "../managers/Timer.js"
+import {TimedEvent} from "../managers/TimedEvent.js"
 
 
-class SessionTest extends Timer {
+class SessionTest extends TimedEvent {
    constructor() {
       super(500);
    }
@@ -25,7 +25,7 @@ setTimeout(() => {
 }, 5000)
 
 
-// const te = new Timer(1000, 5000);
+// const te = new TimedEvent(1000, 5000);
 
 // te.addOnStart(() => console.log("STARTED"))
 // te.addOnStop(() => console.log(`STOPPED after ${te.elapsed}s`))
