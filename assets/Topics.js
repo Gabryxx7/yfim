@@ -1,5 +1,5 @@
-// import { QUESTION } from "../src/managers/Definitions.js"
-import { QUESTION } from "../src/managers/Definitions.js";
+// import { QUESTION } from "../src/backend/Definitions.js"
+import { QUESTION } from "../src/backend/Definitions.js";
 
 const Topics = {};
 Topics[QUESTION.TYPE.WOULDYOU] = [

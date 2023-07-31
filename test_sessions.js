@@ -10,9 +10,9 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 var hash = require("object-hash");
 const { EntryPlugin } = require("webpack");
-const { SessionManager } = require("./src/managers/SessionManager")
-// const { ControlManager } = require("./src/managers/ControlManager")
-// const ChatsManager = require("./src/managers/ChatsManager")
+const { SessionManager } = require("./src/backend/SessionManager")
+// const { ControlManager } = require("./src/backend/ControlManager")
+// const ChatsManager = require("./src/backend/ChatsManager")
 
 server_port = process.env.PORT || 3000
 const app = express(),

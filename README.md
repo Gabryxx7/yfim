@@ -143,11 +143,11 @@ For each stage emotion:
 
 The three main screens are managed as follows
 
-- Main video screen: (MediaContainer.js)[src/containers/MediaContainer.js]
-- Survey screen: (SurveyPage.js)[src/containers/SurveyPage.js]
-- Projection screen: (ProjectionPage.js)[src/containers/ProjectionPage.js]
+- Main video screen: (MediaContainer.js)[src/frontend/containers/MediaContainer.js]
+- Survey screen: (SurveyPage.js)[src/frontend/containers/SurveyPage.js]
+- Projection screen: (ProjectionPage.js)[src/frontend/containers/ProjectionPage.js]
 
-Main app flow and modules are managed by the (MediaContainer.js)[src/containers/MediaContainer.js] file.
+Main app flow and modules are managed by the (MediaContainer.js)[src/frontend/containers/MediaContainer.js] file.
 
 ## Demo
 

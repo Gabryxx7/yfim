@@ -1,4 +1,4 @@
-import {TimedEvent} from "../managers/TimedEvent.js"
+import {TimedEvent} from "../backend/TimedEvent.js"
 
 
 class SessionTest extends TimedEvent {

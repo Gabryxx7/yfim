@@ -9,7 +9,7 @@ import { Server } from 'socket.io';
 import favicon from "serve-favicon";
 import compression from "compression";
 import bodyParser from "body-parser";
-import SessionManager from "./src/managers/SessionManager.js";
+import SessionManager from "./src/backend/SessionManager.js";
 import console  from "./src/utils/colouredLogger.js";
 import Nano from "nano";
 import { URL } from 'url'; // in Browser, the URL in native accessible on window
@@ -28,7 +28,7 @@ const __dirname = new URL('.', import.meta.url).pathname;
 // const favicon = require("serve-favicon");
 // const compression = require("compression");
 // const bodyParser = require("body-parser");
-// const { SessionManager } = require("./src/managers/SessionManager")
+// const { SessionManager } = require("./src/backend/SessionManager")
 // const { console  } = require("./src/utils/colouredLogger")
 
 // CouchDB

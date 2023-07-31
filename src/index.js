@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import store from "./store.js";
-import RoomSession from "./containers/RoomSession.js";
+import RoomSession from "./frontend/containers/RoomSession.js";
 import { FaceVideoTest, SurveyTest } from "./tests/TestContainers.js";
 // import styles from "/Users/marinig/Documents/GitHub/yfim/src/surveyStyle.scss";
 import "./app.scss"
-import ControlRoom from "./containers/ControlRoom.js";
+import ControlRoom from "./frontend/containers/ControlRoom.js";
 
 render(
   <Provider store={store}>

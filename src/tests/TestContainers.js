@@ -3,8 +3,8 @@ import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
 import { SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses } from "../../assets/PostChatSurvey.js";
-import VideoContainer from "../containers/VideoContainer.js";
-import FaceProcessor from "../classes/FaceProcessor.js";
+import VideoContainer from "../frontend/containers/VideoContainer.js";
+import FaceProcessor from "../frontend/classes/FaceProcessor.js";
 
 
 function FaceVideoTest(props) {
