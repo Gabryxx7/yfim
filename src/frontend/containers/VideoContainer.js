@@ -173,6 +173,7 @@ export default function VideoContainer(props) {
 		sessionMap.session.addOnStart((session) => {
 			if(mediaRecorder != null && mediaRecorder.state != "recording"){
 				console.log("Starting MediaRecorder ", mediaRecorder);
+				mediaChunks.current = [];
 				mediaRecorder.start();
 				console.log("Recording started!")
 				faceProcessor.startRecording(session);
@@ -244,6 +245,7 @@ export default function VideoContainer(props) {
 					catch(error){
 						console.warn("Error storing video and face api files...", error);
 					}
+					// setMediaRecorder(null)
 				}
 				// const recordTestDuration = 5000;
 				// toast("Recording Started!", {

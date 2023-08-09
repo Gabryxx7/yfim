@@ -13,6 +13,7 @@ import { STAGE } from "../../backend/Definitions.js"
 import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
+import FileSaver from "file-saver";
 // import "../surveyStyle";
 import Introduction from "../components/Introduction.js";
 import { SURVEYS, SURVEY_CSS_CLASSES, } from "../../../assets/PostChatSurvey.js";
@@ -81,6 +82,7 @@ function Room(props) {
 				// setPrompt("Waiting for your conversation partner to complete the survey...");
 			}
 			socket.current.emit(CMDS.SOCKET.STEP_COMPLETED, completionData);
+			FileSaver.saveAs(completionData.data, baseFilename)
 			return;
 		}
 		if(stageData.state == STAGE.STATUS.IN_PROGRESS){
