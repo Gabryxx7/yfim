@@ -39,10 +39,11 @@ class Stage {
 
   getQuestionData(){
     if(this.extra?.prompt != null){
+      console.log("The stage already has a prompt " + this.extra?.prompt);
       return {};
     }
     if(this.parent != null && this.parent.extra?.prompt){
-      console.log("Parent's prompt " + this.parent.extra?.prompt)
+      console.log("Parent's prompt " + this.parent.extra?.prompt);
       return this.parent.extra;
     }
     try{
@@ -50,6 +51,7 @@ class Stage {
       const prompts = Topics[topic];
       const rindex = Math.floor(Math.random() * prompts.length);
       let question = prompts[rindex];
+      console.log("Getting a new prompt for the stage" + question);
       return {topic: topic, prompt: question};
     } catch(error){
       console.error("error getting new question: ", error);
