@@ -150,6 +150,8 @@ export default class FaceProcessor extends VideoProcessor {
 			if(finalWidth <= 1 || finalHeight <= 1){
 				return;
 			}
+			this.ctx.canvas.height = finalHeight;
+			this.ctx.canvas.height = finalWidth;
 			// let resized = faceapi.resizeResults(this.detections, { width: ctxWidth, height: ctxHeight }); // For some reason it's not quite centered
 			let resized = faceapi.resizeResults(this.detections, { width: finalWidth, height: finalHeight }); // For some reason it's not quite centered
 			imgWidthR = resized.detection.imageWidth;
