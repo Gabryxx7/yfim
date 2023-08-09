@@ -146,12 +146,12 @@ export default class FaceProcessor extends VideoProcessor {
 			let imgHeightR = this.detections.detection.imageHeight;
 
 			// let resized = faceapi.resizeResults(this.detections, { width: ctxWidth, height: ctxHeight }); // For some reason it's not quite centered
-			let resized = faceapi.resizeResults(this.detections, { width: cWidth, height: cHeight }); // For some reason it's not quite centered
+			let resized = faceapi.resizeResults(this.detections, { width: bWidth, height: bHeight }); // For some reason it's not quite centered
 			imgWidthR = resized.detection.imageWidth;
 			imgHeightR = resized.detection.imageHeight;
 
 			// console.log(`Image: ${imWidth} x ${imHeight}\nImage Resized: ${imWidthR} x ${imHeightR}\nClient: ${cWidth} x ${cHeight}\nBounding: ${bWidth} x ${bHeight}`)
-			// console.log(`Image: ${imWidth} x ${imHeight}\nClient: ${cWidth} x ${cHeight}\nCtx: ${ctxWidth} x ${ctxHeight}\nBounding: ${bWidth} x ${bHeight}`)
+			console.log(`Image: ${imWidth} x ${imHeight}\nClient: ${cWidth} x ${cHeight}\nCtx: ${ctxWidth} x ${ctxHeight}\nBounding: ${bWidth} x ${bHeight}`)
 			// detections = faceapi.resizeResults(detections, { width: this.ctx.canvas.clientWidth, height: this.ctx.canvas.clientHeight })
 			const landmarks = resized.landmarks;
 			// console.log("landmarks", landmarks);
