@@ -229,19 +229,26 @@ input[type="checkbox"] {
       display: none;
     }
   }
-  .live-icon {
-    font-size: 1.1rem;
+  .video-call-icons{
+    display: flex;
+    gap: 1rem;
     position: absolute;
     top: 0.5rem;
     left: 0.5rem;
     z-index: 40;
-    animation: none;
-    color: #d3d3d35c;
+    .icon {
+      cursor: pointer;
+      font-size: 1.1rem;
+      animation: none;
+      color: #d3d3d35c;
+    }
   }
   &.established{
-    .live-icon {
-      animation: blinker 1.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;  
-      color: red;
+    .video-call-icons{
+      .live-icon {
+        animation: blinker 1.5s cubic-bezier(.5, 0, 1, 1) infinite alternate;  
+        color: red;
+      }
     }
   }
 }

@@ -20,12 +20,18 @@ const setVideoConstraints = (video) => {
 	});
 }
 
+const VIDEO_ID = {
+	REMOTE: "remote-video",
+	LOCAL: "local-video"
+}
+
 export default function VideoContainer(props) {
 	const sessionMap = useContext(SessionContext);
 	const faceProcessor = props.faceProcessor;
 	const recordingEnabled = props.recordingEnabled ?? false;
 	const [mediaRecorder, setMediaRecorder] = useState(null);
-	const stageState = props.stageState ?? null;
+	const [videoStatus, setVideoStatus] = useState(null);
+	const stageData = props.stageData ?? null;
 	const mediaChunks = useRef([]);
 	const socket = props.socket ?? null;
 	const rtcManager = props.rtcManager ?? null;
@@ -37,15 +43,35 @@ export default function VideoContainer(props) {
 	const onStreamAdded = props.onStreamAdded;
 
 	useEffect(() => {
-		if(stageState == null) return;
-		if(stageState.state == STAGE.STATUS.COMPLETED){
+		if(videoStatus == null){
+			const defaultVideoStatus = {};
+			defaultVideoStatus[VIDEO_ID.LOCAL] = {muted: false, audio: true, video: true};
+			defaultVideoStatus[VIDEO_ID.REMOTE] = {muted: false, audio: true, video: true};
+			setVideoStatus(defaultVideoStatus);
+		}
+	}, [videoStatus])
+
+	const updateVideoStatus = (videoSrc, newStatus) => {
+		setVideoStatus((prev) => {
+			const updated = {...prev};
+			updated[videoSrc.id] = {...prev[videoSrc.id], ...newStatus}
+			return updated;
+		})
+	}
+	const setVideoMuted = (videoSrc, muted) => {
+		videoSrc.muted = muted;
+		updateVideoStatus(videoSrc, {muted: muted})
+	}
+	useEffect(() => {
+		if(stageData == null) return;
+		if(stageData.state == STAGE.STATUS.COMPLETED){
 			if(recordingEnabled){
 				if(mediaRecorder != null && mediaRecorder.state == "recording"){
 					mediaRecorder.stop();
 				}
 			}
 		}
-	}, [stageState])
+	}, [stageData])
 
 	// when the other side added a media stream, show it on screen
 	const onAddStream = (e) => {
@@ -93,7 +119,7 @@ export default function VideoContainer(props) {
 			console.error("Error getting user media: " + error);
 		}
 		localVideo.current.addEventListener("play",  () => {
-			console.log("Local video PLAY");
+			console.log("Local video PLAY", localVideo.current.id);
 			if(recordingEnabled){
 				const newMediaRecorder = new MediaRecorder(localVideo.current.srcObject);
 				console.log("Created media recorder", newMediaRecorder)
@@ -121,7 +147,13 @@ export default function VideoContainer(props) {
 	useEffect(() => {
 		if(mediaRecorder == null) return;
 		sessionMap.session.addOnStart((session) => {
-			if(session.data?.stage?.step?.type != STAGE.TYPE.VIDEO_CHAT) return;
+			if(session.data?.stage?.step?.type != STAGE.TYPE.VIDEO_CHAT){
+				setVideoMuted(localVideo.current, true);
+				setVideoMuted(remoteVideo.current, true);
+				return;
+			}
+			setVideoMuted(localVideo.current, false);
+			setVideoMuted(remoteVideo.current, false);
 			if(mediaRecorder != null && mediaRecorder.state != "recording"){
 				console.log("Starting MediaRecorder ", mediaRecorder);
 				mediaRecorder.start();
@@ -248,7 +280,21 @@ export default function VideoContainer(props) {
 
 	return (
 			<div className='media-bridge'>
-				<div className="live-icon"> <FontAwesomeIcon icon={icon({name: 'video'})} /> </div>
+				<div className="video-call-icons">
+					<div className="live-icon icon"> <FontAwesomeIcon icon={icon({name: 'video'})} /> </div>
+					<div className="mic-icon icon" onClick={() => setVideoMuted(localVideo.current, !videoStatus[VIDEO_ID.LOCAL].muted)}>
+						{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].muted ?
+							<FontAwesomeIcon icon={icon({name: 'microphone-slash'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'microphone'})} />
+						}
+					</div>
+					<div className="headset-icon icon">
+						{videoStatus != null && videoStatus[VIDEO_ID.REMOTE].muted ?
+							<FontAwesomeIcon icon={icon({name: 'phone-slash'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'phone'})} />
+						}
+					</div>
+				</div>
 				<canvas className="canvas" ref={canvasRef} />
 				{(() => {
 					// if (socket.current == null) return <></>;
@@ -264,9 +310,9 @@ export default function VideoContainer(props) {
 				})()}
 
 				{socket?.current != null && (
-					<video className="remote-video" id="remote-video" ref={remoteVideo} autoPlay></video>
+					<video className={VIDEO_ID.REMOTE} id={VIDEO_ID.REMOTE} ref={remoteVideo} autoPlay></video>
 				)}
-				<video className="local-video" id="local-video" ref={localVideo} autoPlay muted></video>
+				<video className={VIDEO_ID.LOCAL} id={VIDEO_ID.LOCAL} ref={localVideo} autoPlay muted></video>
 			{/* <SurveyPage sessionStatusRef={this.state.statusRef} />  */}
 			{/* GABRY: This stupid survey component causes the page to scroll up top at every render... */}
 			{/* <div style={{backgroundColor: "white", height: "50vh", width: "100vw"}}/> */}

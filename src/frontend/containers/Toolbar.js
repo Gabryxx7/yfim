@@ -16,8 +16,8 @@ const RoomInfo = (props) => {
 }
 
 const ToolbarTesting = (props) => {
+  const sessionData = props.sessionData ?? {};
   const stageData = props.stageData ?? {};
-  const stageState = props.stageState ?? {};
   const userData = props.userData ?? {};
   const roomData = props.roomData ?? {};
   const onSkipClicked = props.onSkipClicked ?? (() => {});
@@ -26,10 +26,10 @@ const ToolbarTesting = (props) => {
       <RoomInfo room={roomData} />
       <div className="user-info">
         <div>{userData.name} ({userData.role})</div>
-        <div>{stageData.stageType} - {stageData.topic}</div>
-        <div>{stageData.sessionId}</div>
+        <div>{sessionData.stageType} - {sessionData.topic}</div>
+        <div>{sessionData.sessionId}</div>
       </div>
-      <SkipStage onClick={onSkipClicked} stageState={stageState} />
+      <SkipStage onClick={onSkipClicked} stageData={stageData} />
       {/* <div className="room-info">
         <div>Waiting for your partner...</div>
       </div> */}
@@ -45,10 +45,10 @@ export default function Toolbar(props) {
   const [duration, setDuration] = useState(0)
   const prompt = props.prompt ?? "PROMPT";
   const onTimerEnd = props.onTimerEnd ?? (() => {});
-  const stageState = props.stageState;
+  const stageData = props.stageData;
   const userData = props.userData ?? {};
   const roomData = props.roomData ?? {};
-  const [stageData, setStageData] = useState({});
+  const [sessionData, setSessionData] = useState({});
   const onSkipClicked = props.onSkipClicked ?? (() => {});
 
   // var sidePadding = "11rem";
@@ -61,7 +61,7 @@ export default function Toolbar(props) {
       setSessionState(TimedEvent.STATUS.RUNNING);
       console.log("Session started toolbar: ", session.data)
       const stageType = session.data?.stage?.step?.type;
-      setStageData({...stageData,
+      setSessionData({...sessionData,
         sessionId: session.data?.sessionId,
         index: session.data?.stage?.index,
         name: session.data?.stage?.step?.name,
@@ -79,11 +79,11 @@ export default function Toolbar(props) {
   }, [])
 
   useEffect(() => {
-		console.log("Toolbar stage update" ), stageState;
-  }, [stageState])
+		console.log("Toolbar stage update" ), stageData;
+  }, [stageData])
   // useEffect(() => {
   //   // console.log("Toolbar STATE update!");
-  //   // setStageData({
+  //   // setSessionData({
   //   //   prompt: props.state?.side_prompt,
   //   //   user: props.state?.user_role,
   //   //   index: props.state?.session?.data?.currentStage,
@@ -107,7 +107,7 @@ export default function Toolbar(props) {
       <div className="info">
           <Clock
             active={sessionState}
-            stageState={stageState}
+            stageData={stageData}
             onTimerEnd={onTimerEnd}
             elapsed={timeElapsed}
             countdown={true}
@@ -115,15 +115,15 @@ export default function Toolbar(props) {
             coloring={true}>
         </Clock>
         <div className="toolbar-block">
-          <div>{stageData.name} ({stageState.state})</div>
+          <div>{sessionData.name} ({stageData.state})</div>
           {sessionState != TimedEvent.STATUS.NONE && <ProgressBar
-            max={stageData.totalStages} 
-            progress={stageData.index+1}/> }
+            max={sessionData.totalStages} 
+            progress={sessionData.index+1}/> }
         </div>
           <ToolbarTesting
             onSkipClicked={onSkipClicked}
+            sessionData={sessionData}
             stageData={stageData}
-            stageState={stageState}
             userData={userData}
             roomData={roomData}
           />

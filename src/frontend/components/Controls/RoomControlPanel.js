@@ -33,7 +33,7 @@ export default function RoomControlPanel(props) {
          <div className="room-info">
             <Clock
                active={room?.session?.status == TimedEvent.STATUS.RUNNING}
-               stageState={stageState}
+               stageData={stageData}
                onTimerEnd={onTimerEnd}
                elapsed={timeElapsed}
                countdown={true}

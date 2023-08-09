@@ -26,6 +26,7 @@ const FACEAPI = {
 
 const STAGE = {
   TYPE: {
+    NONE: 'none',
     VIDEO_CHAT: 'video-chat',
     SURVEY: 'survey'
   },

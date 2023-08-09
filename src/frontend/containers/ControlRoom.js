@@ -32,11 +32,9 @@ export default function ControlRoom(props) {
 	const controlSocket = useRef(null);
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
-	const [stageState, setStageState] = useState({reason: "", state: STAGE.STATUS.NONE});
-	const [stageType, setStageType] = useState(STAGE.TYPE.VIDEO_CHAT);
+	const [stageData, setStageData] = useState({reason: "", state: STAGE.STATUS.NONE, type: STAGE.TYPE.NONE, data: null});
 	const [userData, setUserData] = useState({});
 	const [roomsData, setRoomsData] = useState({});
-	const [stageData, setStageData] = useState({});
 
    useEffect(() => {
 		// controlSocket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);

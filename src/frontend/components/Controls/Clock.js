@@ -18,7 +18,7 @@ export default function Clock(props){
   const [textColor, setTextColor]  = useState(timeColorMap[timeColorMap.length-1].color);
   const [timeString, setTimeString] = useState("00:00")
   const onTimerEnd = props.onTimerEnd ?? (() => {});
-  const stageState = props.stageState ?? null; // Used to set the timer's state externally
+  const stageData = props.stageData ?? null; // Used to set the timer's state externally
   const [timerState, setTimerState] = useState(CLOCK_STATE.NONE)
 
   const formatTime = (time) => {
@@ -30,14 +30,14 @@ export default function Clock(props){
   }
 
   useEffect(() => {
-    if(stageState.state == STAGE.STATUS.COMPLETED){
+    if(stageData.state == STAGE.STATUS.COMPLETED){
       setTimerState(CLOCK_STATE.STOPPED);
     }
-    if(stageState.state == STAGE.STATUS.IN_PROGRESS){
+    if(stageData.state == STAGE.STATUS.IN_PROGRESS){
       setTimeString("00:00")
       setTimerState(CLOCK_STATE.RUNNING);
     }
-  }, [stageState])
+  }, [stageData])
 
   useEffect(() => {
     if(!active){

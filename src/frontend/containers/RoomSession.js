@@ -38,11 +38,9 @@ function Room(props) {
 	const [RTCManager, setRTCManager] = useState(null)
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
-	const [stageState, setStageState] = useState({reason: "", state: STAGE.STATUS.NONE});
-	const [stageType, setStageType] = useState(STAGE.TYPE.VIDEO_CHAT);
+	const [stageData, setStageData] = useState({reason: "", state: STAGE.STATUS.NONE, type: STAGE.TYPE.NONE, data: null});
 	const [userData, setUserData] = useState({});
 	const [roomData, setRoomData] = useState({});
-	const [stageData, setStageData] = useState({});
 
 	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
 	// Where I only set the onComplete() callback on the first page render, this seems to do the trick (probably because of memoization?!)
@@ -54,7 +52,7 @@ function Room(props) {
 		// 	surveyModel.current = new Model(SURVEYS.TEST);
 		// 	surveyModel.current.onComplete.add((sender, options) => {
 		// 		console.log(JSON.stringify(sender.data, null, 3));
-		// 		setStageState({reason: "", surveyData: sender.data, state: STAGE.STATUS.COMPLETED});
+		// 		setStageData({reason: "", data: sender.data, state: STAGE.STATUS.COMPLETED});
 		// 	})
 		// 	surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 		// }
@@ -62,19 +60,20 @@ function Room(props) {
 
 
 	useEffect(() => {
-		if(stageState.state == STAGE.STATUS.NONE){
+		console.log(`STAGE TYPE: ${stageData.type}`)
+		if(stageData.state == STAGE.STATUS.NONE){
 			setPrompt("Waiting for your conversation partner to join the call...");
 			// TOASTS.TEST.show({onAction: (res) => console.log("Toast clicked! " +res)})
 			return;
 		}
-		if(stageState.state == STAGE.STATUS.COMPLETED){
-			console.log(`STAGE COMPLETED (${stageState.reason})`);
+		if(stageData.state == STAGE.STATUS.COMPLETED){
+			console.log(`STAGE COMPLETED (${stageData.reason})`);
 			const sessionData = sessionMap.session.getSessionData();
 			let baseFilename = `YFIM_SURVEY_${sessionMap.session.user?.name}_${sessionData.date}.json`;
 			const completionData = {data: sessionData};
-			if(stageType == STAGE.TYPE.SURVEY){
-				if(stageState.surveyData != null && stageState.surveyData != undefined){
-					completionData.data.survey = stageState.surveyData;
+			if(stageData.type == STAGE.TYPE.SURVEY){
+				if(stageData.data != null && stageData.data != undefined){
+					completionData.data.survey = stageData.data;
 				}
 				completionData.filename = baseFilename;
 				// setPrompt("Waiting for your conversation partner to complete the survey...");
@@ -82,19 +81,22 @@ function Room(props) {
 			socket.current.emit(CMDS.SOCKET.STEP_COMPLETED, completionData);
 			return;
 		}
-		if(stageState.state == STAGE.STATUS.IN_PROGRESS){
-			if(stageType == STAGE.TYPE.SURVEY){
-				// setPrompt("We have some questions for you...");
-			}
-			else if(stageType == STAGE.TYPE.VIDEO_CHAT){
+		if(stageData.state == STAGE.STATUS.IN_PROGRESS){
+			if(stageData.type == STAGE.TYPE.VIDEO_CHAT){
 				const newPrompt = sessionMap.session.data?.stage?.step?.prompt;
 				if(newPrompt != null && newPrompt != undefined){
 					setPrompt(newPrompt);
 				}
 			}
+			// else if(stageData.type == STAGE.TYPE.SURVEY){
+			// 	// setPrompt("We have some questions for you...");
+			// }
+			else {
+
+			}
 			return;
 		}
-	}, [stageState])
+	}, [stageData])
 
 	useEffect(() => {
 		console.log("NEW PROMPT ", prompt)
@@ -121,8 +123,7 @@ function Room(props) {
 		console.log("Session update");
 		sessionMap.updateSession(data);
 		sessionMap.session.start();
-		setStageType(sessionMap.session.data?.stage?.step?.type);
-		setStageState({reason: "", state: STAGE.STATUS.IN_PROGRESS});
+		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS, type: sessionMap.session.data?.stage?.step?.type});
 
 		const surveyId = SURVEYS[sessionMap.session.data?.stage?.step?.surveyId] ?? null;
 		console.log("SURVEY ID", surveyId)
@@ -137,7 +138,7 @@ function Room(props) {
 			surveyModel.current = new Model(SURVEYS[surveyId.id].model);
 			surveyModel.current.onComplete.add((sender, options) => {
 				console.log(JSON.stringify(sender.data, null, 3));
-				setStageState({reason: "", surveyData: sender.data, state: STAGE.STATUS.COMPLETED});
+				setStageData((prev) => ({...prev, reason: "", state: STAGE.STATUS.COMPLETED, data: sender.data}));
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 		}
@@ -205,11 +206,6 @@ function Room(props) {
 	}, [RTCManager])
 
 	useEffect(() => {
-		console.log(`NEW STAGE TYPE: ${stageType}`)
-	}, [stageType])
-
-
-	useEffect(() => {
 		// console.log("connectionStatus ", connectionStatus)
 		if(connectionStatus == "connected"){
 			TOASTS.USER_JOINED.show();
@@ -241,15 +237,15 @@ function Room(props) {
 		<Toolbar 
 			socket={socket}
 			onSkipClicked={() => {
-				setStageState({reason: "Skip clicked", state: STAGE.STATUS.COMPLETED});
+				setStageData((prev) => ({...prev, reason: "Skip clicked", state: STAGE.STATUS.COMPLETED, data: null}));
 			}}
 			onTimerEnd={() => {
-				setStageState({reason: "time limit reached", state: STAGE.STATUS.COMPLETED});
+				setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.COMPLETED, data: null}));
 				console.log("STAGE COMPLETED (time limit reached)");
 				socket.current.emit(CMDS.SOCKET.STEP_COMPLETED);
 			}}
 			prompt={prompt}
-			stageState={stageState}
+			stageData={stageData}
 			userData={userData}
 			roomData={roomData}
 		/>
@@ -257,33 +253,33 @@ function Room(props) {
 		<div className={`main-call-container ${bridge}`}>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}
-			<div className='main-room-container' style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
+			<div className='main-room-container' style={{display: `${stageData.type == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
 			<VideoContainer
 				recordingEnabled={true}
-				stageState={stageState}
+				stageData={stageData}
 				socket={socket}
 				onStreamAdded={() => {
 					setBridge(CMDS.RTC.STATUS.ESTABLISHED)
 				}}
 				onRemotePlay={() => {
 					sessionMap.session.start();
-					setStageState({reason: "", state: STAGE.STATUS.IN_PROGRESS});
+					setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.IN_PROGRESS}));
 				}}
 				connectionStatus={connectionStatus}
 				rtcManager={RTCManager}
 				faceProcessor={faceProcessor} />
 			</div>
 			 <Introduction
-			 stageState={stageState}
+			 stageData={stageData}
 			 useJoinForm={useJoinForm}
 			 onUsernameFormSubmit={(name) => {
-				console.log(`New user ${name}, state: ${stageState}`)
-				if(stageState.state == STAGE.STATUS.NONE){
+				console.log(`New user ${name}, stage state: ${stageData}`)
+				if(stageData.state == STAGE.STATUS.NONE){
 					socket.current.emit(CMDS.SOCKET.JOIN_ROOM, {name: name});
 				}
 			 }}/>
 			 <ToastCommunications />
-			<div style={{display: `${stageType == STAGE.TYPE.VIDEO_CHAT ? 'none' : 'block'}`}}>
+			<div style={{display: `${stageData.type == STAGE.TYPE.VIDEO_CHAT ? 'none' : 'block'}`}}>
 			{surveyModel.current != null &&  <Survey className="survey-container" model={surveyModel.current} /> }
 			</div>
 		</div>
