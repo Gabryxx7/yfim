@@ -41,7 +41,7 @@ class Stage {
     if(this.extra?.prompt != null){
       return {};
     }
-    if(this.parent != null){
+    if(this.parent != null && this.parent.extra?.prompt){
       console.log("Parent's prompt " + this.parent.extra?.prompt)
       return this.parent.extra;
     }

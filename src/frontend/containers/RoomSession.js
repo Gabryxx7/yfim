@@ -63,6 +63,7 @@ function Room(props) {
 	useEffect(() => {
 		console.log(`STAGE TYPE: ${stageData.type}`)
 		if(stageData.state == STAGE.STATUS.NONE){
+			setCurrentSurvey(null);
 			setPrompt("Waiting for your conversation partner to join the call...");
 			// TOASTS.TEST.show({onAction: (res) => console.log("Toast clicked! " +res)})
 			return;
@@ -84,6 +85,7 @@ function Room(props) {
 		}
 		if(stageData.state == STAGE.STATUS.IN_PROGRESS){
 			if(stageData.type == STAGE.TYPE.VIDEO_CHAT){
+				setCurrentSurvey(null);
 				const newPrompt = sessionMap.session.data?.stage?.step?.prompt;
 				if(newPrompt != null && newPrompt != undefined){
 					setPrompt(newPrompt);
@@ -146,7 +148,6 @@ function Room(props) {
 			surveyModel.current.onComplete.add((sender, options) => {
 				console.log(JSON.stringify(sender.data, null, 3));
 				setStageData((prev) => ({...prev, reason: "", state: STAGE.STATUS.COMPLETED, data: sender.data}));
-				setCurrentSurvey(null);
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
 			setCurrentSurvey(surveyModel.current);
