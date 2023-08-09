@@ -63,6 +63,7 @@ const server_port = process.env.PORT || 3000
 
 // Certificate
 var SSLPath = "/etc/letsencrypt/live/yfim.gmarini.com-0001/";
+var SSLPath = "./SSL/yfim_";
 var privateKey = null;
 var certificate = null;
 var ca = null;
@@ -73,8 +74,9 @@ try{
 
 } catch(error){
   console.warn(`No SSL certificates found in folder ${SSLPath}, using local certificates in ./SSL/`)
-  SSLPath = "'./SSL/yfim_";
-  privateKey = fs.readFileSync(SSLPath+'privkey.pem', 'utf8');
+  // SSLPath = "./SSL/yfim_";
+ SSLPath = "/etc/letsencrypt/live/yfim.gmarini.com-0001/";  
+privateKey = fs.readFileSync(SSLPath+'privkey.pem', 'utf8');
   certificate = fs.readFileSync(SSLPath+'cert.pem', 'utf8');
   ca = fs.readFileSync(SSLPath+'chain.pem', 'utf8');
 }
@@ -85,8 +87,8 @@ const credentials = {
 	ca: ca
 };
 const app = express();
-const httpServer = http.createServer(app).listen(port);
-const httpsServer = https.createServer(credentials, app).listen(port);
+//const httpServer = http.createServer(app).listen(server_port);
+const httpsServer = https.createServer(credentials, app).listen(server_port);
 const io = new Server(httpsServer);
 
 console.log(`\nServing on port: ${server_port}`);
@@ -100,7 +102,7 @@ console.log(`Room 1 survey: on port: https://localhost:${server_port}/s/1/guest`
 const sessionManager = new SessionManager(io)
 // sessionManager = new SessionManager(io)
 
-console.log("starting server on port: " + port);
+console.log("starting server on port: " + server_port);
 
 // parse application/json
 app.use(bodyParser.json());
