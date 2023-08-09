@@ -145,7 +145,8 @@ export default class FaceProcessor extends VideoProcessor {
 			let imgWidthR = this.detections.detection.imageWidth;
 			let imgHeightR = this.detections.detection.imageHeight;
 
-			let resized = faceapi.resizeResults(this.detections, { width: ctxWidth, height: ctxHeight }); // For some reason it's not quite centered
+			// let resized = faceapi.resizeResults(this.detections, { width: ctxWidth, height: ctxHeight }); // For some reason it's not quite centered
+			let resized = faceapi.resizeResults(this.detections, { width: cWidth, height: cHeight }); // For some reason it's not quite centered
 			imgWidthR = resized.detection.imageWidth;
 			imgHeightR = resized.detection.imageHeight;
 
