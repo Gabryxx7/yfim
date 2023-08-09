@@ -82,7 +82,8 @@ function Room(props) {
 				// setPrompt("Waiting for your conversation partner to complete the survey...");
 			}
 			socket.current.emit(CMDS.SOCKET.STEP_COMPLETED, completionData);
-			FileSaver.saveAs(completionData.data, baseFilename)
+			const blob = new Blob([JSON.stringify(completionData.data)], {type: "text/plain;charset=utf-8"});
+			FileSaver.saveAs(blob, baseFilename)
 			return;
 		}
 		if(stageData.state == STAGE.STATUS.IN_PROGRESS){
