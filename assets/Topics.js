@@ -23,8 +23,8 @@ Topics[QUESTION.TYPE.WOULDYOU] = [
     "Would you rather have lunch with Donald Trump or Kim Kardashian?"
 ],
 
-Topics[QUESTION.TYPE.QUEST] = {}
-Topics[QUESTION.TYPE.QUEST][QUESTION.CATEGORY.KIDS] = [
+Topics[QUESTION.TYPE.QUEST_CATEGORIES] = {}
+Topics[QUESTION.TYPE.QUEST_CATEGORIES][QUESTION.CATEGORY.KIDS] = [
     [
         "Try to convince your conversation partner that homework helps in learning",
         "You are arguing that homework is a waste of time."
@@ -55,7 +55,7 @@ Topics[QUESTION.TYPE.QUEST][QUESTION.CATEGORY.KIDS] = [
     ]
 ];
 
-Topics[QUESTION.TYPE.QUEST][QUESTION.CATEGORY.MATURE] = [
+Topics[QUESTION.TYPE.QUEST_CATEGORIES][QUESTION.CATEGORY.MATURE] = [
     [
         "You are arguing that pro-choice is vital.",
         "Try to convince your conversation partner that pro-life is vital."
@@ -78,7 +78,7 @@ Topics[QUESTION.TYPE.QUEST][QUESTION.CATEGORY.MATURE] = [
     ]
 ];
 
-Topics[QUESTION.TYPE.QUEST][QUESTION.CATEGORY.GENERAL] = [
+Topics[QUESTION.TYPE.QUEST_CATEGORIES][QUESTION.CATEGORY.GENERAL] = [
     [
         "Try to convince your conversation partner that meat is the way to go.",
         "Try to convince your conversation partner that vegan is the way to go."
@@ -104,6 +104,8 @@ Topics[QUESTION.TYPE.QUEST][QUESTION.CATEGORY.GENERAL] = [
         "You are arguing that cellphones should be integrated into classroom teaching."
     ]
 ]
+
+Topics[QUESTION.TYPE.QUEST] = [...Topics[QUESTION.TYPE.QUEST_CATEGORIES][QUESTION.CATEGORY.MATURE], ...Topics[QUESTION.TYPE.QUEST_CATEGORIES][QUESTION.CATEGORY.GENERAL]]
 Topics[QUESTION.TYPE.ICEBREAKER] = [
     "Describe your current mood with one word.",
     "What animal would you be and why?",

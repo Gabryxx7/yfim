@@ -1,6 +1,7 @@
 const QUESTION = {
   TYPE: {
     ICEBREAKER: "icebreaker",
+    QUEST_CATEGORIES: "quest_categories",
     QUEST: "quest",
     WOULDYOU: "wouldyou"
   },
