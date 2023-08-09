@@ -6,7 +6,8 @@ import { SessionContext } from "../classes/ClientSession.js";
 import FileSaver from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
-import * as JSZip from 'jszip'
+import JSZip from "jszip";
+
 
 const setVideoConstraints = (video) => {
 	video.getTracks().forEach((track) => {
