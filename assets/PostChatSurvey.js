@@ -154,7 +154,7 @@ const SurveyTemplate = {
 }
 
 const TestSurvey = structuredClone(SurveyTemplate);
-TestSurvey.surveyId = "testSurvey";
+TestSurvey.surveyModelId = "testSurvey";
 TestSurvey.pages.push({
   title: "Test question",
   description: "Test question",
@@ -176,7 +176,7 @@ TestSurvey.pages.push({
 
 
 const PostChatSurvey = structuredClone(SurveyTemplate);
-PostChatSurvey.surveyId = "postChatSurvey";
+PostChatSurvey.surveyModelId = "postChatSurvey";
 // PostChatSurvey.pages.push({
 //   title: "Emotional Self-Assessment",
 //   description: "Please anser the following questions considering how **YOU** felt",
@@ -255,7 +255,7 @@ for(let key in SURVEYS){
   SURVEYS[key] = {
       model: SURVEYS[key],
       id: key,
-      surveyId: SURVEYS[key].surveyId
+      surveyModelId: SURVEYS[key].surveyModelId
     }
 }
 

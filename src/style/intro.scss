@@ -1,14 +1,27 @@
 
 .intro-container{
-   position: absolute;
-   display: flex;
-   place-content: center;
-   place-items: center;
-   z-index: 80;
-   top: 0;
-   bottom: 0;
-   right: 0;
-   left: 0;
+  //  position: absolute;
+  //  display: flex;
+  //  place-content: center;
+  //  place-items: center;
+  //  z-index: 80;
+  //  top: 0;
+  //  bottom: 0;
+  //  right: 0;
+  //  left: 0;
+
+    position: relative;
+    display: flex;
+    place-content: center;
+    place-items: center;
+    z-index: 80;
+    padding-top: 4rem;
+    /* top: 25%; */
+    /* bottom: 0; */
+    /* right: 0; */
+    /* left: 0; */
+    height: 100%;
+    
    &:not(.none){
      display: none;
    }

@@ -45,6 +45,7 @@ function Room(props) {
 	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
 	// Where I only set the onComplete() callback on the first page render, this seems to do the trick (probably because of memoization?!)
 	const surveyModel = useRef(null)
+	const [currentSurvey, setCurrentSurvey] = useState(null)
 
 	useEffect(() => {
 		// if(surveyModel.current == null){
@@ -88,9 +89,10 @@ function Room(props) {
 					setPrompt(newPrompt);
 				}
 			}
-			// else if(stageData.type == STAGE.TYPE.SURVEY){
-			// 	// setPrompt("We have some questions for you...");
-			// }
+			else if(stageData.type == STAGE.TYPE.SURVEY){
+				console.log("Current Survey model...", surveyModel.current)
+				// setPrompt("We have some questions for you...");
+			}
 			else {
 
 			}
@@ -125,25 +127,32 @@ function Room(props) {
 		sessionMap.session.start();
 		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS, type: sessionMap.session.data?.stage?.step?.type});
 
-		const surveyId = SURVEYS[sessionMap.session.data?.stage?.step?.surveyId] ?? null;
-		console.log("SURVEY ID", surveyId)
+		if(sessionMap.session.data?.stage?.step?.type != STAGE.TYPE.SURVEY) return;
+		const surveyDataModel = SURVEYS[sessionMap.session.data?.stage?.step?.surveyModelId] ?? null;
+		console.log("SURVEY ID", surveyDataModel)
 		if(surveyModel.current != null){
-			if(surveyId != null && surveyModel.current.surveyId == surveyId.surveyId){
+			if(surveyDataModel != null && surveyModel.current.surveyModelId == surveyDataModel.surveyModelId){
+				console.log("Clearing and re-rendering current survey");
 				surveyModel.current.clear();
 				surveyModel.current.render();
 				return;
 			}
 		}
 		try{
-			surveyModel.current = new Model(SURVEYS[surveyId.id].model);
+			console.log(`Loading new survey ${surveyDataModel.surveyModelId}`);
+			surveyModel.current = new Model(surveyDataModel.model);
+			// surveyModel.current.clear();
+			// surveyModel.current.render();
 			surveyModel.current.onComplete.add((sender, options) => {
 				console.log(JSON.stringify(sender.data, null, 3));
 				setStageData((prev) => ({...prev, reason: "", state: STAGE.STATUS.COMPLETED, data: sender.data}));
+				setCurrentSurvey(null);
 			})
 			surveyModel.current.onAfterRenderSurvey.add(() => {console.log("SURVEY RENDERED")});
+			setCurrentSurvey(surveyModel.current);
 		}
 		catch(error){
-			console.warn(`Could not find survey with ID ${surveyId}`);
+			console.warn(`Could not find survey with ID ${surveyDataModel.surveyModelId}`);
 		}
 	}
 
@@ -280,7 +289,7 @@ function Room(props) {
 			 }}/>
 			 <ToastCommunications />
 			<div style={{display: `${stageData.type == STAGE.TYPE.VIDEO_CHAT ? 'none' : 'block'}`}}>
-			{surveyModel.current != null &&  <Survey className="survey-container" model={surveyModel.current} /> }
+			{currentSurvey != null && <Survey className={`survey-container ${stageData.type}`} model={currentSurvey} /> }
 			</div>
 		</div>
 		</div>

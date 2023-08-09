@@ -13,7 +13,7 @@ class ServerSession extends TimedEvent {
       this.currentStage = null;
       this.currentStageIdx = -1;
       this.config = SessionConfig;
-      this.availableConditions = structuredClone(this.config.available_conditions);
+      this.availableConditions = structuredClone(this.config.randomChoices);
       this.stagesConfig = this.config.stages;
       this.question_selected = [];
       this.stages = [];

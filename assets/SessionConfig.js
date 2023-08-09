@@ -27,7 +27,7 @@ const makeStage = (tag="NONE", name="Experiment", topic=QUESTION.TYPE.ICEBREAKER
         type: STAGE.TYPE.VIDEO_CHAT,
         duration: videoStageDuration,
       },
-      { name: "Survey", type: STAGE.TYPE.SURVEY, surveyId: SURVEYS.POST_VIDEO_CHAT.id }
+      { name: "Survey", type: STAGE.TYPE.SURVEY, surveyModelId: SURVEYS.POST_VIDEO_CHAT.id }
     ]
   }
 }
@@ -38,7 +38,18 @@ const SessionConfig = {
 }
 
 const finalStages = [
-  makeStage('FINAL', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, {}),
+  // {
+  //   name: "TestSurvey",
+  //   topic: QUESTION.TYPE.QUEST,
+  //   steps: [
+  //     {
+  //       name: "Survey",
+  //       type: STAGE.TYPE.SURVEY,
+  //       surveyModelId: SURVEYS.POST_VIDEO_CHAT.id,
+  //     }
+  //   ]
+  // },
+  makeStage('FINAL', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, null),
   ...SessionConfig.randomChoices.map((condition, index) => makeStage('FINAL',`Experiment - ${index}`, QUESTION.TYPE.QUEST, videoChatDuration, {pick_random_condition: true, no_repetitions: true})),
   {
     name: "Experiment - Interview Placeholder",
@@ -47,7 +58,7 @@ const finalStages = [
       {
         name: "Survey",
         type: STAGE.TYPE.SURVEY,
-        surveyId: SURVEYS.INTERVIEW.id,
+        surveyModelId: SURVEYS.INTERVIEW.id,
       }
     ]
   }
@@ -61,7 +72,7 @@ const testStages = [
       {
         name: "Survey",
         type: STAGE.TYPE.SURVEY,
-        surveyId: SURVEYS.TEST.id,
+        surveyModelId: SURVEYS.TEST.id,
       }
     ]
   },
@@ -70,7 +81,8 @@ const testStages = [
   
 ];
 
-SessionConfig.stages = testStages;
+// SessionConfig.stages = testStages;
+SessionConfig.stages = finalStages;
 console.log(SessionConfig);
 
 export default SessionConfig;

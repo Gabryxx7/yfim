@@ -213,6 +213,7 @@ input[type="checkbox"] {
 }
 
 .main-call-container{
+  height: 85vh;
   &.stage-survey{
     .media-bridge{
       display: none;
@@ -409,15 +410,13 @@ main, .main-room{
   margin: auto;
   display: flex;
   flex-direction: column;
-  place-content: center;
+  place-content: start;
   place-items: center;
-  justify-content: center;
-  justify-items: center;
   // width: 80vw;
   width: 100vw;
 }
 .main-room{
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .intro-form form {

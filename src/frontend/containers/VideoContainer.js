@@ -57,14 +57,20 @@ export default function VideoContainer(props) {
 			return updated;
 		})
 	}
-	const toggleAudioMuted = (video) => {
+	const toggleAudioMuted = (video, override=null) => {
+		if(!video || !video.srcObject) return;
 		var newStatus = null;
-		video.srcObject.getAudioTracks().forEach((track) => newStatus = track.enabled = !track.enabled);
+		video.srcObject.getAudioTracks().forEach((track) => {
+			newStatus = track.enabled = override == null ? !track.enabled : override;
+		});
 		updateVideoStatus(video.id, {audio: newStatus})
 	}
-	const toggleVideoMuted = (video) => {
+	const toggleVideoMuted = (video, override=null) => {
+		if(!video || !video.srcObject) return;
 		var newStatus = null;
-		video.srcObject.getVideoTracks().forEach(track => newStatus = track.enabled = !track.enabled);
+		video.srcObject.getVideoTracks().forEach((track) => {
+			newStatus = track.enabled = override == null ? !track.enabled : override;
+		});
 		updateVideoStatus(video.id, {video: newStatus})
 	}
 	useEffect(() => {
@@ -119,6 +125,8 @@ export default function VideoContainer(props) {
 				},
 			});
 			localVideo.current.srcObject = stream;
+			toggleVideoMuted(localVideo.current, false);
+			toggleAudioMuted(localVideo.current, false);
 		} catch (error) {
 			console.error("Error getting user media: " + error);
 		}
@@ -149,15 +157,19 @@ export default function VideoContainer(props) {
 	};
 
 	useEffect(() => {
+		console.log(`New step starting ${stageData.type}`)
+		if(stageData.type != STAGE.TYPE.VIDEO_CHAT){
+			toggleVideoMuted(localVideo.current, false);
+			toggleAudioMuted(localVideo.current, false);
+			return;
+		}
+		toggleVideoMuted(localVideo.current, true);
+		toggleAudioMuted(localVideo.current, true);
+	}, [stageData])
+
+	useEffect(() => {
 		if(mediaRecorder == null) return;
 		sessionMap.session.addOnStart((session) => {
-			if(session.data?.stage?.step?.type != STAGE.TYPE.VIDEO_CHAT){
-				toggleVideoMuted(localVideo);
-				toggleAudioMuted(localVideo);
-				return;
-			}
-			toggleVideoMuted(localVideo);
-			toggleAudioMuted(localVideo);
 			if(mediaRecorder != null && mediaRecorder.state != "recording"){
 				console.log("Starting MediaRecorder ", mediaRecorder);
 				mediaRecorder.start();

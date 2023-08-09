@@ -13,22 +13,28 @@ export default class FaceProcessor extends VideoProcessor {
 		this.ctx = null;
       this.recording = false;
       this.chunks = [];
+		this.allVisible = true;
 	}
 
    setMaskData(maskData){
-		for (let l of LandmarksData){
-			if(maskData.visibleFeatures == null || maskData.visibleFeatures.length <= 0){
+		if(maskData.visibleFeatures == null || maskData.visibleFeatures.length <= 0){
+			for (let l of LandmarksData){
 				l.visible = true;
-				continue;
 			}
-			l.visible = false;
-			for(let feature of maskData.visibleFeatures){
-				if(l.name.toUpperCase() == feature.toUpperCase()){
-					l.visible = true;
-					break;
+			this.allVisible = true;
+		}
+		else{
+			this.allVisible = false;
+			for (let l of LandmarksData){
+				l.visible = false;
+				for(let feature of maskData.visibleFeatures){
+					if(l.name.toUpperCase() == feature.toUpperCase()){
+						l.visible = true;
+						break;
+					}
 				}
+				// console.log(`Updated Mask Data ${l.name} ${l.visible}` )
 			}
-			// console.log(`Updated Mask Data ${l.name} ${l.visible}` )
 		}
    }
 
@@ -153,19 +159,21 @@ export default class FaceProcessor extends VideoProcessor {
 			}
 			// I need to draw the cutout/clipping maskes first and then draw the landmarks on top, i can't do both in the same loop as the clipping masks of the next
 			// Points would override the previous landmark points
-         var canvasCleared = false;
-			for (let l of LandmarksData) {
-            if(!l.visible) continue;
-				if (l.drawMask) {
-               if(!canvasCleared){
-                  this.ctx.fillStyle = "black";
-                  this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                  canvasCleared = true;
-               }
-					try {
-						l.drawClippingMask(this.ctx);
-					} catch (error) {
-						console.warn("Error drawing clipping mask", error.message);
+			if(!this.allVisible){
+				var canvasCleared = false;
+				for (let l of LandmarksData) {
+					if(!l.visible) continue;
+					if (l.drawMask) {
+						if(!canvasCleared){
+							this.ctx.fillStyle = "black";
+							this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+							canvasCleared = true;
+						}
+						try {
+							l.drawClippingMask(this.ctx);
+						} catch (error) {
+							console.warn("Error drawing clipping mask", error.message);
+						}
 					}
 				}
 			}
