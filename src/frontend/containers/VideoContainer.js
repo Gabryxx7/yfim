@@ -38,29 +38,34 @@ export default function VideoContainer(props) {
 	const canvasRef = useRef();
 	const localVideo = useRef();
 	const remoteVideo = useRef();
-	const remoteStream = useRef();
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
 	const onStreamAdded = props.onStreamAdded;
 
 	useEffect(() => {
 		if(videoStatus == null){
 			const defaultVideoStatus = {};
-			defaultVideoStatus[VIDEO_ID.LOCAL] = {muted: false, audio: true, video: true};
-			defaultVideoStatus[VIDEO_ID.REMOTE] = {muted: false, audio: true, video: true};
+			defaultVideoStatus[VIDEO_ID.LOCAL] = {audio: true, video: true};
+			defaultVideoStatus[VIDEO_ID.REMOTE] = {audio: true, video: true};
 			setVideoStatus(defaultVideoStatus);
 		}
 	}, [videoStatus])
 
-	const updateVideoStatus = (videoSrc, newStatus) => {
+	const updateVideoStatus = (videoId, newStatus) => {
 		setVideoStatus((prev) => {
 			const updated = {...prev};
-			updated[videoSrc.id] = {...prev[videoSrc.id], ...newStatus}
+			updated[videoId] = {...prev[videoId], ...newStatus}
 			return updated;
 		})
 	}
-	const setVideoMuted = (videoSrc, muted) => {
-		videoSrc.muted = muted;
-		updateVideoStatus(videoSrc, {muted: muted})
+	const toggleAudioMuted = (video) => {
+		var newStatus = null;
+		video.srcObject.getAudioTracks().forEach((track) => newStatus = track.enabled = !track.enabled);
+		updateVideoStatus(video.id, {audio: newStatus})
+	}
+	const toggleVideoMuted = (video) => {
+		var newStatus = null;
+		video.srcObject.getVideoTracks().forEach(track => newStatus = track.enabled = !track.enabled);
+		updateVideoStatus(video.id, {video: newStatus})
 	}
 	useEffect(() => {
 		if(stageData == null) return;
@@ -77,7 +82,6 @@ export default function VideoContainer(props) {
 	const onAddStream = (e) => {
 		console.log(`RTC: Adding MediaStream ${e?.stream?.id}`);
 		if (remoteVideo.current != null) {
-			remoteStream.current = e.stream;
 			remoteVideo.current.srcObject = e.stream;
 			remoteVideo.current.addEventListener("play", () => {
 				console.log("RTC: Remote Video is now playing");
@@ -148,12 +152,12 @@ export default function VideoContainer(props) {
 		if(mediaRecorder == null) return;
 		sessionMap.session.addOnStart((session) => {
 			if(session.data?.stage?.step?.type != STAGE.TYPE.VIDEO_CHAT){
-				setVideoMuted(localVideo.current, true);
-				setVideoMuted(remoteVideo.current, true);
+				toggleVideoMuted(localVideo);
+				toggleAudioMuted(localVideo);
 				return;
 			}
-			setVideoMuted(localVideo.current, false);
-			setVideoMuted(remoteVideo.current, false);
+			toggleVideoMuted(localVideo);
+			toggleAudioMuted(localVideo);
 			if(mediaRecorder != null && mediaRecorder.state != "recording"){
 				console.log("Starting MediaRecorder ", mediaRecorder);
 				mediaRecorder.start();
@@ -281,17 +285,22 @@ export default function VideoContainer(props) {
 	return (
 			<div className='media-bridge'>
 				<div className="video-call-icons">
-					<div className="live-icon icon"> <FontAwesomeIcon icon={icon({name: 'video'})} /> </div>
-					<div className="mic-icon icon" onClick={() => setVideoMuted(localVideo.current, !videoStatus[VIDEO_ID.LOCAL].muted)}>
-						{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].muted ?
-							<FontAwesomeIcon icon={icon({name: 'microphone-slash'})} /> :
-							<FontAwesomeIcon icon={icon({name: 'microphone'})} />
+					<div className="live-icon icon" onClick={() => toggleVideoMuted(localVideo.current)}>
+						{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].video ?
+							<FontAwesomeIcon icon={icon({name: 'video'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'video-slash'})} />
+						}
+					</div>
+					<div className="mic-icon icon" onClick={() => toggleAudioMuted(localVideo.current)}>
+						{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].audio ?
+							<FontAwesomeIcon icon={icon({name: 'microphone'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'microphone-slash'})} />
 						}
 					</div>
 					<div className="headset-icon icon">
-						{videoStatus != null && videoStatus[VIDEO_ID.REMOTE].muted ?
-							<FontAwesomeIcon icon={icon({name: 'phone-slash'})} /> :
-							<FontAwesomeIcon icon={icon({name: 'phone'})} />
+						{videoStatus != null && videoStatus[VIDEO_ID.REMOTE].audio ?
+							<FontAwesomeIcon icon={icon({name: 'phone'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'phone-slash'})} />
 						}
 					</div>
 				</div>
