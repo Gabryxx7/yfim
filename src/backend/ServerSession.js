@@ -76,7 +76,6 @@ class ServerSession extends TimedEvent {
     try {
       console.info("+ both ready: start process");
       this.room.printDebug();
-      this.id = this.generateSessionId(this.startTick.date.getTime());
       let host = this.room.getUsersByType(User.TYPE.HOST);
       if(host.length > 0){
         if(host.length > 1) console.warn(`Warning: More than one host found! ${host} Selecting the first one: ${host[0]}`);

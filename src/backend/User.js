@@ -8,6 +8,8 @@ import fs from "fs";
  * - A guest user with a generic "guest" id
  * Obviously the "this.Type" field is not really needed but just in case we'd like to expand this project to have more people in one room...
  * **/
+
+const userUploadsRoot = "./uploads/";
 class User {
 	static TYPE = {
 		NONE: "none",
@@ -227,7 +229,24 @@ class User {
 		console.log(`User ${this.name} - ${this.id} completed stage`);
 		if (data != null && data != undefined) {
 			console.log("User completion data: ", data);
-			fs.writeFileSync("./uploads/" + data.filename, JSON.stringify(data.data, null, 3));
+			var uploadDir = userUploadsRoot;
+			try{
+				if (!fs.existsSync(uploadDir)) {
+					fs.mkdirSync(uploadDir);
+				}
+				uploadDir += this.room.session.id +"/";
+				if (!fs.existsSync(uploadDir)) {
+					fs.mkdirSync(uploadDir);
+				}
+				uploadDir += "Stage_" + (this.room.session.currentStageIdx+1) +"/";
+				if (!fs.existsSync(uploadDir)) {
+					fs.mkdirSync(uploadDir);
+				}
+			} catch(error){
+				console.warn(`Error making dir ${uploadDir}`, error);
+				uploadDir = userUploadsRoot;
+			}
+			fs.writeFileSync(uploadDir + data.filename, JSON.stringify(data.data, null, 3));
 		}
     this.status = USER.STATUS.READY;
     this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData());

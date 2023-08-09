@@ -30,7 +30,7 @@ export default function VideoContainer(props) {
 	const sessionMap = useContext(SessionContext);
 	const faceProcessor = props.faceProcessor;
 	const recordingEnabled = props.recordingEnabled ?? false;
-	const [mediaRecorder, setMediaRecorder] = useState(null);
+	const mediaRecorder = useRef(null);
 	const [videoStatus, setVideoStatus] = useState(null);
 	const stageData = props.stageData ?? null;
 	const mediaChunks = useRef([]);
@@ -76,13 +76,23 @@ export default function VideoContainer(props) {
 	}
 	useEffect(() => {
 		if(stageData == null) return;
+		if(stageData.type != STAGE.TYPE.VIDEO_CHAT){
+			return;
+		}
 		if(stageData.state == STAGE.STATUS.COMPLETED){
-			if(recordingEnabled){
-				if(mediaRecorder != null && mediaRecorder.state == "recording"){
-					mediaRecorder.stop();
-				}
+			if(mediaRecorder.current != null){
+				mediaRecorder.current.stop();
+			}
+		} else if(stageData.state == STAGE.STATUS.IN_PROGRESS){
+			console.log("New stage in progress. mediaRecorder's state", mediaRecorder.current?.state);
+			if(mediaRecorder.current != null && mediaRecorder.current?.state != "recording"){
+				mediaChunks.current = [];
+				mediaRecorder.current.start();
+				console.log("Recording started!", mediaRecorder.current.state)
+				faceProcessor.startRecording(sessionMap.session);
 			}
 		}
+		console.log(`Video Container state ${stageData.state}. Type: ${stageData.type}. mediaRecorder: ${mediaRecorder.current?.state}`)
 	}, [stageData])
 
 	// when the other side added a media stream, show it on screen
@@ -132,57 +142,20 @@ export default function VideoContainer(props) {
 			console.error("Error getting user media: " + error);
 		}
 		localVideo.current.addEventListener("play",  () => {
-			console.log("Local video PLAY", localVideo.current.id);
+			console.log("Local video PLAY", localVideo.current.id, "Media Recorder null?", mediaRecorder.current == null, "undefined?", mediaRecorder.current == undefined);
 			if(recordingEnabled){
-				const newMediaRecorder = new MediaRecorder(localVideo.current.srcObject);
-				console.log("Created media recorder", newMediaRecorder)
-				setMediaRecorder(newMediaRecorder);
-				// faceProcessor.start();
-			}
-		});
+				if(mediaRecorder.current != null){
+					return;
+				}
+				mediaRecorder.current = new MediaRecorder(localVideo.current.srcObject);
 
-		// attach local media to the peer connection
-		// stream.getTracks().forEach((track) => {
-		// 	console.log('Adding track ', track);
-		// 	this.pc.addTrack(track, this.localStream)
-		// });
-
-		// try{
-		// 	if(this.sessionMap.session.user.role.toLowerCase() === "host"){
-		// 		this.initiateCall()
-		// 	}
-		// }
-		// catch(error){
-		// 	console.error(`Error initiating call: `, error);
-		// }
-	};
-
-	useEffect(() => {
-		console.log(`New step starting ${stageData.type}`)
-		if(stageData.type != STAGE.TYPE.VIDEO_CHAT){
-			toggleVideoMuted(localVideo.current, false);
-			toggleAudioMuted(localVideo.current, false);
-			return;
-		}
-		toggleVideoMuted(localVideo.current, true);
-		toggleAudioMuted(localVideo.current, true);
-	}, [stageData])
-
-	useEffect(() => {
-		if(mediaRecorder == null) return;
-		sessionMap.session.addOnStart((session) => {
-			if(mediaRecorder != null && mediaRecorder.state != "recording"){
-				console.log("Starting MediaRecorder ", mediaRecorder);
-				mediaChunks.current = [];
-				mediaRecorder.start();
-				console.log("Recording started!")
-				faceProcessor.startRecording(session);
-				mediaRecorder.ondataavailable = (e) => {
+				mediaRecorder.current.ondataavailable = (e) => {
 					mediaChunks.current.push(e.data);
 				}
-				mediaRecorder.onstop = (e) => {
+
+				mediaRecorder.current.onstop = (e) => {
+					console.log("Recording stopped!");
 					try{
-						console.log("Recording stopped!")
 						// convert saved chunks to blob
 						const date = new Date().toISOString().split(".")[0];
 						let baseFilename = `YFIM_<type>_${sessionMap.session.user?.name}_${date}`;
@@ -245,19 +218,38 @@ export default function VideoContainer(props) {
 					catch(error){
 						console.warn("Error storing video and face api files...", error);
 					}
-					// setMediaRecorder(null)
 				}
-				// const recordTestDuration = 5000;
-				// toast("Recording Started!", {
-				// 	autoClose: recordTestDuration,
-				// 	pauseOnFocusLoss: false,
-				// 	draggable: false,
-				// 	pauseOnHover: false
-				// })
-				// setTimeout(() => mediaRecorder.stop(), recordTestDuration);
+				console.log("Created media recorder", mediaRecorder.current)
+				// faceProcessor.start();
 			}
 		});
-	}, [mediaRecorder])
+
+		// attach local media to the peer connection
+		// stream.getTracks().forEach((track) => {
+		// 	console.log('Adding track ', track);
+		// 	this.pc.addTrack(track, this.localStream)
+		// });
+
+		// try{
+		// 	if(this.sessionMap.session.user.role.toLowerCase() === "host"){
+		// 		this.initiateCall()
+		// 	}
+		// }
+		// catch(error){
+		// 	console.error(`Error initiating call: `, error);
+		// }
+	};
+
+	useEffect(() => {
+		console.log(`New step starting ${stageData.type}`)
+		if(stageData.type != STAGE.TYPE.VIDEO_CHAT){
+			toggleVideoMuted(localVideo.current, false);
+			toggleAudioMuted(localVideo.current, false);
+			return;
+		}
+		toggleVideoMuted(localVideo.current, true);
+		toggleAudioMuted(localVideo.current, true);
+	}, [stageData])
 
 	useEffect(() => {
 		if(faceProcessor != null){

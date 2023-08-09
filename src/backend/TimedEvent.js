@@ -41,6 +41,7 @@ class TimedEvent {
 
 	constructor(updateInterval=1000, duration=-1) {
 		this.status = TimedEvent.STATUS.NONE;
+      this.id = "NO ID";
 		this.timer = null;
 		this.startTick = this.getTime();
 		this.lastTick = this.getTime();
@@ -116,6 +117,8 @@ class TimedEvent {
 	start() {
       this.startTick = this.getTime();
       this.lastTick = this.getTime();
+      // this.id = this.generateSessionId(this.startTick.date.getTime());
+      this.id = new Date().toISOString().split(".")[0];
       this.status = TimedEvent.STATUS.RUNNING;
       this.onStart();
       this.callAll(TimedEvent.CALLBACKS.onStart);
