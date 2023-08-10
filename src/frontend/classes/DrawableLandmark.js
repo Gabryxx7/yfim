@@ -414,7 +414,7 @@ const defLandData = {
 	interpTime: 0.15,
 };
 
-const LandmarksData = [
+const DefaultLandmarksData = [
 	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: false }),
 	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: false }),
 	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: false }),
@@ -443,4 +443,4 @@ let centerOffset = 0;
 const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 let updateCenterOffsetInterval = null;
 
-export { LandmarksData };
+export { DefaultLandmarksData };

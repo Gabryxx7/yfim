@@ -56,12 +56,18 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: ["babel-loader"]
+        use: ["babel-loader"],
+        resolve: {
+          fullySpecified: false,
+        }
       },
       {
         use: ['babel-loader'],
         exclude: /node_modules/,
-        test: /\.(js|jsx)$/
+        test: /\.(js|jsx)$/,
+        resolve: {
+          fullySpecified: false,
+        }
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,

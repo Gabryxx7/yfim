@@ -1,31 +1,32 @@
 import VideoProcessor from "./VideoProcessor.js";
 // import * as faceapi from "face-api.js"; // Updated face-api, check below
 import * as faceapi from "@vladmandic/face-api"; // https://github.com/justadudewhohacks/face-api.js/issues?q=undefined+backend+#issuecomment-681001997
-import { LandmarksData } from "./DrawableLandmark.js"
+import { DefaultLandmarksData } from "./DrawableLandmark.js"
 
 
 // faceapi doc: https://justadudewhohacks.github.io/face-api.js/docs/index.html
-export default class FaceProcessor extends VideoProcessor {
-	constructor(overrides = null, canvas = null, video=null) {
+class FaceProcessor extends VideoProcessor {
+	constructor(overrides = null, canvas = null, video=null, landmarksData=null) {
 		super(overrides, canvas), video;
+		// this.landmarksData = landmarksData ?? structuredClone(DefaultLandmarksData); // Gives an error with structuredClone, hopefully the import is not a reference...
+		this.landmarksData = landmarksData ?? DefaultLandmarksData;
 		this.detections = null;
 		this.detectionsUpdated = false;
 		this.ctx = null;
-      this.recording = false;
-      this.chunks = [];
+      	this.recording = false;
+      	this.chunks = [];
 		this.allVisible = true;
 	}
 
-   setMaskData(maskData){
-		if(maskData.visibleFeatures == null || maskData.visibleFeatures.length <= 0){
-			for (let l of LandmarksData){
+   setMaskData(maskData=null){
+		this.allVisible = true;
+		if(maskData?.visibleFeatures == null || maskData?.visibleFeatures.length <= 0){
+			for (let l of this.landmarksData){
 				l.visible = true;
 			}
-			this.allVisible = true;
 		}
 		else{
-			this.allVisible = false;
-			for (let l of LandmarksData){
+			for (let l of this.landmarksData){
 				l.visible = false;
 				for(let feature of maskData.visibleFeatures){
 					if(l.name.toUpperCase() == feature.toUpperCase()){
@@ -33,20 +34,27 @@ export default class FaceProcessor extends VideoProcessor {
 						break;
 					}
 				}
+				this.allVisible = this.allVisible && l.visible;
 				// console.log(`Updated Mask Data ${l.name} ${l.visible}` )
 			}
 		}
    }
 
-   startRecording(session){
-      delete this.chunks;
-      this.chunks = [];
-		this.chunks.push(session.getSessionData());
-      this.recording = true;
+   startRecording(session=null){
+		delete this.chunks;
+		this.chunks = [{start: performance.now(), startTime: Date.now(), frames: 0}];
+		if(session){
+			this.chunks.push(session.getSessionData());
+		}
+		this.recording = true;
    }
 
    stopRecording(filename){
       this.recording = false;
+	  this.chunks[0].end = performance.now();
+	  this.chunks[0].duration = performance.now() - this.chunks[0].start;
+	  this.chunks[0].endTime = Date.now();
+	  this.chunks[0].frames = this.chunks.length - 1;
       // console.log(this.chunks[0])
       // const blob = new Blob(this.chunks, {type: "text/plain;charset=utf-8"});
       const blob = new Blob([JSON.stringify(this.chunks)], {type: "text/plain;charset=utf-8"});
@@ -92,21 +100,27 @@ export default class FaceProcessor extends VideoProcessor {
 				.withFaceExpressions();
 			if (newDetections != undefined && newDetections != null) {
 				this.detections = newDetections;
-            if(this.recording){
-               const data = {};
-               data.landmarks = [];
-               for (let l of LandmarksData) {
-                  data.landmarks.push({name: l.name, points: l.getUpdatedPoints(this.detections.landmarks.positions)});
-               }
-               data.expressions = this.detections.expressions.asSortedArray();
-               data.class = {name: this.detections.detection.className, score: this.detections.detection.classScore}
-               data.score = this.detections.detection.score;
-               data.imageDims = this.detections.detection.imageDims;
-               data.box = this.detections.detection.box;
-               data.angle = this.detections.angle;
-               // this.chunks.push(JSON.stringify(data));
-               this.chunks.push(data);
-            }
+				this.allVisible = true;
+				for (let l of this.landmarksData) {
+					this.allVisible = this.allVisible && l.visible;
+				}
+				if(this.recording){
+					const data = {};
+					data.timestamp = performance.now();
+					data.offset = performance.now() - this.chunks[0].start;
+					data.landmarks = [];
+					for (let l of this.landmarksData) {
+						data.landmarks.push({name: l.name, points: l.getUpdatedPoints(this.detections.landmarks.positions), visible: (this.allVisible || l.visible)});
+					}
+					data.expressions = this.detections.expressions.asSortedArray();
+					data.class = {name: this.detections.detection.className, score: this.detections.detection.classScore}
+					data.score = this.detections.detection.score;
+					data.imageDims = this.detections.detection.imageDims;
+					data.box = this.detections.detection.box;
+					data.angle = this.detections.angle;
+					// this.chunks.push(JSON.stringify(data));
+					this.chunks.push(data);
+				}
 			}
 			this.detectionsUpdated = true;
 			// console.log("detections", this.detections);
@@ -161,7 +175,7 @@ export default class FaceProcessor extends VideoProcessor {
 			// detections = faceapi.resizeResults(detections, { width: this.ctx.canvas.clientWidth, height: this.ctx.canvas.clientHeight })
 			const landmarks = resized.landmarks;
 			// console.log("landmarks", landmarks);
-			for (let l of LandmarksData) {
+			for (let l of this.landmarksData) {
 				l.updatePointsFromLandmark(landmarks.positions);
 				l.setRotation(resized.angle.roll);
 			}
@@ -169,7 +183,7 @@ export default class FaceProcessor extends VideoProcessor {
 			// Points would override the previous landmark points
 			if(!this.allVisible){
 				var canvasCleared = false;
-				for (let l of LandmarksData) {
+				for (let l of this.landmarksData) {
 					if(!l.visible) continue;
 					if (l.drawMask) {
 						if(!canvasCleared){
@@ -188,7 +202,7 @@ export default class FaceProcessor extends VideoProcessor {
 			this.detectionsUpdated = false;
 		}
 
-		// for(let l of LandmarksData){
+		// for(let l of this.landmarksData){
 		//   l.drawPoints(ctx)
 		//   l.drawCentroid(ctx, false)
 		// }
@@ -200,3 +214,5 @@ export default class FaceProcessor extends VideoProcessor {
 		// window.requestAnimationFrame(() => drawCanvas());
 	}
 }
+
+export { FaceProcessor};

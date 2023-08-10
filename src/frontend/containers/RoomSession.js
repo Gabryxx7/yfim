@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
 import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
 import VideoContainer from "../containers/VideoContainer.js";
-import FaceProcessor from "../classes/FaceProcessor.js";
+import {FaceProcessor} from "../classes/FaceProcessor.js";
 import { STAGE } from "../../backend/Definitions.js"
 import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";

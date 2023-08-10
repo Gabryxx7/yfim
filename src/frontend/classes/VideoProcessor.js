@@ -39,8 +39,8 @@ export default class VideoProcessor {
          console.warn(`Video Processor is already running! ${this.config.name}`);
          return;
       }
-      console.log(`Starting ${this.config.name}`)
       await this._init();
+      console.log(`Starting ${this.config.name}`)
 
       // This here will print how many draw() and update() calls have been made every second. If waitForProcessor=true then they should always be the same
       // Otherwise they should differ and go at their own speed

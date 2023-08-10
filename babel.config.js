@@ -7,7 +7,25 @@ export default function (api) {
             {
                "regenerator": true
             }
-         ]
+         ],
+         [
+            'babel-plugin-import',
+            {
+              libraryName: '@mui/material',
+              libraryDirectory: '',
+              camel2DashComponentName: false,
+            },
+            'core',
+          ],
+          [
+            'babel-plugin-import',
+            {
+              libraryName: '@mui/icons-material',
+              libraryDirectory: '',
+              camel2DashComponentName: false,
+            },
+            'icons',
+          ]
       ],
       presets: [
          ['@babel/preset-env', {targets: {node: 'current'}}],

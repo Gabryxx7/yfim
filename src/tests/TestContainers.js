@@ -4,24 +4,44 @@ import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
 import { SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses } from "../../assets/PostChatSurvey.js";
 import VideoContainer from "../frontend/containers/VideoContainer.js";
-import FaceProcessor from "../frontend/classes/FaceProcessor.js";
+import {FaceProcessor} from "../frontend/classes/FaceProcessor.js";
+import {FaceMaskSelector} from "../frontend/components/Controls/FaceMaskSelector.js";
+import {RecordingControls} from "../frontend/components/Controls/RecordingControls.js";
 
 
 function FaceVideoTest(props) {
   const [userMedia, setUserMedia] = useState(null);
 	const [faceProcessor, setFaceProcessor] = useState(null);
+  const [recording, setRecording] = useState(false);
+  const maskSelector = <FaceMaskSelector faceProcessor={faceProcessor}/>
+  // const recordControls = <RecordingControls recording={recording} onClick={() => setRecording(!recording)} />
 
   useEffect(() => {
 		setFaceProcessor(new FaceProcessor());
 	}, []);
 
   return (
-    <div>
+    <div
+      style={{
+        width: '100vw',
+        display: 'block',
+        position: 'relative',
+        height: '100vh'
+      }}>
+        
       <VideoContainer
+        customVideoActions={[maskSelector]}
+				recordingEnabled={true}
+        recording={recording}
+				// stageData={stageData}
+				// socket={socket}
 				onStreamAdded={() => {
+					setBridge(CMDS.RTC.STATUS.ESTABLISHED)
 				}}
 				onRemotePlay={() => {
 				}}
+				// connectionStatus={connectionStatus}
+				// rtcManager={RTCManager}
 				faceProcessor={faceProcessor} />
     </div>
   );
