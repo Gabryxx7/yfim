@@ -130,7 +130,7 @@ function Room(props) {
 		console.log("Session update");
 		sessionMap.updateSession(data);
 		sessionMap.session.start();
-		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS, type: sessionMap.session.data?.stage?.step?.type});
+		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS, type: sessionMap.session.data?.stage?.step?.type, sessionId: sessionMap.session?.data?.sessionId});
 
 		if(sessionMap.session.data?.stage?.step?.type != STAGE.TYPE.SURVEY) return;
 		const surveyDataModel = SURVEYS[sessionMap.session.data?.stage?.step?.surveyModelId] ?? null;
@@ -270,6 +270,7 @@ function Room(props) {
 			<VideoContainer
 				recordingEnabled={true}
 				stageData={stageData}
+				userData={userData}
 				socket={socket}
 				onStreamAdded={() => {
 					setBridge(CMDS.RTC.STATUS.ESTABLISHED)

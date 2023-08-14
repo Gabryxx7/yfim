@@ -114,11 +114,14 @@ const upload = multer({
   dest: "./uploads/",
   storage: multer.diskStorage({
     destination: function (req, file, next) {
-      console.log(req.body, req.file, file);
-      next(null, path.join(__dirname, "uploads"));
+      console.log(req.body, req.body.sessionId, file);
+      const uploadFolder = req.body?.sessionId ?? "NO_SESSION";
+      const finalPath = path.join(__dirname, "uploads", uploadFolder);
+      fs.mkdirSync(finalPath, { recursive: true })
+      next(null, finalPath);
     },
     filename: function (req, file, cb) {
-      console.log(req.body, req.file, file);
+      // console.log(req.body, req.file, file);
       cb(null, file.originalname.replace("//", "-"));
     }
   }),

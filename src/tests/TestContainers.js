@@ -1,19 +1,30 @@
 import React, { Component, useEffect, useRef, useState } from "react";
+import TextField from '@mui/material/TextField';
 import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
 import { SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses } from "../../assets/PostChatSurvey.js";
+import { CMDS, DATA, STAGE } from "../backend/Definitions.js";
 import VideoContainer from "../frontend/containers/VideoContainer.js";
 import {FaceProcessor} from "../frontend/classes/FaceProcessor.js";
 import {FaceMaskSelector} from "../frontend/components/Controls/FaceMaskSelector.js";
 import {RecordingControls} from "../frontend/components/Controls/RecordingControls.js";
 
+function SessionDataInput(props) {
+
+}
 
 function FaceVideoTest(props) {
   const [userMedia, setUserMedia] = useState(null);
 	const [faceProcessor, setFaceProcessor] = useState(null);
   const [recording, setRecording] = useState(false);
   const maskSelector = <FaceMaskSelector faceProcessor={faceProcessor}/>
+	const [stageData, setStageData] = useState({type: STAGE.TYPE.VIDEO_CHAT, sessionId: "testSession"});
+	const [userData, setUserData] = useState({name: "faceTest"});
+  const sessionDataFields = <div>
+      <TextField label="Username" variant="standard" value={userData?.name} color="secondary" onChange={(e) => setUserData((prev) => ({...prev, name: e.target.value}))} />
+      <TextField label="SessionId" variant="standard" value={stageData?.sessionId} color="secondary" onChange={(e) => setStageData((prev) => ({...prev, sessionId: e.target.value}))} />
+  </div>
   // const recordControls = <RecordingControls recording={recording} onClick={() => setRecording(!recording)} />
 
   useEffect(() => {
@@ -30,10 +41,11 @@ function FaceVideoTest(props) {
       }}>
         
       <VideoContainer
-        customVideoActions={[maskSelector]}
+        customVideoActions={[sessionDataFields, maskSelector]}
 				recordingEnabled={true}
         recording={recording}
-				// stageData={stageData}
+        userData={userData}
+				stageData={stageData}
 				// socket={socket}
 				onStreamAdded={() => {
 					setBridge(CMDS.RTC.STATUS.ESTABLISHED)

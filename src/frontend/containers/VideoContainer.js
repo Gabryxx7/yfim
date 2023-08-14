@@ -36,6 +36,7 @@ export default function VideoContainer(props) {
 	const [recording, setRecording] = useState(false);
 	// recording = props.recording ?? recording;
 	const stageData = props.stageData ?? null;
+	const userData = props.userData ?? {name: "VideoTest"};
 	const mediaChunks = useRef([]);
 	const socket = props.socket ?? null;
 	const rtcManager = props.rtcManager ?? null;
@@ -44,6 +45,74 @@ export default function VideoContainer(props) {
 	const remoteVideo = useRef();
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
 	const onStreamAdded = props.onStreamAdded;
+
+	const onMediaStop = (e) => {
+		console.log("Recording stopped!");
+		try{
+			// convert saved chunks to blob
+			const date = new Date().toISOString().split(".")[0];
+			let baseFilename = `YFIM_<type>_${userData?.name}_${date}`;
+			const files = [];
+			files.push({
+				name: baseFilename.replace("<type>", "VIDEO")+".webm",
+				data: new Blob(mediaChunks.current, { type: "video/webm" })
+			})
+			files.push({
+				name: baseFilename.replace("<type>", "FACE")+".json",
+				data: faceProcessor.stopRecording()
+			})
+			
+			const zipFiles = true;
+			if(zipFiles){
+				const zip =  new JSZip();
+				for (let file of files) {
+					zip.file(file.name, file.data);
+				}
+									
+				zip.generateAsync({
+					type: "blob",
+					compression: "DEFLATE",
+					compressionOptions: {level: 9}
+				}).then((content) => {
+					const zipFilename = baseFilename.replace("<type>_", "")+".zip"
+					FileSaver.saveAs(content, zipFilename);
+					var url = window.location.href;
+					var arr = url.split("/");
+					var result = arr[0] + "//" + arr[2];
+
+					var fd = new FormData();
+					// fd.append("test", "test1");
+					fd.append("userName", userData?.name);
+					fd.append("sessionId", stageData?.sessionId);
+					fd.append("zipFile", content, zipFilename);
+
+					console.log("FORM DATA", fd);
+					for (var key of fd.entries()) {
+						console.log(key[0] + ', ' + key[1]);
+					}
+					fetch(`${result}/upload_stage_results`, {
+						 method: 'POST',
+						 body: fd,
+						//  mimeType:'multipart/form-data',
+						//  headers: {
+						// 	"Content-Type": `multipart/form-data; boundary=${fd._boundary}`
+						//  }
+					}).then((res) => console.log("File Upload completed", res))
+					.catch((err) => console.warn("Error uploading file to server", err));
+				}).catch((error) => {
+					console.warn("Error saving .zip file...", error);
+				});
+			}
+			else{
+				for (let file of files) {
+					FileSaver.saveAs(file.data, file.name);
+				}
+			}
+		}
+		catch(error){
+			console.warn("Error storing video and face api files...", error);
+		}
+	}
 
 	useEffect(() => {
 		if(videoStatus == null){
@@ -84,6 +153,8 @@ export default function VideoContainer(props) {
 		if(recording){
 			if(mediaRecorder.current?.state != "recording"){
 				mediaChunks.current = [];
+				mediaRecorder.current.ondataavailable = (e) => mediaChunks.current.push(e.data);
+				mediaRecorder.current.onstop = (e) => onMediaStop(e);
 				mediaRecorder.current.start();
 				console.log("Recording started!", mediaRecorder.current.state)
 				faceProcessor.startRecording(sessionMap?.session);
@@ -105,7 +176,8 @@ export default function VideoContainer(props) {
 			console.log("New stage in progress. mediaRecorder's state", mediaRecorder.current?.state);
 			setRecording(true);
 		}
-		console.log(`Video Container state ${stageData.state}. Type: ${stageData.type}. mediaRecorder: ${mediaRecorder.current?.state}`)
+		console.log(`User name: ${userData?.name}, SessionId: ${stageData?.sessionId}`)
+		console.log(`Video Container state ${stageData?.state}. Type: ${stageData?.type}. mediaRecorder: ${mediaRecorder.current?.state}`)
 	}, [stageData])
 
 	// when the other side added a media stream, show it on screen
@@ -163,77 +235,6 @@ export default function VideoContainer(props) {
 					return;
 				}
 				mediaRecorder.current = new MediaRecorder(localVideo.current.srcObject);
-
-				mediaRecorder.current.ondataavailable = (e) => {
-					mediaChunks.current.push(e.data);
-				}
-
-				mediaRecorder.current.onstop = (e) => {
-					console.log("Recording stopped!");
-					try{
-						// convert saved chunks to blob
-						const date = new Date().toISOString().split(".")[0];
-						let baseFilename = `YFIM_<type>_${sessionMap?.session?.user?.name}_${date}`;
-						const files = [];
-						files.push({
-							name: baseFilename.replace("<type>", "VIDEO")+".webm",
-							data: new Blob(mediaChunks.current, { type: "video/webm" })
-						})
-						files.push({
-							name: baseFilename.replace("<type>", "FACE")+".json",
-							data: faceProcessor.stopRecording()
-						})
-						
-						const zipFiles = true;
-						if(zipFiles){
-							const zip =  new JSZip();
-							for (let file of files) {
-								zip.file(file.name, file.data);
-							}
-												
-							zip.generateAsync({
-								type: "blob",
-								compression: "DEFLATE",
-								compressionOptions: {level: 9}
-							}).then((content) => {
-								const zipFilename = baseFilename.replace("<type>_", "")+".zip"
-								FileSaver.saveAs(content, zipFilename);
-								var url = window.location.href;
-								var arr = url.split("/");
-								var result = arr[0] + "//" + arr[2];
-
-								var fd = new FormData();
-								fd.append("zipFile", content, zipFilename);
-								fd.append("userName", sessionMap?.session?.user?.name);
-								fd.append("sessionId", sessionMap?.session?.data?.sessionId);
-
-								console.log("FORM DATA", fd);
-								for (var key of fd.entries()) {
-									console.log(key[0] + ', ' + key[1]);
-								}
-								fetch(`${result}/upload_stage_results`, {
-									 method: 'POST',
-									 body: fd,
-									//  mimeType:'multipart/form-data',
-									//  headers: {
-									// 	"Content-Type": `multipart/form-data; boundary=${fd._boundary}`
-									//  }
-								}).then((res) => console.log("File Upload completed", res))
-								.catch((err) => console.warn("Error uploading file to server", err));
-							}).catch((error) => {
-								console.warn("Error saving .zip file...", error);
-							});
-						}
-						else{
-							for (let file of files) {
-								FileSaver.saveAs(file.data, file.name);
-							}
-						}
-					}
-					catch(error){
-						console.warn("Error storing video and face api files...", error);
-					}
-				}
 				console.log("Created media recorder", mediaRecorder.current)
 				// faceProcessor.start();
 			}
