@@ -115,8 +115,9 @@ const upload = multer({
   storage: multer.diskStorage({
     destination: function (req, file, next) {
       console.log(req.body, req.body.sessionId, file);
-      const uploadFolder = req.body?.sessionId ?? "NO_SESSION";
-      const finalPath = path.join(__dirname, "uploads", uploadFolder);
+      const sessionFolder = req.body?.sessionId ?? "NO_SESSION";
+      const stageFolder = req.body?.stageIndex == null ? "Stage_0" : `Stage_${parseInt(req.body.stageIndex)+1}`;
+      const finalPath = path.join(__dirname, "uploads", sessionFolder, stageFolder);
       fs.mkdirSync(finalPath, { recursive: true })
       next(null, finalPath);
     },

@@ -70,15 +70,16 @@ function Room(props) {
 			return;
 		}
 		if(stageData.state == STAGE.STATUS.COMPLETED){
-			console.log(`STAGE COMPLETED (${stageData.reason})`);
+			console.log(`STAGE [${stageData.type}] COMPLETED (${stageData.reason})`);
 			const sessionData = sessionMap.session.getSessionData();
 			let baseFilename = `YFIM_SURVEY_${sessionMap.session.user?.name}_${sessionData.date}.json`;
 			const completionData = {data: sessionData};
+			completionData.filename = baseFilename;
 			if(stageData.type == STAGE.TYPE.SURVEY){
 				if(stageData.data != null && stageData.data != undefined){
-					completionData.data.survey = stageData.data;
+					const surveyData = stageData?.data ?? surveyModel?.current?.data;
+					completionData.data.survey = surveyData;
 				}
-				completionData.filename = baseFilename;
 				// setPrompt("Waiting for your conversation partner to complete the survey...");
 			}
 			socket.current.emit(CMDS.SOCKET.STEP_COMPLETED, completionData);
@@ -130,7 +131,10 @@ function Room(props) {
 		console.log("Session update");
 		sessionMap.updateSession(data);
 		sessionMap.session.start();
-		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS, type: sessionMap.session.data?.stage?.step?.type, sessionId: sessionMap.session?.data?.sessionId});
+		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS,
+			type: sessionMap.session.data?.stage?.step?.type,
+			sessionId: sessionMap.session?.data?.sessionId,
+			index: sessionMap.session?.data?.stage?.index});
 
 		if(sessionMap.session.data?.stage?.step?.type != STAGE.TYPE.SURVEY) return;
 		const surveyDataModel = SURVEYS[sessionMap.session.data?.stage?.step?.surveyModelId] ?? null;

@@ -46,8 +46,26 @@ export default function VideoContainer(props) {
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
 	const onStreamAdded = props.onStreamAdded;
 
-	const onMediaStop = (e) => {
-		console.log("Recording stopped!");
+	const stopRecording = () => {
+		mediaRecorder.current.stop();
+	}
+
+	const startRecording = () => {
+		mediaChunks.current = [];
+		mediaRecorder.current.ondataavailable = (e) => mediaChunks.current.push(e.data);
+		mediaRecorder.current.onstart = (e) => onRecordingStart(e);
+		mediaRecorder.current.onstop = (e) => onRecordingStop(e);
+		mediaRecorder.current.start();
+		console.log("Recording started!", mediaRecorder.current.state)
+		faceProcessor.startRecording(sessionMap?.session);
+	}
+
+	const onRecordingStart = (e) => {
+		console.log("Media recorder STARTED!");
+	}
+
+	const onRecordingStop = (e) => {
+		console.log("Media recorder STOPPED!");
 		try{
 			// convert saved chunks to blob
 			const date = new Date().toISOString().split(".")[0];
@@ -82,6 +100,7 @@ export default function VideoContainer(props) {
 
 					var fd = new FormData();
 					// fd.append("test", "test1");
+					fd.append("stageIndex", stageData?.index);
 					fd.append("userName", userData?.name);
 					fd.append("sessionId", stageData?.sessionId);
 					fd.append("zipFile", content, zipFilename);
@@ -152,16 +171,11 @@ export default function VideoContainer(props) {
 		if(mediaRecorder.current == null) return;
 		if(recording){
 			if(mediaRecorder.current?.state != "recording"){
-				mediaChunks.current = [];
-				mediaRecorder.current.ondataavailable = (e) => mediaChunks.current.push(e.data);
-				mediaRecorder.current.onstop = (e) => onMediaStop(e);
-				mediaRecorder.current.start();
-				console.log("Recording started!", mediaRecorder.current.state)
-				faceProcessor.startRecording(sessionMap?.session);
+				startRecording();
 			}
 		}
 		else {
-			mediaRecorder.current.stop();
+			stopRecording();
 		}
 	}, [recording])
 
@@ -225,19 +239,22 @@ export default function VideoContainer(props) {
 			localVideo.current.srcObject = stream;
 			toggleVideoMuted(localVideo.current, false);
 			toggleAudioMuted(localVideo.current, false);
-		} catch (error) {
-			console.error("Error getting user media: " + error);
-		}
-		localVideo.current.addEventListener("play",  () => {
-			console.log("Local video PLAY", localVideo.current.id, "Media Recorder null?", mediaRecorder.current == null, "undefined?", mediaRecorder.current == undefined);
 			if(recordingEnabled){
 				if(mediaRecorder.current != null){
 					return;
 				}
 				mediaRecorder.current = new MediaRecorder(localVideo.current.srcObject);
-				console.log("Created media recorder", mediaRecorder.current)
+				console.log(`Created media recorder (already recording? ${recording}`, mediaRecorder.current)
+				// if(recording && mediaRecorder?.current?.state != "recording"){
+				// 	startRecording();
+				// }
 				// faceProcessor.start();
 			}
+		} catch (error) {
+			console.error("Error getting user media: " + error);
+		}
+		localVideo.current.addEventListener("play",  () => {
+			console.log("Local video PLAY", localVideo.current.id, "Media Recorder null?", mediaRecorder.current == null, "undefined?", mediaRecorder.current == undefined);
 		});
 
 		// attach local media to the peer connection
