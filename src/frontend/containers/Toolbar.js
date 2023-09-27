@@ -25,7 +25,7 @@ const ToolbarTesting = (props) => {
     <div className="meta-info">
       <RoomInfo room={roomData} />
       <div className="user-info">
-        <div>{userData.name} ({userData.role})</div>
+        <div> {userData.order} - {userData.name} ({userData.role})</div>
         <div>{sessionData.stageType} - {sessionData.topic}</div>
         <div>{sessionData.sessionId}</div>
       </div>

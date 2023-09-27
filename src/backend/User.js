@@ -27,6 +27,7 @@ class User {
 		this.room = null;
 		this.type = User.TYPE.NONE;
 		this.id = this.socket.id; // Just for the purpose of this project
+		this.order = -1; // Order in which the user entered the room
 		this.name = null;
 		this.status = USER.STATUS.NONE;
 		this.rating = null;
@@ -50,6 +51,7 @@ class User {
   getData(){
     return {
       id: this.id,
+		order: this.order,
       name: this.name,
       role: this.type,
       status: this.status,
@@ -213,12 +215,8 @@ class User {
 	}
 
 	notifyClient(error = null) {
-		const data = {
-      room: this.room?.id,
-      role: this.type,
-      name: this.name,
-      id: this.id,
-		};
+		const data = this.getData();
+		
 		if (error != null) {
 			data.error = error;
 		}

@@ -1,7 +1,4 @@
-# YourFaceisMuted with ReactJS
-
-## 2023 Updates
-We decided to revamp the project in 2023 and adapt it to be better suited for studies.
+# YourFaceisMuted
 
 ## Introduction
 
@@ -9,6 +6,131 @@ We decided to revamp the project in 2023 and adapt it to be better suited for st
 affects critical conversations and our ability to empathise.
 This is a two person experience. Please take a seat and wait
 for your conversation partner.
+
+# 2023 Update
+We decided to revamp the project in 2023 and adapt it to be better suited for studies.
+
+The code has been re-written almost completely therefore the whole README file had to be updated as well.
+
+# Quick Start
+
+## Clone repo
+Clone or download the repo on your local machine, or on your online server.
+
+```bash
+> git clone https://github.com/Gabryxx7/yfim.git
+```
+
+## Install and run
+Install the required packages and start the server with :
+
+```bash
+> yarn
+> yarn start
+```
+
+## Available pages
+It should work out of the box, as all config and SSL certificates are included in the bundle.
+The output should look something like this:
+```
+Serving on port: 3000 
+Available pages:  
+ - Rooms: https://localhost:3000/room/:room_id/  
+ Generic chat room with id 'room_id'. The room ID is extracted from the URL request sent to the server. The server then creates a new room on the backend with the extracted ID.
+ 
+ - Control Room: https://localhost:3000/control/  
+ Control room with an overview of all running rooms and their status and list of participants
+ 
+ - Face API Video Test: https://localhost:3000/faceTest/  
+ A simple page to test the face API in its face processor component (camera is initially disabled, enable it from the top left toolbar)
+ 
+ - Surveys Test: https://localhost:3000/surveyTest/:surveyId  
+ A simple page to test a survey given its id. Available surveys are TEST,POST_VIDEO_CHAT,INTERVIEW
+```
+
+You can follow the links to open each page.
+If you are running this on the server, the subdomain `yfim.gmarini.com` points at the port `3000` by default, you can access the pages from these links:
+```
+https://yfim.gmarini.com/room/:room_id/  
+https://yfim.gmarini.com/control/  
+https://yfim.gmarini.com/faceTest/  
+https://yfim.gmarini.com/surveyTest/:surveyId  
+```
+
+## Configuration
+### Room session and steps
+The configuration for each individual room session is defined in: [SessionConfig.js](./assets/SessionConfig.js).
+Given a list of random mask options such as :
+```javascript
+randomChoices: [
+  [],
+  [ 'LeftEye', 'RightEye', 'Mouth' ],
+  [ 'LeftEye', 'RightEye' ],
+  [ 'Mouth' ]
+]
+```
+
+The config generator runs each option through the function `makeStage(tag, name, topic, videoStageDuration, stageMaskSettings)`, given the parameters:
+- `tag`: Just a textual tag for YOU to keep track of what this session represents (e.g. TEST_CONFIG, FINAL_CONFIG...)
+- `name`: The generic name for each stage, they will automatically labelled sequentially as `<name> - <index>`
+- `topic`: The set of questions from which to randomly pick the stage's prompt. Available question types are defined in [Definitions.js](./src/backend/Definitions.js) and they are linked to the lists of questions defined in [Topics.js](./assets/Topics.js). At the time of writing these are the options:
+  - `QUESTION.TYPE.ICEBREAKER`: or `"icebreaker"`. Example question: `"What animal would you be and why?"`,
+  - `QUESTION.TYPE.WOULDYOU`: or `"wouldyou"`. Example question: `"Would you rather have no taste or be colourblind?"`,
+  - `QUESTION.TYPE.QUEST_CATEGORIES`: It is a list itself, containing generic questions divided in three categories `[KIDS, MATURE, GENERAL]`.
+  - `QUESTION.TYPE.QUEST`: or `"quest"`. This list of questions contains all questions from the the two categories `MATURE` and `GENERAL`. These types of questions require two parts. Example questions:
+  `You are arguing that climate change is man-made.` vs 
+  `You are arguing that climate changes follow natural cycles.`
+
+Questions with two versions will be assigned to each user depending on the order in which they joined the room. For instance in the example above, the first user to join/create the room will get the question ad index 0 `You are arguing that climate change is man-made.`, while the next user will get the question version at index 1 `You are arguing that climate changes follow natural cycles.`.
+
+Which returns a new stage structured as:
+
+```javascript
+{
+  tag: tag,
+  name: name,
+  topic: topic,
+  maskSettings: {...stageMaskSettings},
+  steps: [{
+      name: "Video",
+      type: STAGE.TYPE.VIDEO_CHAT,
+      duration: videoStageDuration,
+    },
+    { name: "Survey", type: STAGE.TYPE.SURVEY, surveyModelId: AVAILABLE_SURVEYS.POST_VIDEO_CHAT.id }
+  ]
+}
+```
+The general structure is as follows:
+
+```javascript
+{
+  randomChoices: [
+    [],
+    [ 'LeftEye', 'RightEye', 'Mouth' ],
+    [ 'LeftEye', 'RightEye' ],
+    [ 'Mouth' ]
+  ],
+  stages: [
+    {
+      tag: 'FINAL',
+      name: 'Warm-Up',
+      topic: 'icebreaker',
+      maskSettings: {},
+      steps: [Array]
+    },
+    {
+      tag: 'FINAL',
+      name: 'Experiment - 0',
+      topic: 'quest',
+      maskSettings: [Object],
+      steps: [Array]
+    },
+  ]
+}
+```
+
+
+
 
 ## Start Application
 

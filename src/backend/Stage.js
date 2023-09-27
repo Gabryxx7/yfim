@@ -26,6 +26,8 @@ class Stage {
     this.syncTimers = false; // If set to true it will wait for the clients to complete their own timer instead of forcing the stage/step to end
     this.status = STAGE.STATUS.NONE;
     this.extra = {};
+    this.topic = null;
+    this.selectedQuestionPrompts = null;
     this.steps = [];
     if (this.config.steps) {
       for (let i = 0; i < this.config.steps.length; i++) {
@@ -38,21 +40,31 @@ class Stage {
   }
 
   getQuestionData(){
-    if(this.extra?.prompt != null){
-      console.log("The stage already has a prompt " + this.extra?.prompt);
-      return {};
+    if(this.selectedQuestionPrompts != null){
+      console.log("The stage already has prompts " + this.selectedQuestionPrompts);
+      return {topic: this.topic, prompts: this.selectedQuestionPrompts};
     }
-    if(this.parent != null && this.parent.extra?.prompt){
-      console.log("Parent's prompt " + this.parent.extra?.prompt);
-      return this.parent.extra;
+    if(this.parent != null && this.parent.selectedQuestionPrompts){
+      console.log("Parent's prompts " + this.parent.selectedQuestionPrompts);
+      return {topic: this.parent.topic, prompts: this.parent.selectedQuestionPrompts};
     }
     try{
       let topic = this.config.topic ?? this.parent.config.topic;
-      const prompts = Topics[topic];
-      const rindex = Math.floor(Math.random() * prompts.length);
-      let question = prompts[rindex];
-      console.log("Getting a new prompt for the stage" + question);
-      return {topic: topic, prompt: question};
+      this.topic = topic;
+      var questionsList = Topics[topic];
+      const rindex = Math.floor(Math.random() * questionsList.length);
+      let prompts = questionsList[rindex];
+      if(Object.prototype.toString.call(prompts) === "[object String]"){
+        prompts = [prompts];
+      }
+      this.selectedQuestionPrompts = prompts;
+      console.log("Getting new prompts for the stage: " + prompts);
+      return {topic: this.topic, prompts: this.selectedQuestionPrompts};
+
+      // const rindex = Math.floor(Math.random() * prompts.length);
+      // let question = prompts[rindex];
+      // console.log("Getting new prompt for the stage" + question);
+      // return {topic: topic, prompts: question};
     } catch(error){
       console.error("error getting new question: ", error);
     }

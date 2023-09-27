@@ -37,7 +37,7 @@ function RoomUser(props){
    return(
      <div className="room-user">
        <div className="status"> {StatusIconMap(props.user?.status)}</div>
-       <div className="name">{props.user?.name}</div>
+       <div className="name">{props.user?.order} - {props.user?.name}</div>
      </div>
    )
  }

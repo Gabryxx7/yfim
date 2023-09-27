@@ -3,7 +3,7 @@ import TextField from '@mui/material/TextField';
 import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
 import "survey-core/defaultV2.min.css";
-import { SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses } from "../../assets/PostChatSurvey.js";
+import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses } from "../../assets/PostChatSurvey.js";
 import { CMDS, DATA, STAGE } from "../backend/Definitions.js";
 import VideoContainer from "../frontend/containers/VideoContainer.js";
 import {FaceProcessor} from "../frontend/classes/FaceProcessor.js";
@@ -61,13 +61,13 @@ function FaceVideoTest(props) {
 
 function SurveyTest(props) {
   const [surveyModel, setSurveyModel] = useState(null)
-  const surveyId = props.match.params.surveyId ?? props.surveyId ?? SURVEYS.TEST.surveyId;
+  const surveyId = props.match.params.surveyId ?? props.surveyId ?? AVAILABLE_SURVEYS.TEST.surveyId;
 
   useEffect(() => {
     console.log(`SURVEY ID: `, surveyId);
-    console.log(`SURVEYS available `, SURVEYS);
+    console.log(`SURVEYS available `, AVAILABLE_SURVEYS);
     try{
-      const newSurvey = new Model(SURVEYS[surveyId].model);
+      const newSurvey = new Model(AVAILABLE_SURVEYS[surveyId].model);
       newSurvey.onComplete.add((sender, options) => {
         console.log(JSON.stringify(sender.data, null, 3));
       })

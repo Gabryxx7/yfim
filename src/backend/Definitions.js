@@ -1,3 +1,30 @@
+
+import { AVAILABLE_SURVEYS } from "../../assets/PostChatSurvey.js";
+
+const ROUTES = {
+  ROOM: {
+    name: "Rooms",
+    path: "/room/:room_id/",
+    description: "Generic chat room with id 'room_id'. The room ID is extracted from the URL request sent to the server. The server then creates a new room on the backend with the extracted ID.",
+  },
+  CONTROL: {
+    name: "Control Room",
+    path: "/control/",
+    description: "Control room with an overview of all running rooms and their status and list of participants",
+  },
+  FACE_API_TEST: {
+    name: "Face API Video Test",
+    path: "/faceTest/",
+    description: "A simple page to test the face API in its face processor component (camera is initially disabled, enable it from the top left toolbar)",
+  },
+  SURVEY_TEST: {
+    name: "Surveys Test",
+    path: "/surveyTest/:survey_id",
+    description: `A simple page to test a survey given its id. Available 'survey_id's are: ${Object.keys(AVAILABLE_SURVEYS)}`,
+  },
+}
+
+
 const QUESTION = {
   TYPE: {
     ICEBREAKER: "icebreaker",
@@ -182,4 +209,4 @@ const DATA = {
 }
 
 
-export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES, USER }
+export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES, USER, ROUTES }

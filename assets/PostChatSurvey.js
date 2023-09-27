@@ -245,17 +245,17 @@ PostChatSurvey.pages.push({
   ],
 });
 
-const SURVEYS = {
+const AVAILABLE_SURVEYS = {
   TEST: TestSurvey,
   POST_VIDEO_CHAT: PostChatSurvey,
   INTERVIEW: TestSurvey
 }
 
-for(let key in SURVEYS){
-  SURVEYS[key] = {
-      model: SURVEYS[key],
+for(let key in AVAILABLE_SURVEYS){
+  AVAILABLE_SURVEYS[key] = {
+      model: AVAILABLE_SURVEYS[key],
       id: key,
-      surveyModelId: SURVEYS[key].surveyModelId
+      surveyModelId: AVAILABLE_SURVEYS[key].surveyModelId
     }
 }
 
@@ -329,6 +329,6 @@ const updateSurveyClasses = (_, options) => {
     }
   }
 }
-// module.exports = { SURVEYS }
-// export { SURVEYS }
-export { SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses };
+// module.exports = { AVAILABLE_SURVEYS }
+// export { AVAILABLE_SURVEYS }
+export { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES, updateSurveyClasses };

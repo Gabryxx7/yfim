@@ -1,14 +1,14 @@
 
 import { STAGE, FACEAPI, QUESTION } from "../src/backend/Definitions.js"
 // const { STAGE, FACEAPI, QUESTION } = require("../src/backend/Definitions.js")
-import { SURVEYS, SURVEY_CSS_CLASSES } from "./PostChatSurvey.js"
-// const { SURVEYS } = require("./PostChatSurvey.js")
+import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES } from "./PostChatSurvey.js"
+// const { AVAILABLE_SURVEYS } = require("./PostChatSurvey.js")
 
 
 // try{
 //   const fs = require("fs");
-//   const { SURVEYS } = require("PostChatSurvey");
-//   fs.writeFileSync('./assets/SurveyExport.json', JSON.stringify(SURVEYS.POST_VIDEO_CHAT, null, 3));
+//   const { AVAILABLE_SURVEYS } = require("PostChatSurvey");
+//   fs.writeFileSync('./assets/SurveyExport.json', JSON.stringify(AVAILABLE_SURVEYS.POST_VIDEO_CHAT, null, 3));
 //   console.log("Survey json file exported to " + './SurveyExport.json',)
 // } catch(error){
 //   console.log('Error writing survey json file', error)
@@ -27,7 +27,7 @@ const makeStage = (tag="NONE", name="Experiment", topic=QUESTION.TYPE.ICEBREAKER
         type: STAGE.TYPE.VIDEO_CHAT,
         duration: videoStageDuration,
       },
-      { name: "Survey", type: STAGE.TYPE.SURVEY, surveyModelId: SURVEYS.POST_VIDEO_CHAT.id }
+      { name: "Survey", type: STAGE.TYPE.SURVEY, surveyModelId: AVAILABLE_SURVEYS.POST_VIDEO_CHAT.id }
     ]
   }
 }
@@ -45,7 +45,7 @@ const finalStages = [
   //     {
   //       name: "Survey",
   //       type: STAGE.TYPE.SURVEY,
-  //       surveyModelId: SURVEYS.POST_VIDEO_CHAT.id,
+  //       surveyModelId: AVAILABLE_SURVEYS.POST_VIDEO_CHAT.id,
   //     }
   //   ]
   // },
@@ -58,7 +58,7 @@ const finalStages = [
       {
         name: "Survey",
         type: STAGE.TYPE.SURVEY,
-        surveyModelId: SURVEYS.INTERVIEW.id,
+        surveyModelId: AVAILABLE_SURVEYS.INTERVIEW.id,
       }
     ]
   }
@@ -72,7 +72,7 @@ const testStages = [
       {
         name: "Survey",
         type: STAGE.TYPE.SURVEY,
-        surveyModelId: SURVEYS.TEST.id,
+        surveyModelId: AVAILABLE_SURVEYS.TEST.id,
       }
     ]
   },

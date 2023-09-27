@@ -13,6 +13,7 @@ import SessionManager from "./src/backend/SessionManager.js";
 import console  from "./src/utils/colouredLogger.js";
 import Nano from "nano";
 import { URL } from 'url'; // in Browser, the URL in native accessible on window
+import { ROUTES } from "./src/backend/Definitions.js";
 
 const __filename = new URL('', import.meta.url).pathname;
 // Will contain trailing slash
@@ -62,7 +63,7 @@ dotenv.config()
 const server_port = process.env.PORT || 3000
 
 // Certificate
-var SSLPath = "/etc/letsencrypt/live/yfim.gmarini.com-0001/";
+// var SSLPath = "/etc/letsencrypt/live/yfim.gmarini.com-0001/";
 var SSLPath = "./SSL/yfim_";
 var privateKey = null;
 var certificate = null;
@@ -75,8 +76,8 @@ try{
 } catch(error){
   console.warn(`No SSL certificates found in folder ${SSLPath}, using local certificates in ./SSL/`)
   // SSLPath = "./SSL/yfim_";
- SSLPath = "/etc/letsencrypt/live/yfim.gmarini.com-0001/";  
-privateKey = fs.readFileSync(SSLPath+'privkey.pem', 'utf8');
+  SSLPath = "/etc/letsencrypt/live/yfim.gmarini.com-0001/";  
+  privateKey = fs.readFileSync(SSLPath+'privkey.pem', 'utf8');
   certificate = fs.readFileSync(SSLPath+'cert.pem', 'utf8');
   ca = fs.readFileSync(SSLPath+'chain.pem', 'utf8');
 }
@@ -92,9 +93,11 @@ const httpsServer = https.createServer(credentials, app).listen(server_port);
 const io = new Server(httpsServer);
 
 console.log(`\nServing on port: ${server_port}`);
-console.log(`Room 1 control: on port: https://localhost:${server_port}/control/1/`);
-console.log(`Room 1 chat: on port: https://localhost:${server_port}/r/1/guest`);
-console.log(`Room 1 survey: on port: https://localhost:${server_port}/s/1/guest`);
+console.log("Available pages: ")
+for(let route in ROUTES){
+  console.error(`- ${ROUTES[route].name}: https://localhost:${server_port}${ROUTES[route].path} `);
+  console.error(`${ROUTES[route].description}\n`);
+}
 // chatio = io.of("chat");
 // controlio = io.of("control");
 // projectio = io.of("projection");

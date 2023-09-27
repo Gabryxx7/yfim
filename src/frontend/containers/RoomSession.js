@@ -16,10 +16,10 @@ import "survey-core/defaultV2.min.css";
 import FileSaver from "file-saver";
 // import "../surveyStyle";
 import Introduction from "../components/Introduction.js";
-import { SURVEYS, SURVEY_CSS_CLASSES, } from "../../../assets/PostChatSurvey.js";
+import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES, } from "../../../assets/PostChatSurvey.js";
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
-// var SURVEYS = require("../../assets/PostChatSurvey.js");
+// var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
 
 export default function RoomSession(props) {
 	const sessionMap = useContext(SessionContext);
@@ -50,8 +50,8 @@ function Room(props) {
 
 	useEffect(() => {
 		// if(surveyModel.current == null){
-		// 	surveyModel.current = new Model(SURVEYS.POST_VIDEO_CHAT);
-		// 	surveyModel.current = new Model(SURVEYS.TEST);
+		// 	surveyModel.current = new Model(AVAILABLE_SURVEYS.POST_VIDEO_CHAT);
+		// 	surveyModel.current = new Model(AVAILABLE_SURVEYS.TEST);
 		// 	surveyModel.current.onComplete.add((sender, options) => {
 		// 		console.log(JSON.stringify(sender.data, null, 3));
 		// 		setStageData({reason: "", data: sender.data, state: STAGE.STATUS.COMPLETED});
@@ -90,7 +90,11 @@ function Room(props) {
 		if(stageData.state == STAGE.STATUS.IN_PROGRESS){
 			if(stageData.type == STAGE.TYPE.VIDEO_CHAT){
 				setCurrentSurvey(null);
-				const newPrompt = sessionMap.session.data?.stage?.step?.prompt;
+				var availablePrompts = sessionMap.session.data?.stage?.prompts;
+				console.log(`Available Prompts: ${availablePrompts}`);
+				// console.log(`User order: ${userData.order}, total prompts: ${availablePrompts.length}`);
+				const promptIdx = userData.order % 2;
+				const newPrompt = availablePrompts[promptIdx];
 				if(newPrompt != null && newPrompt != undefined){
 					setPrompt(newPrompt);
 				}
@@ -107,7 +111,12 @@ function Room(props) {
 	}, [stageData])
 
 	useEffect(() => {
-		console.log("NEW PROMPT ", prompt)
+		console.log("NEW PROMPT ", prompt);
+		try{
+			sessionMap.session.data.stage.userPrompt = prompt;
+		} catch(error) {
+			console.error("Error assigning user prompt to session stage: ", error)
+		}
 	}, [prompt])
 	
 
@@ -137,7 +146,7 @@ function Room(props) {
 			index: sessionMap.session?.data?.stage?.index});
 
 		if(sessionMap.session.data?.stage?.step?.type != STAGE.TYPE.SURVEY) return;
-		const surveyDataModel = SURVEYS[sessionMap.session.data?.stage?.step?.surveyModelId] ?? null;
+		const surveyDataModel = AVAILABLE_SURVEYS[sessionMap.session.data?.stage?.step?.surveyModelId] ?? null;
 		console.log("SURVEY ID", surveyDataModel)
 		if(surveyModel.current != null){
 			if(surveyDataModel != null && surveyModel.current.surveyModelId == surveyDataModel.surveyModelId){

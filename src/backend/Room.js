@@ -183,6 +183,7 @@ export default class Room{
       res.msg = `User ${user.id} already in room ${this.id}`;
       return res;
     }
+    user.order = this.size;
     this.users[user.id] = user;
     user.socket.join(this.id);
     this.adapter = this.nsManagers[0].nsio.adapter.rooms.get(this.id);

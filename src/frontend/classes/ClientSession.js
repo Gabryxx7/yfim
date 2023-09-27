@@ -41,7 +41,8 @@ class ClientSession extends TimedEvent{
          stage: this.data?.stage?.name,
          stageIndex: this.data?.stage?.index,
          topic: this.data?.stage?.topic,
-         prompt: this.data?.stage?.prompt,
+         prompts: this.data?.stage?.prompts,
+         userPrompt: this.data?.stage?.userPrompt,
          room: this.room,
          stage_mask: this.data?.stage?.mask,
          step_mask: this.data?.stage?.step?.mask
