@@ -143,7 +143,8 @@ function Room(props) {
 		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS,
 			type: sessionMap.session.data?.stage?.step?.type,
 			sessionId: sessionMap.session?.data?.sessionId,
-			index: sessionMap.session?.data?.stage?.index});
+			index: sessionMap.session?.data?.stage?.index
+		});
 
 		if(sessionMap.session.data?.stage?.step?.type != STAGE.TYPE.SURVEY) return;
 		const surveyDataModel = AVAILABLE_SURVEYS[sessionMap.session.data?.stage?.step?.surveyModelId] ?? null;

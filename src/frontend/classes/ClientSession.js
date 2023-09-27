@@ -16,14 +16,14 @@ class ClientSession extends TimedEvent{
          session.testCount += 1;
       }
       if (action.type === ClientSession.Actions.UPDATE_SESSION) {
-         session.data = action.data;
+         session.data = {...session.data, ...action.data};
          session.id = action.data?.sessionId;
       }
       if (action.type === ClientSession.Actions.UPDATE_USER) {
-         session.user = action.data;
+         session.user = {...session.user, ...action.data};
       }
       if (action.type === ClientSession.Actions.UPDATE_ROOM) {
-         session.room = action.data;
+         session.room = {...session.room, ...action.data};
       }
       return session;
     }
