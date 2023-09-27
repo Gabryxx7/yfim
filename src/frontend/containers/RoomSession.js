@@ -93,7 +93,7 @@ function Room(props) {
 				var availablePrompts = sessionMap.session.data?.stage?.prompts;
 				console.log(`Available Prompts: ${availablePrompts}`);
 				// console.log(`User order: ${userData.order}, total prompts: ${availablePrompts.length}`);
-				const promptIdx = userData.order % 2;
+				const promptIdx = Math.min(userData.order % 2, availablePrompts.length-1);
 				const newPrompt = availablePrompts[promptIdx];
 				if(newPrompt != null && newPrompt != undefined){
 					setPrompt(newPrompt);

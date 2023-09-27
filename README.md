@@ -28,7 +28,52 @@ Install the required packages and start the server with :
 > yarn
 > yarn start
 ```
+## Background process on server
+If you want to keep the node server running in the background you've got two options:
+## Option 1: `screen`:
+Screen allows you to start bash shells in the background and leave them running indefinitely.
+Connect via `ssh` or to your online editor such as code-server and type this in the terminal:
+```bash
+screen
+```
+This will start a new background shell.
+Start your code here and while it's running, you can leave this shell can go back to your foreground shell with the shortcut `CTRL+A` followed by `d` (which stands for `detach`).
 
+After you detach the foreground shell from the background one, you can go back to do whatever you want and even leave the `ssh` session or close the terminal.
+
+Whenever you want to check the process or stop it, you need to re-attach to it. Start with listing the available background shells with:
+```bash
+screen -ls
+```
+The output should look something like this:
+```
+There are screens on:
+        724987.pts-1.emotion-occlusion-prod     (27/09/23 03:34:33)     (Detached)
+        506775.pts-1.emotion-occlusion-prod     (02/09/23 07:42:41)     (Detached)
+2 Sockets in /run/screen/S-ubuntu.
+```
+Note down the PID of the screen and re-attach to it with
+```bash
+> screen -r <Screen_ID>
+> screen -r <724987>
+```
+
+## Option 2: `nohup`:
+Simply run your command through nohup as follows:
+```bash
+nohup yarn build_start &
+```
+Whenever you want to stop it, you'll have to find the process id (PID) of the server, you can do that by checking which processes are listening on a certain port, in this case port 3000:
+```bash
+sudo lsof -i :3000
+```
+Note down the PID and then call:
+```bash
+sudo kill <PID>
+```
+Now you're back at the background shell with the process still running, from here you can stop it like any other terminal with `CTRL+C`.
+
+Once you're done, exit the screen (not just deatch from it!) by typing `exit`.
 ## Available pages
 It should work out of the box, as all config and SSL certificates are included in the bundle.
 The output should look something like this:
