@@ -106,7 +106,7 @@ class User {
 					break;
 				}
 				case CMDS.RTC.ACTIONS.MESSAGE: {
-          console.debug(`Received RTC ${data.data?.type} from ${this.constructor.name} ${this.id}`);
+          		console.debug(`Received RTC ${data.data?.type} from ${this.constructor.name} ${this.id}`);
 					this.room?.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, data, this.socket);
 					break;
 				}
@@ -138,6 +138,7 @@ class User {
 		this.socket.on(CMDS.SOCKET.LEAVE_ROOM, () => this.leaveRoom());
 		this.socket.on(CMDS.SOCKET.CONTROL_ROOM, (data) => this.controlRoom(data));
 		this.socket.on(CMDS.SOCKET.ROOM_IDLE, (data) => this.roomInIdle(data));
+		this.socket.on(CMDS.SOCKET.TOGGLE_SESSION_PAUSE, (data) => this.togglePauseSession());
 		// this.socket.on(CMDS.SOCKET.STAGE_COMPLETED, (data) => this.onUserStageCompleted(data));
 		this.socket.on(CMDS.SOCKET.STEP_COMPLETED, (data) => this.onStepCompleted(data));
 	}
@@ -223,6 +224,9 @@ class User {
 		this.socket.emit(CMDS.SOCKET.USER_UPDATE, data);
 	}
 
+	togglePauseSession() {
+		this.room?.togglePauseSession();
+	}
 	onStepCompleted(data) {
 		console.log(`User ${this.name} - ${this.id} completed stage`);
 		if (data != null && data != undefined) {

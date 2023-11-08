@@ -1,6 +1,17 @@
 
 import { AVAILABLE_SURVEYS } from "../../assets/PostChatSurvey.js";
 
+const KEY_SHORTCUTS = {
+  ENABLE_SHORTCUTS: { keyName: 'F1', keyCode: 'F1', name: 'Enable/Disable shortcuts', icon: null},
+  MUTE_VIDEO:       { keyName: 'V', keyCode: 'KeyV', name: 'Toggle video', icon: null},
+  MUTE_SELF:        { keyName: 'M', keyCode: 'KeyM', name: 'Toggle Mic', icon: null},
+  MUTE_OTHERS:      { keyName: 'Q', keyCode: 'KeyQ', name: 'Toggle guest audio', icon: null},
+  TOGGLE_RECORDING: { keyName: 'R', keyCode: 'KeyR', name: 'Toggle recording', icon: null},
+  SHOW_DEBUG:       { keyName: 'D', keyCode: 'KeyD', name: 'Toggle debug commands', icon: null},
+  SKIP_STAGE:       { keyName: 'S', keyCode: 'KeyS', name: 'Skip stage', icon: null},
+  PAUSE_TIMER:      { keyName: 'P', keyCode: 'KeyP', name: 'Pause Timer', icon: null},
+}
+
 const ROUTES = {
   ROOM: {
     name: "Rooms",
@@ -132,6 +143,7 @@ const CMDS = {
     SESSION_UPDATE:       "session-update",
     STAGE_COMPLETED:      "stage-completed",
     STEP_COMPLETED:       "step-completed",
+    SESSION_COMPLETED:       "step-completed",
     SURVEY_CONNECT:       "survey-connect",
     SURVEY_START:         "survey-start",
     SURVEY_END:           "survey-end",
@@ -147,6 +159,7 @@ const CMDS = {
     PROJECTION_TEST:      "projection-test",
     PROJECTION_CONNECT:   "projection-connect",
     STAGE_CONTROL:        "stage-control",
+    TOGGLE_SESSION_PAUSE: "toggle-session-pause",
     RECORDING:            "recording",
     UPLOAD_FINISH:        "upload-finish",
     CONNECT_ERROR:        "connect_error",
@@ -209,4 +222,4 @@ const DATA = {
 }
 
 
-export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES, USER, ROUTES }
+export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES, USER, ROUTES, KEY_SHORTCUTS }

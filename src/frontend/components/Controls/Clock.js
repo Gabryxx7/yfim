@@ -11,6 +11,7 @@ const CLOCK_STATE = {
 
 export default function Clock(props){
   const active = props.active ?? true;
+  const paused = props.paused ?? false;
   const elapsed = props.elapsed ?? null;
   const timeLimit = props.duration ?? null;
   const countdown = props.countdown ?? false;
@@ -28,6 +29,11 @@ export default function Clock(props){
       return `${mins}:${secs}`;
     }
   }
+
+  useEffect(() => {
+    setTimerState(paused ? CLOCK_STATE.PAUSED : CLOCK_STATE.RUNNING);
+    paused && setTextColor('rgba(185, 50, 3, 0.4)')
+  }, [paused])
 
   useEffect(() => {
     if(stageData.state == STAGE.STATUS.COMPLETED){

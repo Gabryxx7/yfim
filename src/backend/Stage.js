@@ -72,34 +72,26 @@ class Stage {
   }
 
   getMaskData(){
-    if(this.extra?.mask != null){
-      return {};
-    }
-    try{
-      let maskData = this.config.maskSettings ?? this.parent.config.maskSettings;
-      const randomize = maskData.pick_random_condition ?? false;
-      if(randomize && !maskData.visibleFeatures){
-          try{
-            console.log(`Available conditions ${this.session.availableConditions.length}`, this.session.availableConditions);
-            const randIdx = randomInRange(0, this.session.availableConditions.length);
-            let condition = this.session.availableConditions[randIdx];
-            if(maskData.no_repetitions){
-              condition = this.session.availableConditions.splice(randIdx, 1)[0];
-            }
-            maskData.visibleFeatures = condition;
-            console.log(`New Condition idx ${randIdx}`, condition);
-            console.log(`Remaining conditions`, this.session.availableConditions);
-          } catch(error){
+    if(!this.config?.maskSettings) return {};
+    let maskData = this.config.maskSettings;
+
+    const randomize = maskData?.pick_random_condition ?? false;
+    if(randomize){
+        try{
+          console.log(`Available conditions ${this.session.availableConditions.length}`, this.session.availableConditions);
+          const randIdx = randomInRange(0, this.session.availableConditions.length);
+          let condition = this.session.availableConditions[randIdx];
+          if(maskData.no_repetitions){
+            condition = this.session.availableConditions.splice(randIdx, 1)[0];
+          }
+          maskData.visibleFeatures = condition;
+          console.log(`New Condition idx ${randIdx}`, condition);
+          console.log(`Remaining conditions`, this.session.availableConditions);
+        } catch(error){
           console.warn("error getting randomized condition", error);
-        }
       }
-      if(maskData != null && maskData != undefined){
-        return {mask: maskData};
-      }
-    } catch(error){
-      console.warn("No mask settings for this stage/step");
     }
-    return {};
+    return {mask: maskData};
   }
 
   initialize() {

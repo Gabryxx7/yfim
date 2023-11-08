@@ -41,15 +41,20 @@ class ServerSession extends TimedEvent {
       if(this.currentStageIdx >= this.stages.length){
         console.log("ALL STAGES COMPLETED");
         this.complete();
+        this.notifyRoom();
         return;
       }
       this.currentStage = this.stages[this.currentStageIdx];
       this.currentStage.initialize();
 
-      const sessionData = this.getData();
-      this.room.notifyRoom(CMDS.SOCKET.SESSION_UPDATE, sessionData);
+      this.notifyRoom();
     }
     this.currentStage.update();
+  }
+
+  notifyRoom(){
+    const sessionData = this.getData();
+    this.room.notifyRoom(CMDS.SOCKET.SESSION_UPDATE, sessionData);
   }
 
   getData(){
@@ -59,6 +64,8 @@ class ServerSession extends TimedEvent {
         sessionId: this.id,
         status: this.status,
         startTime: this.startTick.time,
+        pausedTime: this.pausedTime,
+        elapsed: this.elapsed,
         startDateTime: this.startTick.date.getTime(),
         stages: this.stages.length,
         stage: this.currentStage?.getData(),
@@ -69,6 +76,14 @@ class ServerSession extends TimedEvent {
     }
     return data;
   }
+
+  // onPause(){
+  //   this.notifyRoom();
+  // }
+
+  // onResume(){
+  //   this.notifyRoom();
+  // }
   
 
   onStart(){

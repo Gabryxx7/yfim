@@ -11,7 +11,8 @@ class ClientSession extends TimedEvent{
       UPDATE_ROOM: "UPDATE_ROOM"
    }
    static reducer = (session, action) => {
-      console.log("Reducer " + action.type)
+      // console.log("Reducer " + action.type, JSON.stringify(session?.data), JSON.stringify(action?.data))
+      // console.log("Reducer " + action.type, JSON.stringify(action?.data))
       if (action.type === ClientSession.Actions.INCREMENT_COUNTER) {
          session.testCount += 1;
       }
@@ -24,6 +25,8 @@ class ClientSession extends TimedEvent{
       }
       if (action.type === ClientSession.Actions.UPDATE_ROOM) {
          session.room = {...session.room, ...action.data};
+         session.data = {...session.data, status :action?.data?.session?.status};
+         
       }
       return session;
     }

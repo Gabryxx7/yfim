@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext, useReducer, useCallback } from "react";
 import io from "socket.io-client";
 import "survey-react/survey.css";
-import { CMDS, DATA} from "../../backend/Definitions.js";
+import { CMDS, DATA, KEY_SHORTCUTS} from "../../backend/Definitions.js";
 import Toolbar from "./Toolbar.js";
 import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,9 +17,12 @@ import FileSaver from "file-saver";
 // import "../surveyStyle";
 import Introduction from "../components/Introduction.js";
 import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES, } from "../../../assets/PostChatSurvey.js";
+import { TimedEvent } from "../../backend/TimedEvent.js";
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 // var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
+
+const START_SHORTCUTS_ENABLED = false;
 
 export default function RoomSession(props) {
 	const sessionMap = useContext(SessionContext);
@@ -42,6 +45,8 @@ function Room(props) {
 	const [stageData, setStageData] = useState({reason: "", state: STAGE.STATUS.NONE, type: STAGE.TYPE.NONE, data: null});
 	const [userData, setUserData] = useState({});
 	const [roomData, setRoomData] = useState({});
+	const [sessionCompleted, setSessionCompleted] = useState(false);
+	const [shortcutsControls, setShortcutsControls] = useState({shortcutsEnabled: START_SHORTCUTS_ENABLED, audio: true, mic: true, video: true, recording: true, show_debug: false});
 
 	// For some reason survey-react will re-render when the onComplete() contains a setState() call. So I had to write this workaround
 	// Where I only set the onComplete() callback on the first page render, this seems to do the trick (probably because of memoization?!)
@@ -134,11 +139,17 @@ function Room(props) {
 	const onRoomUpdate = (data) => {
 		sessionMap.updateRoom(data);
 		setRoomData(sessionMap.session?.room);
+		sessionMap.session?.setStatus(data?.session?.status)
 	}
 
 	const onSessionUpdate = (data) => {
 		console.log("Session update");
 		sessionMap.updateSession(data);
+		if(data?.status == TimedEvent.STATUS.COMPLETED){
+			console.log("SESSION COMPLETED!")
+			setSessionCompleted(true)
+			return;
+		}
 		sessionMap.session.start();
 		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS,
 			type: sessionMap.session.data?.stage?.step?.type,
@@ -259,13 +270,56 @@ function Room(props) {
 		}
 	}, [bridge])
 
+	const skipStage = () => setStageData((prev) => ({...prev, reason: "Skip clicked", state: STAGE.STATUS.COMPLETED, data: null}))
+
+	const handleKeyPress = (e) => {
+		if(!e) return;
+		const keyCode = e.code;
+		console.log(`${shortcutsControls.shortcutsEnabled ? '[ENABLED]' : '[DISABLED]'} Key Pressed: ${e.code}, ${keyCode}`);
+		if(keyCode === KEY_SHORTCUTS.ENABLE_SHORTCUTS.keyCode){
+			setShortcutsControls((prev) => ({...prev, shortcutsEnabled: !prev.shortcutsEnabled, show_debug: !prev.shortcutsEnabled}))
+			TOASTS.KEYBOARD_SHORTCUTS.show({enabled: !shortcutsControls.shortcutsEnabled}) // At this stage it did not change yet!
+			e.preventDefault()
+		}
+
+		if(!shortcutsControls.shortcutsEnabled) return;
+		if(keyCode === KEY_SHORTCUTS.MUTE_VIDEO.keyCode){
+			setShortcutsControls((prev) => ({...prev, video: !prev.video}))
+			e.preventDefault()
+		} 
+		if(keyCode === KEY_SHORTCUTS.MUTE_SELF.keyCode){
+			setShortcutsControls((prev) => ({...prev, mic: !prev.mic}))
+			e.preventDefault()
+		} 
+		if(keyCode === KEY_SHORTCUTS.MUTE_OTHERS.keyCode){
+			setShortcutsControls((prev) => ({...prev, audio: !prev.audio}))
+			e.preventDefault()
+		} 
+		if(keyCode === KEY_SHORTCUTS.TOGGLE_RECORDING.keyCode){
+			setShortcutsControls((prev) => ({...prev, recording: !prev.recording}))
+			e.preventDefault()
+		}
+		if(keyCode === KEY_SHORTCUTS.SHOW_DEBUG.keyCode){
+			setShortcutsControls((prev) => ({...prev, show_debug: !prev.show_debug}))
+			e.preventDefault()
+		}
+		if(keyCode === KEY_SHORTCUTS.SKIP_STAGE.keyCode){
+			skipStage()
+			e.preventDefault()
+		}
+		if(keyCode === KEY_SHORTCUTS.PAUSE_TIMER.keyCode){
+			sessionMap.session.togglePause();
+			socket.current.emit(CMDS.SOCKET.TOGGLE_SESSION_PAUSE);
+			e.preventDefault()
+		}
+	}
+
+
 	return (
-		<div className='main-room'>
+		<div className='main-room' tabIndex={"0"} onKeyDown={handleKeyPress}>
 		<Toolbar 
 			socket={socket}
-			onSkipClicked={() => {
-				setStageData((prev) => ({...prev, reason: "Skip clicked", state: STAGE.STATUS.COMPLETED, data: null}));
-			}}
+			onSkipClicked={skipStage}
 			onTimerEnd={() => {
 				setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.COMPLETED, data: null}));
 				console.log("STAGE COMPLETED (time limit reached)");
@@ -275,14 +329,26 @@ function Room(props) {
 			stageData={stageData}
 			userData={userData}
 			roomData={roomData}
+			showDebug={shortcutsControls.show_debug}
 		/>
 			
 		<div className={`main-call-container ${bridge}`}>
+			<div className="actions-panel keyboard-actions" 
+            style={shortcutsControls.shortcutsEnabled ? {} : {display: 'none'}}>
+				<div className="icons">
+					{Object.values(KEY_SHORTCUTS).map((s, i) => 
+						<div className="'action">
+							{s.icon ? <FontAwesomeIcon className="key key-icon" icon={s.icon} /> : <span className="key key-name">{s.keyName}</span>}
+							<span>{`: `+s.name}</span>
+						</div>
+					)}
+				</div>
+			</div>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}
 			<div className='main-room-container' style={{display: `${stageData.type == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
 			<VideoContainer
-				recordingEnabled={true}
+				recordingEnabled={shortcutsControls.recordingEnabled}
 				stageData={stageData}
 				userData={userData}
 				socket={socket}
@@ -293,6 +359,9 @@ function Room(props) {
 					sessionMap.session.start();
 					setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.IN_PROGRESS}));
 				}}
+				audioEnabled={shortcutsControls.audio}
+				micEnabled={shortcutsControls.mic}
+				videoEnabled={shortcutsControls.video}
 				connectionStatus={connectionStatus}
 				rtcManager={RTCManager}
 				faceProcessor={faceProcessor} />
@@ -308,7 +377,11 @@ function Room(props) {
 			 }}/>
 			 <ToastCommunications />
 			<div style={{display: `${stageData.type == STAGE.TYPE.VIDEO_CHAT ? 'none' : 'block'}`}}>
-			{currentSurvey != null && <Survey className={`survey-container ${stageData.type}`} model={currentSurvey} /> }
+			{!sessionCompleted && currentSurvey != null && <Survey className={`video-overlay survey-container ${stageData.type}`} model={currentSurvey} /> }
+			{sessionCompleted && <div className="video-overlay end-message">
+				<h1>{`Thank you!`}</h1>
+				<h3>{`Please wait for the experiment to complete :)`}</h3>
+			</div>}
 			</div>
 		</div>
 		</div>

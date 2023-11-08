@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
-import { CMDS, DATA, STAGE } from "../../backend/Definitions.js";
+import { CMDS, DATA, STAGE, KEY_SHORTCUTS } from "../../backend/Definitions.js";
 import "react-toastify/dist/ReactToastify.css";
 import { SessionContext } from "../classes/ClientSession.js";
 import FileSaver from "file-saver";
@@ -30,6 +30,9 @@ export default function VideoContainer(props) {
 	const sessionMap = useContext(SessionContext) ?? null;
 	const faceProcessor = props.faceProcessor;
 	const recordingEnabled = props.recordingEnabled ?? false;
+	const audioEnabled= props.audioEnabled ?? true;
+	const micEnabled= props.micEnabled ?? true;
+	const videoEnabled= props.videoEnabled ?? true;
 	const customVideoActions = props.customVideoActions ?? [];
 	const mediaRecorder = useRef(null);
 	const [videoStatus, setVideoStatus] = useState(null);
@@ -149,6 +152,7 @@ export default function VideoContainer(props) {
 			return updated;
 		})
 	}
+
 	const toggleAudioMuted = (video, override=null) => {
 		if(!video || !video.srcObject) return;
 		var newStatus = null;
@@ -157,6 +161,13 @@ export default function VideoContainer(props) {
 		});
 		updateVideoStatus(video.id, {audio: newStatus})
 	}
+	useEffect(() => {
+		toggleAudioMuted(remoteVideo.current, audioEnabled);
+	}, [audioEnabled])
+	useEffect(() => {
+		toggleAudioMuted(localVideo.current, micEnabled);
+	}, [micEnabled])
+
 	const toggleVideoMuted = (video, override=null) => {
 		if(!video || !video.srcObject) return;
 		var newStatus = null;
@@ -165,6 +176,13 @@ export default function VideoContainer(props) {
 		});
 		updateVideoStatus(video.id, {video: newStatus})
 	}
+	useEffect(() => {
+		toggleVideoMuted(localVideo.current, videoEnabled);
+	}, [videoEnabled])
+
+	useEffect(() => {
+		setRecording(recordingEnabled)
+	}, [recordingEnabled])
 
 	useEffect(() => {
 		console.log("RECORDING CHANGED", recording, mediaRecorder.current);
@@ -310,7 +328,8 @@ export default function VideoContainer(props) {
 				.then(async () => faceProcessor.start())
 			
 			sessionMap?.session?.addOnStart((session) => {
-				const maskData = session.data?.stage?.step?.mask;
+				const maskData = session.data?.stage?.mask;
+				console.log("New stage started, mask data:", maskData)
 				if(maskData != null && maskData != undefined){
 					faceProcessor.setMaskData(maskData);
 				}
@@ -327,27 +346,30 @@ export default function VideoContainer(props) {
 
 	return (
 			<div className='media-bridge'>
-				<div className="video-actions">
-					<div className="video-call-icons">
-						<div className="live-icon icon" onClick={() => toggleVideoMuted(localVideo.current)}>
+				<div className="actions-panel video-actions">
+					<div className="actions">
+						<div className="live-icon action" onClick={() => toggleVideoMuted(localVideo.current)}>
 							{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].video ?
 								<FontAwesomeIcon icon={icon({name: 'video'})} /> :
 								<FontAwesomeIcon icon={icon({name: 'video-slash'})} />
 							}
 						</div>
-						<div className="mic-icon icon" onClick={() => toggleAudioMuted(localVideo.current)}>
+						<div className="mic-icon action" onClick={() => toggleAudioMuted(localVideo.current)}>
 							{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].audio ?
 								<FontAwesomeIcon icon={icon({name: 'microphone'})} /> :
 								<FontAwesomeIcon icon={icon({name: 'microphone-slash'})} />
 							}
 						</div>
-						<div className="headset-icon icon">
-							{videoStatus != null && videoStatus[VIDEO_ID.REMOTE].audio ?
-								<FontAwesomeIcon icon={icon({name: 'phone'})} /> :
-								<FontAwesomeIcon icon={icon({name: 'phone-slash'})} />
+						<div className="headset-icon action" onClick={() => toggleAudioMuted(remoteVideo.current)}>
+							{videoStatus == null ? <></> :
+							remoteVideo.current == null ?
+								<FontAwesomeIcon icon={icon({name: 'volume-off'})} /> :
+								videoStatus[VIDEO_ID.REMOTE].audio ?
+									<FontAwesomeIcon icon={icon({name: 'volume-high'})} /> :
+									<FontAwesomeIcon icon={icon({name: 'volume-xmark'})} />
 							}
 						</div>
-						<div className={`recording-icon icon ${recording ? "recording" : ""}`} onClick={() => setRecording((prev) => !prev)}>
+						<div className={`recording-icon action ${recording ? "recording" : ""}`} onClick={() => setRecording((prev) => !prev)}>
 							{recording ?
 								<FontAwesomeIcon icon={icon({name: 'circle'})} /> :
 								<FontAwesomeIcon icon={icon({name: 'play'})} />

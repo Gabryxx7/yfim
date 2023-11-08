@@ -46,6 +46,8 @@ class TimedEvent {
 		this.startTick = this.getTime();
 		this.lastTick = this.getTime();
 		this.elapsed = 0;
+      this.pausedTick = null;
+      this.pausedTime = 0;
 		this.deltaTime = 0;
       this.duration = duration;
       this.remaining = -1;
@@ -95,10 +97,26 @@ class TimedEvent {
       }
    }
 
+   setStatus(status){
+      if(status == TimedEvent.STATUS.PAUSED){
+         return this.pause();
+      }
+      
+      if(status == TimedEvent.STATUS.RUNNING){
+         if(this.status == TimedEvent.STATUS.PAUSED){
+            return this.resume()
+         }
+      }
+
+      if(status == TimedEvent.STATUS.COMPLETED){
+         return this.complete();
+      }
+   }
+
 	tick() {
 		const newTick = this.getTime();
 		this.deltaTime = (performance.now() - this.lastTick.time) / 1000;
-      this.elapsed = (performance.now() - this.startTick.time) / 1000;
+      this.elapsed = (performance.now() - this.startTick.time) / 1000 - this.pausedTime;
       this.remaining = (this.duration/1000) - this.elapsed;
       this.lastTick = newTick;
       this.onTick();
@@ -125,12 +143,18 @@ class TimedEvent {
       this.tick();
 	}
 
+   togglePause(){
+      if(this.status == TimedEvent.STATUS.RUNNING) return this.pause()
+      if(this.status == TimedEvent.STATUS.PAUSED) this.resume()
+   }
+
 	pause() {
       if(this.status != TimedEvent.STATUS.RUNNING) return;
       this.status = TimedEvent.STATUS.PAUSED;
 		if (this.timer != null) {
 			clearTimeout(this.timer);
 		}
+      this.pausedTick = this.getTime();
       this.onPause();
       this.callAll(TimedEvent.CALLBACKS.onPause);
 	}
@@ -138,6 +162,8 @@ class TimedEvent {
 	resume() {
       if(this.status != TimedEvent.STATUS.PAUSED) return;
       this.status = TimedEvent.STATUS.RUNNING;
+      this.pausedTime += (performance.now() - this.pausedTick.time) / 1000;
+      this.pausedTick = null;
       this.onResume();
       this.callAll(TimedEvent.CALLBACKS.onResume);
       this.tick();
@@ -156,7 +182,7 @@ class TimedEvent {
 
 
 	complete() {
-      if([TimedEvent.STATUS.STOPPED, TimedEvent.STATUS.COMPLETED, TimedEvent.STATUS.NONE, TimedEvent.STATUS.ERROR].includes(this.status)) return;
+      if([TimedEvent.STATUS.NONE, TimedEvent.STATUS.ERROR].includes(this.status)) return;
       this.status = TimedEvent.STATUS.COMPLETED;
 		if (this.timer != null) {
 			clearTimeout(this.timer);

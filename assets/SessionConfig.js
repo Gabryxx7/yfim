@@ -33,7 +33,8 @@ const makeStage = (tag="NONE", name="Experiment", topic=QUESTION.TYPE.ICEBREAKER
 }
 
 const SessionConfig = {
-  randomChoices: [[], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE], [FACEAPI.LANDMARK.MOUTH]],
+  // randomChoices: [[], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE], [FACEAPI.LANDMARK.MOUTH]],
+  randomChoices: [[FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE], [FACEAPI.LANDMARK.MOUTH]],
   // stages: testStages
 }
 
@@ -50,7 +51,7 @@ const finalStages = [
   //   ]
   // },
   makeStage('FINAL', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, null),
-  ...SessionConfig.randomChoices.map((condition, index) => makeStage('FINAL',`Experiment - ${index}`, QUESTION.TYPE.QUEST, videoChatDuration, {pick_random_condition: true, no_repetitions: true})),
+  // ...SessionConfig.randomChoices.map((condition, index) => makeStage('FINAL',`Experiment - ${index}`, QUESTION.TYPE.QUEST, videoChatDuration, {pick_random_condition: true, no_repetitions: true})),
   {
     name: "Experiment - Interview Placeholder",
     topic: QUESTION.TYPE.QUEST,

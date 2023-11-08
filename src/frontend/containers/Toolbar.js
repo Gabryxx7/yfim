@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import { STAGE, USER } from '../../backend/Definitions.js'
+import { STAGE, USER, KEY_SHORTCUTS } from '../../backend/Definitions.js'
 import Clock from "../components/Controls/Clock.js";
 import { SessionContext } from "../classes/ClientSession.js";
 import ProgressBar from '../components/Controls/Progressbar.js';
@@ -15,14 +15,14 @@ const RoomInfo = (props) => {
     </div>)
 }
 
-const ToolbarTesting = (props) => {
+const ToolbarDebugging = (props) => {
   const sessionData = props.sessionData ?? {};
   const stageData = props.stageData ?? {};
   const userData = props.userData ?? {};
   const roomData = props.roomData ?? {};
   const onSkipClicked = props.onSkipClicked ?? (() => {});
   return(
-    <div className="meta-info">
+    <div className="meta-info" style={{...props.style}}>
       <RoomInfo room={roomData} />
       <div className="user-info">
         <div> {userData.order} - {userData.name} ({userData.role})</div>
@@ -43,11 +43,13 @@ export default function Toolbar(props) {
   const [sessionState, setSessionState] = useState(TimedEvent.STATUS.NONE);
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [paused, setPaused] = useState(false)
   const prompt = props.prompt ?? "PROMPT";
   const onTimerEnd = props.onTimerEnd ?? (() => {});
   const stageData = props.stageData;
   const userData = props.userData ?? {};
   const roomData = props.roomData ?? {};
+  const showDebug = props.showDebug ?? false;
   const [sessionData, setSessionData] = useState({});
   const onSkipClicked = props.onSkipClicked ?? (() => {});
 
@@ -75,6 +77,13 @@ export default function Toolbar(props) {
     });
     sessionMap.session.addOnTick((session) => {
       setTimeElapsed(session.elapsed);
+    });
+
+    sessionMap.session.addOnPause((session) => {
+      setPaused(true)
+    });
+    sessionMap.session.addOnResume((session) => {
+      setPaused(false)
     });
   }, [])
 
@@ -106,6 +115,7 @@ export default function Toolbar(props) {
       >
       <div className="info">
           <Clock
+            paused={paused}
             active={sessionState}
             stageData={stageData}
             onTimerEnd={onTimerEnd}
@@ -120,7 +130,8 @@ export default function Toolbar(props) {
             max={sessionData.totalStages} 
             progress={sessionData.index+1}/> }
         </div>
-          <ToolbarTesting
+          <ToolbarDebugging
+            style={showDebug ? {} : {display: 'none'}}
             onSkipClicked={onSkipClicked}
             sessionData={sessionData}
             stageData={stageData}

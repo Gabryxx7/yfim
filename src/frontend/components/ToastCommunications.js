@@ -159,6 +159,15 @@ TOASTS.TEST= new YFIMToast(
    }
 )
 
+TOASTS.KEYBOARD_SHORTCUTS = new YFIMToast(
+   (props) => {
+      return(<div className="toast-msg">{`Keyboard shortcuts ${props.enabled ? 'ENABLED' : "DISABLED"}!`}</div>);
+   },{
+      type: "warning",
+      autoClose: 2000,
+      // toastId: "keyboard-shortcuts"
+   }
+);
 
 
 
