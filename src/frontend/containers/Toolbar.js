@@ -124,12 +124,17 @@ export default function Toolbar(props) {
             duration={duration}
             coloring={true}>
         </Clock>
+        <div
+      // className={`toolbar-prompt ${sessionState ? '' : 'hidden'}`}
+        className={`toolbar-prompt`}>
+        {prompt}</div>
         <div className="toolbar-block">
           <div>{sessionData.name} ({stageData.state})</div>
           {sessionState != TimedEvent.STATUS.NONE && <ProgressBar
             max={sessionData.totalStages} 
             progress={sessionData.index+1}/> }
         </div>
+      </div>
           <ToolbarDebugging
             style={showDebug ? {} : {display: 'none'}}
             onSkipClicked={onSkipClicked}
@@ -138,11 +143,6 @@ export default function Toolbar(props) {
             userData={userData}
             roomData={roomData}
           />
-      </div>
-      <div
-      // className={`toolbar-prompt ${sessionState ? '' : 'hidden'}`}
-        className={`toolbar-prompt`}>
-        {prompt}</div>
     </div>
   );
 }

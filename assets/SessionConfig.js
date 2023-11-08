@@ -14,7 +14,7 @@ import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES } from "./PostChatSurvey.js"
 //   console.log('Error writing survey json file', error)
 // }
 
-const videoChatDuration = 180;
+const videoChatDuration = 300; // It was 180 (3mins)
 const warmupDuration = 120;
 const makeStage = (tag="NONE", name="Experiment", topic=QUESTION.TYPE.ICEBREAKER, videoStageDuration=10, stageMaskSettings={}) => {
   return {
@@ -33,8 +33,8 @@ const makeStage = (tag="NONE", name="Experiment", topic=QUESTION.TYPE.ICEBREAKER
 }
 
 const SessionConfig = {
-  // randomChoices: [[], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE], [FACEAPI.LANDMARK.MOUTH]],
-  randomChoices: [[FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE], [FACEAPI.LANDMARK.MOUTH]],
+  randomChoices: [[], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE], [FACEAPI.LANDMARK.MOUTH]],
+  // randomChoices: [[FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH], [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE], [FACEAPI.LANDMARK.MOUTH]],
   // stages: testStages
 }
 
@@ -51,18 +51,18 @@ const finalStages = [
   //   ]
   // },
   makeStage('FINAL', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, null),
-  // ...SessionConfig.randomChoices.map((condition, index) => makeStage('FINAL',`Experiment - ${index}`, QUESTION.TYPE.QUEST, videoChatDuration, {pick_random_condition: true, no_repetitions: true})),
-  {
-    name: "Experiment - Interview Placeholder",
-    topic: QUESTION.TYPE.QUEST,
-    steps: [
-      {
-        name: "Survey",
-        type: STAGE.TYPE.SURVEY,
-        surveyModelId: AVAILABLE_SURVEYS.INTERVIEW.id,
-      }
-    ]
-  }
+  ...SessionConfig.randomChoices.map((condition, index) => makeStage('FINAL',`Experiment - ${index}`, QUESTION.TYPE.QUEST, videoChatDuration, {pick_random_condition: true, no_repetitions: true})),
+  // {
+  //   name: "Experiment - Interview Placeholder",
+  //   topic: QUESTION.TYPE.QUEST,
+  //   steps: [
+  //     {
+  //       name: "Survey",
+  //       type: STAGE.TYPE.SURVEY,
+  //       surveyModelId: AVAILABLE_SURVEYS.INTERVIEW.id,
+  //     }
+  //   ]
+  // }
 ];
 
 const testStages = [

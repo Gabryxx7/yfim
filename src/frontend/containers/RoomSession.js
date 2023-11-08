@@ -335,14 +335,12 @@ function Room(props) {
 		<div className={`main-call-container ${bridge}`}>
 			<div className="actions-panel keyboard-actions" 
             style={shortcutsControls.shortcutsEnabled ? {} : {display: 'none'}}>
-				<div className="icons">
-					{Object.values(KEY_SHORTCUTS).map((s, i) => 
-						<div className="'action">
-							{s.icon ? <FontAwesomeIcon className="key key-icon" icon={s.icon} /> : <span className="key key-name">{s.keyName}</span>}
-							<span>{`: `+s.name}</span>
-						</div>
-					)}
-				</div>
+				{Object.values(KEY_SHORTCUTS).map((s, i) => 
+					<div className="action">
+						{s.icon ? <FontAwesomeIcon className="key key-icon" icon={s.icon} /> : <span className="key key-name">{s.keyName}</span>}
+						<span>{s.name}</span>
+					</div>
+				)}
 			</div>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}

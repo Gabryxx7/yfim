@@ -1,7 +1,7 @@
 
 .toolbar-container {
-   padding: 1rem 3rem;
-   max-height: 20vh; //Initially hidden
+   padding: 0.8em 4em;
+   max-height: 15vh; //Initially hidden
    width: 100vw;
    border-bottom: 1px solid #575757b0;
    overflow: hidden;
@@ -56,7 +56,7 @@
    .info{
      font-family: "Fira Code";
      display: grid;
-     // grid-template-columns: 1fr 1fr 1fr;
+     grid-template-columns: 2fr 10fr 2fr;
      grid-auto-flow: column;
      place-content: space-between;
      place-items: center;
@@ -106,6 +106,8 @@
    .toolbar-prompt{
      font-family: 'Montserrat', sans-serif;
      display: flex;
+     place-self: center;
+     text-align: center;
      place-content: center;
      place-items: center;
      font-size: 1.6rem;
