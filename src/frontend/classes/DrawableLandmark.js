@@ -1,5 +1,6 @@
 import { FACEAPI } from "../../backend/Definitions.js";
-
+let CustomLandmarkSettings = {};
+import {default as dataFromFile} from "../../../data/CustomLandmarkSettings.json"
 class Interpolation{
     static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
     static linear = (x) => x;
@@ -160,19 +161,36 @@ class AnimatedPoint {
 
 class DrawableLandmark {
   // new DrawableLandmark({ name:"JawOutline", pointsRange:[0, 17], scale:[1, 1], visible:true, pointSize:2, pointColor:"#f00", drawMask:true }),
+    setData(data = null){
+      this.name = data.name ?? "Landmark";
+      this.scale = data.scale ?? [1, 1];
+      this.visible = data.visible ?? true;
+      this.showPoints = data.showPoints ?? false;
+      this.pointSize = data.pointSize ?? 5;
+      this.pointColor = data.pointColor ?? "fff";
+      this.drawMask = data.drawMask ?? true;
+      this.pointsRange = data.pointsRange ?? [0, 0];
+      this.interpFun = data.interpFun ?? INTERP_FUNCTIONS.linear
+      this.interpTime = data.interpTime ?? 0.5;
+      this.pointsRange = this.pointsRange.sort();
+    }
+
+    reset(){
+      this.setData(this.data);
+    }
     constructor(data = null) {
-        data = data ?? {};
-        this.name = data.name ?? "Landmark";
-        this.scale = data.scale ?? [1, 1];
-        this.visible = data.visible ?? true;
-        this.showPoints = data.showPoints ?? false;
-        this.pointSize = data.pointSize ?? 5;
-        this.pointColor = data.pointColor ?? "fff";
-        this.drawMask = data.drawMask ?? true;
-        this.pointsRange = data.pointsRange ?? [0, 0];
-        this.interpFun = data.interpFun ?? INTERP_FUNCTIONS.linear
-        this.interpTime = data.interpTime ?? 0.5;
-        this.pointsRange = this.pointsRange.sort();
+        this.name = "Landmark";
+        this.scale = [1, 1];
+        this.visible = true;
+        this.showPoints = false;
+        this.pointSize = 5;
+        this.pointColor = "fff";
+        this.drawMask = true;
+        this.pointsRange = [0, 0];
+        this.interpFun = INTERP_FUNCTIONS.linear
+        this.interpTime = 0.5;
+        this.data = data ?? {};
+        this.setData(this.data)
 
         this.rotation = 0;
         this.points = [];
@@ -412,24 +430,26 @@ const defLandData = {
 	drawMask: true,
 	interpFun: INTERP_FUNCTIONS.easeInOut,
 	interpTime: 0.15,
+  visible : false
 };
 
-const DefaultLandmarksData = [
-	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.NOSE, pointsRange: [27, 36], scale: [0.5, 1], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35], visible: false }),
-	new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8], visible: false }),
-	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.NOSE, pointsRange: [27, 36], scale: [0.5, 1], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35], visible: true }),
-	// new DrawableLandmark({ ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8], visible: true }),
-];
+let CustomLandmarks = [
+  { ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: false },
+  { ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: false },
+  { ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: false },
+  { ...defLandData, name: FACEAPI.LANDMARK.NOSE, pointsRange: [27, 36], scale: [0.5, 1], visible: false },
+  { ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35], visible: false },
+  { ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35], visible: false },
+  { ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8], visible: false }
+]
+
+CustomLandmarks = CustomLandmarks.map((l, i) => {
+  if(l.name in CustomLandmarkSettings){
+    l = {...l, ...CustomLandmarkSettings[l.name]}
+  }
+  return new DrawableLandmark(l);
+})
+
 const centerLandmarkPoint = new DrawableLandmark({
 	...defLandData,
 	name: "Center",
@@ -443,4 +463,4 @@ let centerOffset = 0;
 const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 let updateCenterOffsetInterval = null;
 
-export { DefaultLandmarksData };
+export { CustomLandmarks };

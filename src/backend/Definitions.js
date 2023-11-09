@@ -140,6 +140,7 @@ const CMDS = {
     BRIDGE:               "bridge",
     HANGUP:               "hangup",
     CONTROL_ROOM:         "control-room",
+    CONTROL_ROOM_SETTINGS_UPDATE:         "control-settings-update",
     SESSION_UPDATE:       "session-update",
     STAGE_COMPLETED:      "stage-completed",
     STEP_COMPLETED:       "step-completed",

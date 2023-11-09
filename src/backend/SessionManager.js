@@ -4,6 +4,8 @@ import { CMDS, STAGE, TIMES } from './Definitions.js';
 import { User } from './User.js';
 import ControlUser from './ControlUser.js';
 import console from "../utils/colouredLogger.js";
+import fs from "fs";
+
 
 class SessionManager {
   constructor(sio) {
@@ -13,6 +15,14 @@ class SessionManager {
     this.controlManager = new NamespaceManager(this.sio, "Control", CMDS.NAMESPACES.CONTROL, this, ControlUser, (socket) => {
       // Making sure the control room gets the session's data even if it just started (or after refresh)
       socket.emit(CMDS.SOCKET.SESSION_UPDATE, this.chatsManager.getData());
+      socket.on(CMDS.SOCKET.CONTROL_ROOM_SETTINGS_UPDATE, (data) => {
+        console.log("Received settings update data: ",data)
+        const uploadDir = "data/";
+				if (!fs.existsSync(uploadDir)) {
+					fs.mkdirSync(uploadDir);
+				}
+			  fs.writeFileSync(uploadDir+ data.filename, JSON.stringify(data.data, null, 3));
+      });
     });
     this.chatsManager.onRoomCreated = (room) => {
       console.log("New Room Created, Joining Control Users ", room.id, this.controlManager.connections);

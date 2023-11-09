@@ -1,0 +1,34 @@
+.control-room{
+   width: 100vw;
+   height: 100vh;
+   position: relative;
+   display: flex;
+}
+
+.rooms-list {
+   position: relative;
+   display: flex;
+   flex-direction: row;
+   gap: 1rem;
+   place-items: flex-start;
+   place-content: space-evenly;
+   width: 100%;
+}
+
+.face-mask-controls {
+   font-family: "Fira Code";
+   letter-spacing: -0.1pt;
+   display: flex;
+   flex-direction: column;
+   position: fixed;
+   /* width: 100vw; */
+   top: 10rem;
+   place-content: flex-start;
+   place-items: flex-start;
+   padding: 1rem;
+   /* height: 100vh; */
+   z-index: 9999999;
+   background-color: #00000066;
+   border-radius: 7px;
+   box-shadow: 0px 0px 3px #00000061;
+}

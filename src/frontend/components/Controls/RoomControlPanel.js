@@ -31,14 +31,14 @@ export default function RoomControlPanel(props) {
             </div>
          </div>
          <div className="room-info">
-            <Clock
+            {/* <Clock
                active={room?.session?.status == TimedEvent.STATUS.RUNNING}
                stageData={stageData}
                onTimerEnd={onTimerEnd}
                elapsed={timeElapsed}
                countdown={true}
                duration={duration}
-               coloring={true}></Clock>
+               coloring={true}></Clock> */}
             <div className="room-name">{room?.id}</div>
             <RoomUsersList users={room?.users} />
          </div>

@@ -1,15 +1,15 @@
 import VideoProcessor from "./VideoProcessor.js";
 // import * as faceapi from "face-api.js"; // Updated face-api, check below
 import * as faceapi from "@vladmandic/face-api"; // https://github.com/justadudewhohacks/face-api.js/issues?q=undefined+backend+#issuecomment-681001997
-import { DefaultLandmarksData } from "./DrawableLandmark.js"
+import { CustomLandmarks } from "./DrawableLandmark.js"
 
 
 // faceapi doc: https://justadudewhohacks.github.io/face-api.js/docs/index.html
 class FaceProcessor extends VideoProcessor {
 	constructor(overrides = null, canvas = null, video=null, landmarksData=null) {
 		super(overrides, canvas), video;
-		// this.landmarksData = landmarksData ?? structuredClone(DefaultLandmarksData); // Gives an error with structuredClone, hopefully the import is not a reference...
-		this.landmarksData = landmarksData ?? DefaultLandmarksData;
+		// this.landmarksData = landmarksData ?? structuredClone(CustomLandmarks); // Gives an error with structuredClone, hopefully the import is not a reference...
+		this.landmarksData = landmarksData ?? CustomLandmarks;
 		this.detections = null;
 		this.detectionsUpdated = false;
 		this.ctx = null;

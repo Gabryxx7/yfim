@@ -255,8 +255,8 @@ export default function VideoContainer(props) {
 				},
 			});
 			localVideo.current.srcObject = stream;
-			toggleVideoMuted(localVideo.current, false);
-			toggleAudioMuted(localVideo.current, false);
+			toggleVideoMuted(localVideo.current, videoEnabled);
+			toggleAudioMuted(localVideo.current, videoEnabled);
 			if(recordingEnabled){
 				if(mediaRecorder.current != null){
 					return;

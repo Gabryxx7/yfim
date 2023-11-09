@@ -9,6 +9,8 @@ import VideoContainer from "../frontend/containers/VideoContainer.js";
 import {FaceProcessor} from "../frontend/classes/FaceProcessor.js";
 import {FaceMaskSelector} from "../frontend/components/Controls/FaceMaskSelector.js";
 import {RecordingControls} from "../frontend/components/Controls/RecordingControls.js";
+import io from "socket.io-client";
+
 
 function SessionDataInput(props) {
 
@@ -16,19 +18,27 @@ function SessionDataInput(props) {
 
 function FaceVideoTest(props) {
   const [userMedia, setUserMedia] = useState(null);
+	const controlSocket = useRef(null);
 	const [faceProcessor, setFaceProcessor] = useState(null);
   const [recording, setRecording] = useState(false);
-  const maskSelector = <FaceMaskSelector faceProcessor={faceProcessor}/>
 	const [stageData, setStageData] = useState({type: STAGE.TYPE.VIDEO_CHAT, sessionId: "testSession"});
 	const [userData, setUserData] = useState({name: "faceTest"});
   const sessionDataFields = <div>
-      <TextField label="Username" variant="standard" value={userData?.name} color="secondary" onChange={(e) => setUserData((prev) => ({...prev, name: e.target.value}))} />
-      <TextField label="SessionId" variant="standard" value={stageData?.sessionId} color="secondary" onChange={(e) => setStageData((prev) => ({...prev, sessionId: e.target.value}))} />
+      <TextField variant="standard" value={userData?.name} color="secondary" onChange={(e) => setUserData((prev) => ({...prev, name: e.target.value}))} />
+      <TextField variant="standard" value={stageData?.sessionId} color="secondary" onChange={(e) => setStageData((prev) => ({...prev, sessionId: e.target.value}))} />
   </div>
   // const recordControls = <RecordingControls recording={recording} onClick={() => setRecording(!recording)} />
 
   useEffect(() => {
 		setFaceProcessor(new FaceProcessor());
+		controlSocket.current = io.connect(`/${CMDS.NAMESPACES.CONTROL}`);
+		console.log(`Created Socket: `,controlSocket.current);
+		controlSocket.current.on(CMDS.SOCKET.CONNECT, (data) => {
+			console.log("Control Socket connected");
+		})
+		controlSocket.current.on(CMDS.SOCKET.CONNECT_ERROR, (err) => {
+		  console.log(`connect_error due to ${err.message}`);
+		});
 	}, []);
 
   return (
@@ -39,9 +49,15 @@ function FaceVideoTest(props) {
         position: 'relative',
         height: '100vh'
       }}>
-        
+      <div className="face-mask-controls">
+        <FaceMaskSelector faceProcessor={faceProcessor} socket={controlSocket}/>
+        <div>{sessionDataFields}</div>
+      </div>
       <VideoContainer
-        customVideoActions={[sessionDataFields, maskSelector]}
+        // customVideoActions={[sessionDataFields]}
+				audioEnabled={false}
+				micEnabled={false}
+				videoEnabled={true}
 				recordingEnabled={true}
         recording={recording}
         userData={userData}

@@ -1,6 +1,15 @@
 import React, { Component, useEffect, useRef, useState } from "react";
 import Switch, { SwitchProps } from '@mui/material/Switch';
 import {FormControlLabel, FormGroup} from '@mui/material';
+import Input from '@mui/material/Input';
+import Slider from '@mui/material/Slider';
+import Checkbox from '@mui/material/Checkbox';
+import MuiInput from '@mui/material/Input';
+import { CMDS, DATA, KEY_SHORTCUTS} from "../../../backend/Definitions.js";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
+
+import Grid from '@mui/material/Grid';
 
 const switchStyle={
     "& .MuiSwitch-track": {
@@ -8,51 +17,162 @@ const switchStyle={
     }
 }
 
+const rowStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '0.2em',
+    placeItems: 'center'
+}
+function SliderInput(props){
+    const [value, setValue] = useState(props.defaultValue);
+
+    useEffect(() => {
+        props.onChange && props.onChange(value)
+    }, [value])
+
+    const handleSliderChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
+    const handleInputChange = (event) => {
+        setValue(event.target.value);
+    };
+    const handleBlur = () => {
+      if (value < 0) {
+          setValue(0);
+      } else if (value > 100) {
+          setValue(100);
+      }
+    };
+
+    return( <div style={{
+            display: 'flex',
+            placeContent: 'center',
+            placeItems: 'center',
+            gap: '0.4rem'
+        }}>
+            <span>{props.label ?? ""}</span>
+            <Slider
+                min={0.001}
+                max={2.0}
+                step={0.001}
+                sx={{'width': '4rem'}}
+                value={value}
+                onChange={handleSliderChange}
+                aria-labelledby="input-slider"
+            />
+            <input
+                value={value}
+                style={{
+                    fontSize: '0.7rem',
+                    color: 'white',
+                    width: '1.5rem',
+                    padding: '0',
+                    width: '2em'}}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
+                inputProps={{
+                    step: 0.01,
+                    min: 0.001,
+                    max: 2.0,
+                    'aria-labelledby': 'input-slider',
+                }}
+            />
+        </div>
+        )
+}
+
 function LandmarkSelector(props) {
     const landmark = props.landmark ?? null;
     const faceProcessor = props.faceProcessor ?? null;
     const [visible, setVisible] = useState(landmark?.visible)
-    const onChange = props.onChange ?? (() => landmark.visible = !landmark?.visible);
+    const [scale, setScale] = useState(landmark?.scale)
+    const onVisibleClicked = props.onVisibleClicked ?? (() => {landmark.visible = !landmark?.visible; setVisible(landmark.visible)});
+    const onScaleChanged = props.onScaleChanged ?? ((value, idx) => {
+        // console.log("New landmark radius value", value);
+        landmark.scale[idx] = value
+    });
+    const onRadiusChanged = props.onRadiusChanged ?? ((value) => {
+        console.log("New landmark radius value", value);
+        landmark.radius.setValue(value)
+    });
+
+    useEffect(() => {
+        console.log("Landmark updated!")
+        setVisible(landmark?.visible);
+        setScale(landmark?.scale);
+    }, [landmark])
 
     return(
         <div className="landmark-selector"
-            style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: '1rem'
-            }}>
-                <FormGroup>
-            <FormControlLabel
-                control={<Switch sx={{...switchStyle}} checked={visible}
-                onChange={() => {
-                    onChange();
-                    setVisible(landmark?.visible);
+            style={rowStyle}>
+            <label style={{width: '4.5rem'}}>{landmark?.name}</label>
+            <Checkbox
+                checked={visible}
+                onChange={onVisibleClicked}
+                sx={{
+                    'color': 'tomato',
+                    '&$checked': { opacity: 0.6 },
                 }}
-                color="secondary" />}
-                label={landmark?.name} />
-                </FormGroup>
+                icon={<FontAwesomeIcon icon={icon({name: 'eye-slash'})} />}
+                checkedIcon={<FontAwesomeIcon icon={icon({name: 'eye'})} />}
+            />
+            <SliderInput label='scale.x' defaultValue={landmark.scale[0]} onChange={(value) => onScaleChanged(value, 0)}/>
+            <SliderInput label='scale.y' defaultValue={landmark.scale[1]} onChange={(value) => onScaleChanged(value, 1)}/>
+            {/* <SliderInput label='radius'  onChange={(value) => onRadiusChanged(value)}/> */}
         </div>
     )
 }
 
+
 function FaceMaskSelector(props) {
     const faceProcessor = props.faceProcessor ?? null;
+    const controlSocketRef = props.socket ?? null;
+    const [landmarksData, setLandmarksData] = useState(faceProcessor?.landmarksData);
+    const onSaveClick = props.onSaveClick ?? (() => {
+        if(!controlSocketRef?.current) return;
+        const data = {};
+        faceProcessor?.landmarksData.forEach((l, i) => data[l.name] = {name: l.name, scale: l.scale, visible: l.visible})
+        controlSocketRef.current.emit(CMDS.SOCKET.CONTROL_ROOM_SETTINGS_UPDATE, {filename: "CustomLandmarkSettings.json", data: data})
+    });
+    const onRestoreClick = props.onClick ?? (() => {
+        faceProcessor?.landmarksData.forEach((l, i) => l.reset());
+        setLandmarksData(faceProcessor?.landmarksData)
+    });
+
+    useEffect(() => {
+        setLandmarksData(faceProcessor?.landmarksData);
+    }, [faceProcessor])
+
     return(
-        <div className="face-mask-selector" style={{
+        <div className="face-mask-selector"
+        style={{
             display: 'flex',
             flexDirection: 'column',
-            // gap: '1rem'
+            gap: '0.4rem',
+            placeItems: 'stretch',
+            placeContent: 'center',
+            width: '35rem',
+            fontSize: '0.7em'
         }}>
         {/* <LandmarkSelector
             landmark={{name: "ALL", visible: () => faceProcessor?.allVisible}}
             onChange={() => faceProcessor.allVisible = !faceProcessor.allVisible }
             faceProcessor={props.faceProcessor}/> */}
-        {faceProcessor?.landmarksData.map((landmark) => (
+        {landmarksData?.map((landmark, i) => (
             <LandmarkSelector
-                landmark={landmark}
-                faceProcessor={props.faceProcessor}/>
+                landmark={landmarksData[i]}
+                faceProcessor={faceProcessor}/>
         ))}
+        <div  style={{...rowStyle, rowGap: '1em', marginTop: '1rem'}}>
+            <span className='primary-button'
+                style={{padding: '0.5rem 0rem'}}
+                onClick={onSaveClick}>Save</span>
+            <span className='primary-button'
+                style={{padding: '0.5rem 0rem'}}
+                onClick={onRestoreClick}>Restore</span>
         </div>
+    </div>
     )
 }
 

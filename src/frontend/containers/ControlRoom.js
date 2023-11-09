@@ -105,6 +105,7 @@ export default function ControlRoom(props) {
 
    return(
       <div className="control-room">
+			<SettingsPanel/>
 			<div className="rooms-list">
 				{Object.entries(roomsData).map(([key, room]) => <RoomControlPanel key={room.id} room={room}/>)}
 			</div>
