@@ -4,7 +4,6 @@ import { CMDS, STAGE, TIMES } from './Definitions.js';
 import { User } from './User.js';
 import ControlUser from './ControlUser.js';
 import console from "../utils/colouredLogger.js";
-import SessionConfig from '../../assets/SessionConfig.js';
 
 class SessionManager {
   constructor(sio) {

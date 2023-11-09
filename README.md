@@ -107,7 +107,7 @@ https://yfim.gmarini.com/surveyTest/:surveyId
 The configuration for each individual room session is defined in: [SessionConfig.js](./assets/SessionConfig.js).
 Given a list of random mask options such as :
 ```javascript
-randomChoices: [
+featuresCombinations: [
   [],
   [ 'LeftEye', 'RightEye', 'Mouth' ],
   [ 'LeftEye', 'RightEye' ],
@@ -149,7 +149,7 @@ The general structure is as follows:
 
 ```javascript
 {
-  randomChoices: [
+  featuresCombinations: [
     [],
     [ 'LeftEye', 'RightEye', 'Mouth' ],
     [ 'LeftEye', 'RightEye' ],
