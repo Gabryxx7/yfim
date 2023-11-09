@@ -41,7 +41,7 @@ class User {
 		}
 		this.socket.onAny((eventName, data) => {
 			if (eventName != CMDS.SOCKET.FACE_DETECTED && eventName != CMDS.SOCKET.RTC_COMMUNICATION) {
-				console.debug(`Received event ${eventName} from ${this.constructor.name} ${this.id}`, data);
+				// console.debug(`Received event ${eventName} from ${this.constructor.name} ${this.id}`, data);
 			}
 		});
 		this.setupCommonCallbacks();
@@ -202,7 +202,7 @@ class User {
 			}
 
       	this.room?.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, { bridge: CMDS.RTC.ACTIONS.HANGUP }, this.socket);
-			this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData());
+			this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData(`User ${this.id} left the room`));
 			if (this.room.size <= 0) {
 				this.nsManager.deleteRoom(this.room);
 			}
@@ -215,8 +215,8 @@ class User {
     return true;
 	}
 
-	notifyClient(error = null) {
-		const data = this.getData();
+	notifyClient(trigger='', error = null) {
+		const data = this.getData(trigger);
 		
 		if (error != null) {
 			data.error = error;
@@ -228,7 +228,8 @@ class User {
 		this.room?.togglePauseSession();
 	}
 	onStepCompleted(data) {
-		console.log(`User ${this.name} - ${this.id} completed stage`);
+		const msg = `User ${this.name} - ${this.id} completed the stage`;
+		console.log(msg);
 		if (data != null && data != undefined) {
 			console.log("User completion data: ", data);
 			var uploadDir = userUploadsRoot;
@@ -251,7 +252,7 @@ class User {
 			fs.writeFileSync(uploadDir + data.filename, JSON.stringify(data.data, null, 3));
 		}
     this.status = USER.STATUS.READY;
-    this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData());
+    this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData(msg));
     this.room?.session.updateSessionStatus();
 	}
 
@@ -273,11 +274,12 @@ class User {
 		const joinFeedback = userRoom.addUser(this);
 		console.warn(`Adding [${this.type}] ${this.id} to room ${roomId}: ${joinFeedback.code} = '${joinFeedback.msg}`);
 		userRoom.printDebug();
-		this.notifyClient(joinFeedback.code <= 0 ? joinFeedback : null);
+		const msg = `Added user ${this} to the room`;
+		this.notifyClient(msg, joinFeedback.code <= 0 ? joinFeedback : null);
 
 		if (joinFeedback.code > 0) {
-      this.status = USER.STATUS.READY;
-      this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData());
+			this.status = USER.STATUS.READY;
+			this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData(msg));
 			if (userRoom.size > 1) {
         // Broadcast to room this.room.id except for the sender
         this.room.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.JOIN_REQUEST, msg: `User ${this} is requesting to join the call`}, this.socket);

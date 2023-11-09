@@ -214,11 +214,11 @@ export default function VideoContainer(props) {
 
 	// when the other side added a media stream, show it on screen
 	const onAddStream = (e) => {
-		console.log(`RTC: Adding MediaStream ${e?.stream?.id}`);
+		// console.log(`RTC: Adding MediaStream ${e?.stream?.id}`);
 		if (remoteVideo.current != null) {
 			remoteVideo.current.srcObject = e.stream;
 			remoteVideo.current.addEventListener("play", () => {
-				console.log("RTC: Remote Video is now playing");
+				// console.log(`RTC: Remote Video is now playing`);
 				faceProcessor.setVideo(remoteVideo.current);
 				if(sessionMap?.session){
 					sessionMap.session.remoteVideo = remoteVideo.current;
@@ -293,14 +293,15 @@ export default function VideoContainer(props) {
 
 	useEffect(() => {
 		if(stageData == null) return;
-		console.log(`New step starting ${stageData.type}`)
-		if(stageData.type != STAGE.TYPE.VIDEO_CHAT){
-			toggleVideoMuted(localVideo.current, false);
-			toggleAudioMuted(localVideo.current, false);
+		if(stageData.type == STAGE.TYPE.VIDEO_CHAT){
+			toggleVideoMuted(localVideo.current, true);
+			toggleAudioMuted(localVideo.current, true);
 			return;
 		}
-		toggleVideoMuted(localVideo.current, true);
-		toggleAudioMuted(localVideo.current, true);
+		if(stageData.type == STAGE.TYPE.SURVEY){
+			toggleVideoMuted(localVideo.current, false);
+			toggleAudioMuted(localVideo.current, false);
+		}
 	}, [stageData])
 
 	useEffect(() => {
@@ -329,7 +330,7 @@ export default function VideoContainer(props) {
 			
 			sessionMap?.session?.addOnStart((session) => {
 				const maskData = session.data?.stage?.mask;
-				console.log("New stage started, mask data:", maskData)
+				// console.log("New stage started, mask data:", maskData)
 				if(maskData != null && maskData != undefined){
 					faceProcessor.setMaskData(maskData);
 				}

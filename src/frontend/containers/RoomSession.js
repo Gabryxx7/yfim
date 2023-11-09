@@ -67,7 +67,7 @@ function Room(props) {
 
 
 	useEffect(() => {
-		console.log(`STAGE TYPE: ${stageData.type}`)
+		console.log(`Stage Data Updated: `, stageData);
 		if(stageData.state == STAGE.STATUS.NONE){
 			setCurrentSurvey(null);
 			setPrompt("Waiting for your conversation partner to join the call...");
@@ -95,7 +95,7 @@ function Room(props) {
 		if(stageData.state == STAGE.STATUS.IN_PROGRESS){
 			if(stageData.type == STAGE.TYPE.VIDEO_CHAT){
 				setCurrentSurvey(null);
-				var availablePrompts = sessionMap.session.data?.stage?.prompts;
+				var availablePrompts = stageData?.prompts ?? stageData.step?.prompts;
 				console.log(`Available Prompts: ${availablePrompts}`);
 				// console.log(`User order: ${userData.order}, total prompts: ${availablePrompts.length}`);
 				const promptIdx = Math.min(userData.order % 2, availablePrompts.length-1);
@@ -120,30 +120,31 @@ function Room(props) {
 		try{
 			sessionMap.session.data.stage.userPrompt = prompt;
 		} catch(error) {
-			console.error("Error assigning user prompt to session stage: ", error)
+			console.error("Error assigning user prompt to session stage: ")
 		}
 	}, [prompt])
 	
 
 	const onUserUpdate = (data) => {
-		if(sessionMap.session?.user?.role != data?.user?.role){
-			if(data?.user?.role?.toLowerCase() == 'host'){
-				TOASTS.NEW_ROLE.show({role:data?.user?.role});
+		if(sessionMap.session?.user?.role != data?.role){
+			if(data?.role?.toLowerCase() == 'host'){
+				TOASTS.NEW_ROLE.show({role:data?.role});
 			}
 		}
-		console.log(`Updated user Role ${data?.user?.role}`)
+		console.log(`Received user update ${data?.role}`, data)
 		sessionMap.updateUser(data);
-		setUserData(sessionMap.session?.user);
+		setUserData((prev) => ({...prev, ...data}));
 	}
 
 	const onRoomUpdate = (data) => {
+		console.log(`Received room update`, data)
 		sessionMap.updateRoom(data);
-		setRoomData(sessionMap.session?.room);
+		setRoomData((prev) => ({...prev, ...data}));
 		sessionMap.session?.setStatus(data?.session?.status)
 	}
 
 	const onSessionUpdate = (data) => {
-		console.log("Session update");
+		console.log(`Received Session update`, data)
 		sessionMap.updateSession(data);
 		if(data?.status == TimedEvent.STATUS.COMPLETED){
 			console.log("SESSION COMPLETED!")
@@ -151,14 +152,19 @@ function Room(props) {
 			return;
 		}
 		sessionMap.session.start();
-		setStageData({reason: "", state: STAGE.STATUS.IN_PROGRESS,
-			type: sessionMap.session.data?.stage?.step?.type,
-			sessionId: sessionMap.session?.data?.sessionId,
-			index: sessionMap.session?.data?.stage?.index
-		});
+		console.log("OnSessionUpdate", data)
+		setStageData((prev) => ({
+			...prev,
+			...data.stage,
+			reason: "OnSessionUpdate",
+			state: STAGE.STATUS.IN_PROGRESS,
+			type: data.stage?.step?.type,
+			sessionId: data?.sessionId,
+			index: data?.stage?.index
+		}));
 
-		if(sessionMap.session.data?.stage?.step?.type != STAGE.TYPE.SURVEY) return;
-		const surveyDataModel = AVAILABLE_SURVEYS[sessionMap.session.data?.stage?.step?.surveyModelId] ?? null;
+		if(data.stage?.step?.type != STAGE.TYPE.SURVEY) return;
+		const surveyDataModel = AVAILABLE_SURVEYS[data.stage?.step?.surveyModelId] ?? null;
 		console.log("SURVEY ID", surveyDataModel)
 		if(surveyModel.current != null){
 			if(surveyDataModel != null && surveyModel.current.surveyModelId == surveyDataModel.surveyModelId){
@@ -187,7 +193,7 @@ function Room(props) {
 
 	const onJoinRequestAnswer = (answer) => {
 		if(RTCManager.lastUserIdRequest != null){
-			console.log(`RTC: ${answer}ing join request from ${RTCManager.lastUserIdRequest}`);
+			// console.log(`RTC: ${answer}ing join request from ${RTCManager.lastUserIdRequest}`);
 			socket.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: RTCManager.lastUserIdRequest});
 			RTCManager.lastUserIdRequest = null;
 		}
@@ -196,7 +202,7 @@ function Room(props) {
 	 }
 
 	 useEffect(() => {
-		console.log("Room page render");
+		// console.log("Room page render");
 		socket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
 		console.log(`Created Socket: `,socket.current);
 		setRTCManager(new WebRTCManager(socket, sessionMap));
@@ -255,7 +261,7 @@ function Room(props) {
 
 	 useEffect(() => {
 		if(bridge == null) return;
-		console.log("RTC: Bridge Updated",bridge);
+		// console.log(`RTC: Bridge Updated`,bridge);
 		if(bridge == "none"){
 			TOASTS.WAITING.show();
 			return;
@@ -275,7 +281,7 @@ function Room(props) {
 	const handleKeyPress = (e) => {
 		if(!e) return;
 		const keyCode = e.code;
-		console.log(`${shortcutsControls.shortcutsEnabled ? '[ENABLED]' : '[DISABLED]'} Key Pressed: ${e.code}, ${keyCode}`);
+		// console.log(`${shortcutsControls.shortcutsEnabled ? '[ENABLED]' : '[DISABLED]'} Key Pressed: ${e.code}, ${keyCode}`);
 		if(keyCode === KEY_SHORTCUTS.ENABLE_SHORTCUTS.keyCode){
 			setShortcutsControls((prev) => ({...prev, shortcutsEnabled: !prev.shortcutsEnabled, show_debug: !prev.shortcutsEnabled}))
 			TOASTS.KEYBOARD_SHORTCUTS.show({enabled: !shortcutsControls.shortcutsEnabled}) // At this stage it did not change yet!
@@ -336,7 +342,7 @@ function Room(props) {
 			<div className="actions-panel keyboard-actions" 
             style={shortcutsControls.shortcutsEnabled ? {} : {display: 'none'}}>
 				{Object.values(KEY_SHORTCUTS).map((s, i) => 
-					<div className="action">
+					<div key={`Key-Action-${i}`} className="action">
 						{s.icon ? <FontAwesomeIcon className="key key-icon" icon={s.icon} /> : <span className="key key-name">{s.keyName}</span>}
 						<span>{s.name}</span>
 					</div>
@@ -344,7 +350,7 @@ function Room(props) {
 			</div>
 			{/* <TestComponent index={0} user={user} />
 			<TestComponent index={1} user={user}/> */}
-			<div className='main-room-container' style={{display: `${stageData.type == STAGE.TYPE.VIDEO_CHAT ? 'block' : 'none'}`}}>
+			<div className='main-room-container' style={{display: `${stageData.type == STAGE.TYPE.SURVEY ? 'none' : 'block'}`}}>
 			<VideoContainer
 				recordingEnabled={shortcutsControls.recordingEnabled}
 				stageData={stageData}
@@ -355,7 +361,7 @@ function Room(props) {
 				}}
 				onRemotePlay={() => {
 					sessionMap.session.start();
-					setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.IN_PROGRESS}));
+					setStageData((prev) => ({...prev, reason: "Remote Play trigger", state: STAGE.STATUS.IN_PROGRESS}));
 				}}
 				audioEnabled={shortcutsControls.audio}
 				micEnabled={shortcutsControls.mic}

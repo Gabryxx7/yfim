@@ -18,7 +18,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 */
 
 /*!
- * Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com
+ * Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  * Copyright 2023 Fonticons, Inc.
  */
@@ -32,12 +32,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
  */
 
 /*!
- * Signature Pad v4.1.5 | https://github.com/szimek/signature_pad
+ * Signature Pad v4.1.6 | https://github.com/szimek/signature_pad
  * (c) 2023 Szymon Nowak | Released under the MIT license
  */
 
 /*!
- * surveyjs - Survey JavaScript library v1.9.98
+ * surveyjs - Survey JavaScript library v1.9.116
  * Copyright (c) 2015-2023 Devsoft Baltic OÜ  - http://surveyjs.io/
  * License: MIT (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -85,6 +85,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! ../../flowpanel */
 
 /*! ../../functionsfactory */
+
+/*! ../../header */
 
 /*! ../../helpers */
 
@@ -248,6 +250,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! ../element-factory */
 
+/*! ../entries/react-ui-model */
+
 /*! ../functionsfactory */
 
 /*! ../helpers */
@@ -255,6 +259,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! ../jsonobject */
 
 /*! ../list */
+
+/*! ../localizablestring */
 
 /*! ../popup */
 
@@ -272,7 +278,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! ../react/components/components-container */
 
+/*! ../react/components/file/file-choose-button */
+
+/*! ../react/components/file/file-preview */
+
+/*! ../react/components/header */
+
 /*! ../react/components/list/list */
+
+/*! ../react/components/loading-indicator */
 
 /*! ../react/components/matrix-actions/detail-button/detail-button */
 
@@ -436,8 +450,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! ../utils/responsivity-manager */
 
-/*! ../utils/tooltip */
-
 /*! ../utils/utils */
 
 /*! ./../settings */
@@ -470,6 +482,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! ./components/action-bar/action-bar */
 
+/*! ./components/action-bar/action-bar-item */
+
 /*! ./components/brand-info */
 
 /*! ./components/character-counter */
@@ -477,6 +491,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! ./components/components-container */
 
 /*! ./components/list/list */
+
+/*! ./components/loading-indicator */
 
 /*! ./components/matrix-actions/drag-drop-icon/drag-drop-icon */
 
@@ -507,6 +523,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! ./conditions */
 
 /*! ./conditionsParser */
+
+/*! ./console-warnings */
 
 /*! ./container */
 
@@ -546,6 +564,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! ./dxSurveyService */
 
+/*! ./element */
+
 /*! ./element-factory */
 
 /*! ./element-header */
@@ -561,6 +581,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! ./expressions/expressions */
 
 /*! ./functionsfactory */
+
+/*! ./header */
 
 /*! ./helpers */
 
@@ -674,6 +696,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! ./surveytimer */
 
+/*! ./svg-icon/svg-icon */
+
 /*! ./tagbox-filter */
 
 /*! ./tagbox-item */
@@ -684,7 +708,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! ./title-content */
 
+/*! ./title/title-element */
+
 /*! ./utils */
+
+/*! ./utils/camera */
 
 /*! ./utils/cssClassBuilder */
 
@@ -710,6 +738,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: CalculatedValue */
 
+/*! exports provided: Camera */
+
 /*! exports provided: CharacterCounter, QuestionTextBase */
 
 /*! exports provided: CharacterCounterComponent */
@@ -721,6 +751,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! exports provided: ComponentsContainer */
 
 /*! exports provided: ConditionsParserError, ConditionsParser */
+
+/*! exports provided: ConsoleWarnings */
+
+/*! exports provided: CoverCell, Cover */
 
 /*! exports provided: CssClassBuilder */
 
@@ -762,6 +796,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: FunctionFactory, registerFunction */
 
+/*! exports provided: HeaderMobile, HeaderCell, Header */
+
 /*! exports provided: Helpers */
 
 /*! exports provided: ImageItemValue, QuestionImagePickerModel */
@@ -773,6 +809,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! exports provided: List */
 
 /*! exports provided: ListItem */
+
+/*! exports provided: LoadingIndicatorComponent */
 
 /*! exports provided: LocalizableString, LocalizableStrings */
 
@@ -790,7 +828,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: MultiSelectListModel */
 
-/*! exports provided: MultipleTextEditorModel, MultipleTextItemModel, QuestionMultipleTextModel */
+/*! exports provided: MultipleTextEditorModel, MultipleTextItemModel, QuestionMultipleTextModel, MutlipleTextRow, MutlipleTextErrorRow, MultipleTextCell, MultipleTextErrorCell */
 
 /*! exports provided: Notifier */
 
@@ -842,7 +880,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: QuestionMatrixBaseModel */
 
-/*! exports provided: QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable */
+/*! exports provided: QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedTable */
 
 /*! exports provided: QuestionNonValue */
 
@@ -860,7 +898,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: QuestionTagboxModel */
 
-/*! exports provided: QuestionTextModel */
+/*! exports provided: QuestionTextModel, isMinMaxType */
 
 /*! exports provided: RatingItemBase, RatingItem */
 
@@ -884,9 +922,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: Survey, attachKey2click */
 
-/*! exports provided: Survey, attachKey2click, ReactSurveyElementsWrapper, SurveyNavigationBase, SurveyTimerPanel, SurveyPage, SurveyRow, SurveyPanel, SurveyFlowPanel, SurveyQuestion, SurveyElementErrors, SurveyQuestionAndErrorsCell, ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase, SurveyQuestionCommentItem, SurveyQuestionComment, SurveyQuestionCheckbox, SurveyQuestionCheckboxItem, SurveyQuestionRanking, SurveyQuestionRankingItem, RatingItem, RatingItemStar, RatingItemSmiley, TagboxFilterString, SurveyQuestionOptionItem, SurveyQuestionDropdownBase, SurveyQuestionDropdown, SurveyQuestionTagboxItem, SurveyQuestionTagbox, SurveyQuestionDropdownSelect, SurveyQuestionMatrix, SurveyQuestionMatrixRow, SurveyQuestionHtml, SurveyQuestionFile, SurveyQuestionMultipleText, SurveyQuestionRadiogroup, SurveyQuestionRadioItem, SurveyQuestionText, SurveyQuestionBoolean, SurveyQuestionBooleanCheckbox, SurveyQuestionBooleanRadio, SurveyQuestionEmpty, SurveyQuestionMatrixDropdownCell, SurveyQuestionMatrixDropdownBase, SurveyQuestionMatrixDropdown, SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton, SurveyQuestionPanelDynamic, SurveyProgress, SurveyProgressButtons, SurveyProgressToc, SurveyQuestionRating, SurveyQuestionRatingDropdown, SurveyQuestionExpression, PopupSurvey, SurveyWindow, ReactQuestionFactory, ReactElementFactory, SurveyQuestionImagePicker, SurveyQuestionImage, SurveyQuestionSignaturePad, SurveyQuestionButtonGroup, SurveyQuestionCustom, SurveyQuestionComposite, Popup, List, TitleActions, TitleElement, SurveyActionBar, LogoImage, SurveyHeader, SvgIcon, SurveyQuestionMatrixDynamicRemoveButton, SurveyQuestionMatrixDetailButton, SurveyQuestionMatrixDynamicDragDropIcon, SurveyQuestionPanelDynamicAddButton, SurveyQuestionPanelDynamicRemoveButton, SurveyQuestionPanelDynamicPrevButton, SurveyQuestionPanelDynamicNextButton, SurveyQuestionPanelDynamicProgressText, SurveyNavigationButton, MatrixRow, Skeleton, NotifierComponent, ComponentsContainer, CharacterCounterComponent, SurveyLocStringViewer, SurveyLocStringEditor */
+/*! exports provided: Survey, attachKey2click, ReactSurveyElementsWrapper, SurveyNavigationBase, SurveyTimerPanel, SurveyPage, SurveyRow, SurveyPanel, SurveyFlowPanel, SurveyQuestion, SurveyElementErrors, SurveyQuestionAndErrorsCell, ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase, SurveyQuestionCommentItem, SurveyQuestionComment, SurveyQuestionCheckbox, SurveyQuestionCheckboxItem, SurveyQuestionRanking, SurveyQuestionRankingItem, RatingItem, RatingItemStar, RatingItemSmiley, TagboxFilterString, SurveyQuestionOptionItem, SurveyQuestionDropdownBase, SurveyQuestionDropdown, SurveyQuestionTagboxItem, SurveyQuestionTagbox, SurveyQuestionDropdownSelect, SurveyQuestionMatrix, SurveyQuestionMatrixRow, SurveyQuestionHtml, SurveyQuestionFile, SurveyFileChooseButton, SurveyFilePreview, SurveyQuestionMultipleText, SurveyQuestionRadiogroup, SurveyQuestionRadioItem, SurveyQuestionText, SurveyQuestionBoolean, SurveyQuestionBooleanCheckbox, SurveyQuestionBooleanRadio, SurveyQuestionEmpty, SurveyQuestionMatrixDropdownCell, SurveyQuestionMatrixDropdownBase, SurveyQuestionMatrixDropdown, SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton, SurveyQuestionPanelDynamic, SurveyProgress, SurveyProgressButtons, SurveyProgressToc, SurveyQuestionRating, SurveyQuestionRatingDropdown, SurveyQuestionExpression, PopupSurvey, SurveyWindow, ReactQuestionFactory, ReactElementFactory, SurveyQuestionImagePicker, SurveyQuestionImage, SurveyQuestionSignaturePad, SurveyQuestionButtonGroup, SurveyQuestionCustom, SurveyQuestionComposite, Popup, List, TitleActions, TitleElement, SurveyActionBar, LogoImage, SurveyHeader, SvgIcon, SurveyQuestionMatrixDynamicRemoveButton, SurveyQuestionMatrixDetailButton, SurveyQuestionMatrixDynamicDragDropIcon, SurveyQuestionPanelDynamicAddButton, SurveyQuestionPanelDynamicRemoveButton, SurveyQuestionPanelDynamicPrevButton, SurveyQuestionPanelDynamicNextButton, SurveyQuestionPanelDynamicProgressText, SurveyNavigationButton, MatrixRow, Skeleton, NotifierComponent, ComponentsContainer, CharacterCounterComponent, HeaderMobile, HeaderCell, Header, SurveyLocStringViewer, SurveyLocStringEditor, LoadingIndicatorComponent */
 
-/*! exports provided: Survey, attachKey2click, ReactSurveyElementsWrapper, SurveyNavigationBase, SurveyTimerPanel, SurveyPage, SurveyRow, SurveyPanel, SurveyFlowPanel, SurveyQuestion, SurveyElementErrors, SurveyQuestionAndErrorsCell, ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase, SurveyQuestionCommentItem, SurveyQuestionComment, SurveyQuestionCheckbox, SurveyQuestionCheckboxItem, SurveyQuestionRanking, SurveyQuestionRankingItem, RatingItem, RatingItemStar, RatingItemSmiley, TagboxFilterString, SurveyQuestionOptionItem, SurveyQuestionDropdownBase, SurveyQuestionDropdown, SurveyQuestionTagboxItem, SurveyQuestionTagbox, SurveyQuestionDropdownSelect, SurveyQuestionMatrix, SurveyQuestionMatrixRow, SurveyQuestionHtml, SurveyQuestionFile, SurveyQuestionMultipleText, SurveyQuestionRadiogroup, SurveyQuestionRadioItem, SurveyQuestionText, SurveyQuestionBoolean, SurveyQuestionBooleanCheckbox, SurveyQuestionBooleanRadio, SurveyQuestionEmpty, SurveyQuestionMatrixDropdownCell, SurveyQuestionMatrixDropdownBase, SurveyQuestionMatrixDropdown, SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton, SurveyQuestionPanelDynamic, SurveyProgress, SurveyProgressButtons, SurveyProgressToc, SurveyQuestionRating, SurveyQuestionRatingDropdown, SurveyQuestionExpression, PopupSurvey, SurveyWindow, ReactQuestionFactory, ReactElementFactory, SurveyQuestionImagePicker, SurveyQuestionImage, SurveyQuestionSignaturePad, SurveyQuestionButtonGroup, SurveyQuestionCustom, SurveyQuestionComposite, Popup, List, TitleActions, TitleElement, SurveyActionBar, LogoImage, SurveyHeader, SvgIcon, SurveyQuestionMatrixDynamicRemoveButton, SurveyQuestionMatrixDetailButton, SurveyQuestionMatrixDynamicDragDropIcon, SurveyQuestionPanelDynamicAddButton, SurveyQuestionPanelDynamicRemoveButton, SurveyQuestionPanelDynamicPrevButton, SurveyQuestionPanelDynamicNextButton, SurveyQuestionPanelDynamicProgressText, SurveyNavigationButton, MatrixRow, Skeleton, NotifierComponent, ComponentsContainer, CharacterCounterComponent, SurveyLocStringViewer, SurveyLocStringEditor, SurveyModel, SurveyWindowModel, settings, surveyLocalization, surveyStrings, Model, ResponsivityManager, VerticalResponsivityManager, unwrap */
+/*! exports provided: Survey, attachKey2click, ReactSurveyElementsWrapper, SurveyNavigationBase, SurveyTimerPanel, SurveyPage, SurveyRow, SurveyPanel, SurveyFlowPanel, SurveyQuestion, SurveyElementErrors, SurveyQuestionAndErrorsCell, ReactSurveyElement, SurveyElementBase, SurveyQuestionElementBase, SurveyQuestionCommentItem, SurveyQuestionComment, SurveyQuestionCheckbox, SurveyQuestionCheckboxItem, SurveyQuestionRanking, SurveyQuestionRankingItem, RatingItem, RatingItemStar, RatingItemSmiley, TagboxFilterString, SurveyQuestionOptionItem, SurveyQuestionDropdownBase, SurveyQuestionDropdown, SurveyQuestionTagboxItem, SurveyQuestionTagbox, SurveyQuestionDropdownSelect, SurveyQuestionMatrix, SurveyQuestionMatrixRow, SurveyQuestionHtml, SurveyQuestionFile, SurveyFileChooseButton, SurveyFilePreview, SurveyQuestionMultipleText, SurveyQuestionRadiogroup, SurveyQuestionRadioItem, SurveyQuestionText, SurveyQuestionBoolean, SurveyQuestionBooleanCheckbox, SurveyQuestionBooleanRadio, SurveyQuestionEmpty, SurveyQuestionMatrixDropdownCell, SurveyQuestionMatrixDropdownBase, SurveyQuestionMatrixDropdown, SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton, SurveyQuestionPanelDynamic, SurveyProgress, SurveyProgressButtons, SurveyProgressToc, SurveyQuestionRating, SurveyQuestionRatingDropdown, SurveyQuestionExpression, PopupSurvey, SurveyWindow, ReactQuestionFactory, ReactElementFactory, SurveyQuestionImagePicker, SurveyQuestionImage, SurveyQuestionSignaturePad, SurveyQuestionButtonGroup, SurveyQuestionCustom, SurveyQuestionComposite, Popup, List, TitleActions, TitleElement, SurveyActionBar, LogoImage, SurveyHeader, SvgIcon, SurveyQuestionMatrixDynamicRemoveButton, SurveyQuestionMatrixDetailButton, SurveyQuestionMatrixDynamicDragDropIcon, SurveyQuestionPanelDynamicAddButton, SurveyQuestionPanelDynamicRemoveButton, SurveyQuestionPanelDynamicPrevButton, SurveyQuestionPanelDynamicNextButton, SurveyQuestionPanelDynamicProgressText, SurveyNavigationButton, MatrixRow, Skeleton, NotifierComponent, ComponentsContainer, CharacterCounterComponent, HeaderMobile, HeaderCell, Header, SurveyLocStringViewer, SurveyLocStringEditor, LoadingIndicatorComponent, SurveyModel, SurveyWindowModel, settings, surveyLocalization, surveyStrings, Model, ResponsivityManager, VerticalResponsivityManager, unwrap */
 
 /*! exports provided: SurveyAction, SurveyActionBarItem */
 
@@ -905,6 +943,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*! exports provided: SurveyElementHeader */
 
 /*! exports provided: SurveyError */
+
+/*! exports provided: SurveyFileChooseButton */
+
+/*! exports provided: SurveyFilePreview */
 
 /*! exports provided: SurveyFlowPanel */
 
@@ -938,7 +980,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: SurveyProgressToc */
 
-/*! exports provided: SurveyQuestion, SurveyElementErrors, SurveyQuestionAndErrorsWrapped, SurveyQuestionAndErrorsCell */
+/*! exports provided: SurveyQuestion, SurveyElementErrors, SurveyQuestionAndErrorsWrapped, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell */
 
 /*! exports provided: SurveyQuestionBoolean */
 
@@ -1020,6 +1062,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: SurveyRow */
 
+/*! exports provided: SurveyRowElement */
+
 /*! exports provided: SurveyTimerModel */
 
 /*! exports provided: SurveyTimerPanel */
@@ -1040,17 +1084,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: TitleElement */
 
-/*! exports provided: TooltipManager */
-
 /*! exports provided: Trigger, SurveyTrigger, SurveyTriggerVisible, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerSkip, SurveyTriggerRunExpression, SurveyTriggerCopyValue */
 
 /*! exports provided: ValidatorResult, SurveyValidator, ValidatorRunner, NumericValidator, TextValidator, AnswerCountValidator, RegexValidator, EmailValidator, ExpressionValidator */
 
-/*! exports provided: Version, checkLibraryVersion, settings, Helpers, AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator, SurveyValidator, TextValidator, ValidatorResult, ExpressionValidator, ValidatorRunner, ItemValue, Base, Event, EventBase, ArrayChanges, ComputedUpdater, SurveyError, SurveyElementCore, SurveyElement, DragTypeOverMeEnum, CalculatedValue, CustomError, AnswerRequiredError, OneAnswerRequiredError, RequreNumericError, ExceedSizeError, LocalizableString, LocalizableStrings, HtmlConditionItem, UrlConditionItem, ChoicesRestful, ChoicesRestfull, FunctionFactory, registerFunction, ConditionRunner, ExpressionRunner, ExpressionExecutor, Operand, Const, BinaryOperand, Variable, FunctionOperand, ArrayOperand, UnaryOperand, ConditionsParser, ProcessValue, JsonError, JsonIncorrectTypeError, JsonMetadata, JsonMetadataClass, JsonMissingTypeError, JsonMissingTypeErrorBase, JsonObject, JsonObjectProperty, JsonRequiredPropertyError, JsonUnknownPropertyError, Serializer, property, propertyArray, MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase, MatrixDropdownColumn, matrixDropdownColumnTypes, QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable, MatrixDropdownRowModel, QuestionMatrixDropdownModel, MatrixDynamicRowModel, QuestionMatrixDynamicModel, MatrixRowModel, MatrixCells, QuestionMatrixModel, QuestionMatrixBaseModel, MultipleTextItemModel, QuestionMultipleTextModel, MultipleTextEditorModel, PanelModel, PanelModelBase, QuestionRowModel, FlowPanelModel, PageModel, DefaultTitleModel, Question, QuestionNonValue, QuestionEmptyModel, QuestionCheckboxBase, QuestionSelectBase, QuestionCheckboxModel, QuestionTagboxModel, QuestionRankingModel, QuestionCommentModel, QuestionDropdownModel, QuestionFactory, ElementFactory, QuestionFileModel, QuestionHtmlModel, QuestionRadiogroupModel, QuestionRatingModel, RenderedRatingItem, QuestionExpressionModel, QuestionTextBase, CharacterCounter, QuestionTextModel, QuestionBooleanModel, QuestionImagePickerModel, ImageItemValue, QuestionImageModel, QuestionSignaturePadModel, QuestionPanelDynamicModel, QuestionPanelDynamicItem, SurveyTimer, SurveyTimerModel, tryNavigateToPage, createTOCListModel, getTocRootCss, TOCModel, SurveyProgressModel, SurveyProgressButtonsModel, SurveyModel, SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible, SurveyTriggerCopyValue, SurveyTriggerRunExpression, Trigger, PopupSurveyModel, SurveyWindowModel, TextPreProcessor, Notifier, dxSurveyService, englishStrings, surveyLocalization, surveyStrings, QuestionCustomWidget, CustomWidgetCollection, QuestionCustomModel, QuestionCompositeModel, ComponentQuestionJSON, ComponentCollection, StylesManager, ListModel, MultiSelectListModel, PopupModel, createDialogOptions, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, createPopupViewModel, createPopupModalViewModel, DropdownListModel, DropdownMultiSelectListModel, QuestionButtonGroupModel, ButtonGroupItemModel, ButtonGroupItemValue, IsMobile, IsTouch, _setIsTouch, confirmAction, detectIEOrEdge, doKey2ClickUp, doKey2ClickDown, doKey2ClickBlur, loadFileFromBase64, increaseHeightByContent, createSvg, sanitizeEditableContent, CssClassBuilder, surveyCss, defaultV2Css, defaultV2ThemeName, DragDropCore, DragDropChoices, DragDropRankingSelectToRank */
+/*! exports provided: Version, ReleaseDate, checkLibraryVersion, setLicenseKey, slk, hasLicense, settings, Helpers, AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator, SurveyValidator, TextValidator, ValidatorResult, ExpressionValidator, ValidatorRunner, ItemValue, Base, Event, EventBase, ArrayChanges, ComputedUpdater, SurveyError, SurveyElementCore, SurveyElement, DragTypeOverMeEnum, CalculatedValue, CustomError, AnswerRequiredError, OneAnswerRequiredError, RequreNumericError, ExceedSizeError, LocalizableString, LocalizableStrings, HtmlConditionItem, UrlConditionItem, ChoicesRestful, ChoicesRestfull, FunctionFactory, registerFunction, ConditionRunner, ExpressionRunner, ExpressionExecutor, Operand, Const, BinaryOperand, Variable, FunctionOperand, ArrayOperand, UnaryOperand, ConditionsParser, ProcessValue, JsonError, JsonIncorrectTypeError, JsonMetadata, JsonMetadataClass, JsonMissingTypeError, JsonMissingTypeErrorBase, JsonObject, JsonObjectProperty, JsonRequiredPropertyError, JsonUnknownPropertyError, Serializer, property, propertyArray, MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase, MatrixDropdownColumn, matrixDropdownColumnTypes, QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable, MatrixDropdownRowModel, QuestionMatrixDropdownModel, MatrixDynamicRowModel, QuestionMatrixDynamicModel, MatrixRowModel, MatrixCells, QuestionMatrixModel, QuestionMatrixBaseModel, MultipleTextItemModel, MultipleTextCell, MultipleTextErrorCell, MutlipleTextErrorRow, MutlipleTextRow, QuestionMultipleTextModel, MultipleTextEditorModel, PanelModel, PanelModelBase, QuestionRowModel, FlowPanelModel, PageModel, DefaultTitleModel, Question, QuestionNonValue, QuestionEmptyModel, QuestionCheckboxBase, QuestionSelectBase, QuestionCheckboxModel, QuestionTagboxModel, QuestionRankingModel, QuestionCommentModel, QuestionDropdownModel, QuestionFactory, ElementFactory, QuestionFileModel, QuestionHtmlModel, QuestionRadiogroupModel, QuestionRatingModel, RenderedRatingItem, QuestionExpressionModel, QuestionTextBase, CharacterCounter, QuestionTextModel, QuestionBooleanModel, QuestionImagePickerModel, ImageItemValue, QuestionImageModel, QuestionSignaturePadModel, QuestionPanelDynamicModel, QuestionPanelDynamicItem, SurveyTimer, SurveyTimerModel, tryNavigateToPage, tryFocusPage, createTOCListModel, getTocRootCss, TOCModel, SurveyProgressModel, SurveyProgressButtonsModel, SurveyModel, SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible, SurveyTriggerCopyValue, SurveyTriggerRunExpression, SurveyTriggerSkip, Trigger, PopupSurveyModel, SurveyWindowModel, TextPreProcessor, Notifier, Cover, CoverCell, dxSurveyService, englishStrings, surveyLocalization, surveyStrings, QuestionCustomWidget, CustomWidgetCollection, QuestionCustomModel, QuestionCompositeModel, ComponentQuestionJSON, ComponentCollection, StylesManager, ListModel, MultiSelectListModel, PopupModel, createDialogOptions, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, createPopupViewModel, createPopupModalViewModel, DropdownListModel, DropdownMultiSelectListModel, QuestionButtonGroupModel, ButtonGroupItemModel, ButtonGroupItemValue, IsMobile, IsTouch, _setIsTouch, confirmAction, confirmActionAsync, detectIEOrEdge, doKey2ClickUp, doKey2ClickDown, doKey2ClickBlur, loadFileFromBase64, increaseHeightByContent, createSvg, sanitizeEditableContent, CssClassBuilder, surveyCss, defaultV2Css, defaultV2ThemeName, DragDropCore, DragDropChoices, DragDropRankingSelectToRank */
 
-/*! exports provided: Version, checkLibraryVersion, settings, Helpers, AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator, SurveyValidator, TextValidator, ValidatorResult, ExpressionValidator, ValidatorRunner, ItemValue, Base, Event, EventBase, ArrayChanges, ComputedUpdater, SurveyError, SurveyElementCore, SurveyElement, DragTypeOverMeEnum, CalculatedValue, CustomError, AnswerRequiredError, OneAnswerRequiredError, RequreNumericError, ExceedSizeError, LocalizableString, LocalizableStrings, HtmlConditionItem, UrlConditionItem, ChoicesRestful, ChoicesRestfull, FunctionFactory, registerFunction, ConditionRunner, ExpressionRunner, ExpressionExecutor, Operand, Const, BinaryOperand, Variable, FunctionOperand, ArrayOperand, UnaryOperand, ConditionsParser, ProcessValue, JsonError, JsonIncorrectTypeError, JsonMetadata, JsonMetadataClass, JsonMissingTypeError, JsonMissingTypeErrorBase, JsonObject, JsonObjectProperty, JsonRequiredPropertyError, JsonUnknownPropertyError, Serializer, property, propertyArray, MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase, MatrixDropdownColumn, matrixDropdownColumnTypes, QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable, MatrixDropdownRowModel, QuestionMatrixDropdownModel, MatrixDynamicRowModel, QuestionMatrixDynamicModel, MatrixRowModel, MatrixCells, QuestionMatrixModel, QuestionMatrixBaseModel, MultipleTextItemModel, QuestionMultipleTextModel, MultipleTextEditorModel, PanelModel, PanelModelBase, QuestionRowModel, FlowPanelModel, PageModel, DefaultTitleModel, Question, QuestionNonValue, QuestionEmptyModel, QuestionCheckboxBase, QuestionSelectBase, QuestionCheckboxModel, QuestionTagboxModel, QuestionRankingModel, QuestionCommentModel, QuestionDropdownModel, QuestionFactory, ElementFactory, QuestionFileModel, QuestionHtmlModel, QuestionRadiogroupModel, QuestionRatingModel, RenderedRatingItem, QuestionExpressionModel, QuestionTextBase, CharacterCounter, QuestionTextModel, QuestionBooleanModel, QuestionImagePickerModel, ImageItemValue, QuestionImageModel, QuestionSignaturePadModel, QuestionPanelDynamicModel, QuestionPanelDynamicItem, SurveyTimer, SurveyTimerModel, tryNavigateToPage, createTOCListModel, getTocRootCss, TOCModel, SurveyProgressModel, SurveyProgressButtonsModel, SurveyModel, SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible, SurveyTriggerCopyValue, SurveyTriggerRunExpression, Trigger, PopupSurveyModel, SurveyWindowModel, TextPreProcessor, Notifier, dxSurveyService, englishStrings, surveyLocalization, surveyStrings, QuestionCustomWidget, CustomWidgetCollection, QuestionCustomModel, QuestionCompositeModel, ComponentQuestionJSON, ComponentCollection, StylesManager, ListModel, MultiSelectListModel, PopupModel, createDialogOptions, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, createPopupViewModel, createPopupModalViewModel, DropdownListModel, DropdownMultiSelectListModel, QuestionButtonGroupModel, ButtonGroupItemModel, ButtonGroupItemValue, IsMobile, IsTouch, _setIsTouch, confirmAction, detectIEOrEdge, doKey2ClickUp, doKey2ClickDown, doKey2ClickBlur, loadFileFromBase64, increaseHeightByContent, createSvg, sanitizeEditableContent, CssClassBuilder, surveyCss, defaultV2Css, defaultV2ThemeName, DragDropCore, DragDropChoices, DragDropRankingSelectToRank, defaultStandardCss, modernCss, SvgIconRegistry, SvgRegistry, SvgBundleViewModel, RendererFactory, ResponsivityManager, VerticalResponsivityManager, unwrap, getOriginalEvent, getElement, createDropdownActionModel, createDropdownActionModelAdvanced, getActionDropdownButtonTarget, BaseAction, Action, ActionDropdownViewModel, AdaptiveActionContainer, defaultActionBarCss, ActionContainer, TooltipManager, DragOrClickHelper */
+/*! exports provided: Version, ReleaseDate, checkLibraryVersion, setLicenseKey, slk, hasLicense, settings, Helpers, AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator, SurveyValidator, TextValidator, ValidatorResult, ExpressionValidator, ValidatorRunner, ItemValue, Base, Event, EventBase, ArrayChanges, ComputedUpdater, SurveyError, SurveyElementCore, SurveyElement, DragTypeOverMeEnum, CalculatedValue, CustomError, AnswerRequiredError, OneAnswerRequiredError, RequreNumericError, ExceedSizeError, LocalizableString, LocalizableStrings, HtmlConditionItem, UrlConditionItem, ChoicesRestful, ChoicesRestfull, FunctionFactory, registerFunction, ConditionRunner, ExpressionRunner, ExpressionExecutor, Operand, Const, BinaryOperand, Variable, FunctionOperand, ArrayOperand, UnaryOperand, ConditionsParser, ProcessValue, JsonError, JsonIncorrectTypeError, JsonMetadata, JsonMetadataClass, JsonMissingTypeError, JsonMissingTypeErrorBase, JsonObject, JsonObjectProperty, JsonRequiredPropertyError, JsonUnknownPropertyError, Serializer, property, propertyArray, MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase, MatrixDropdownColumn, matrixDropdownColumnTypes, QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable, MatrixDropdownRowModel, QuestionMatrixDropdownModel, MatrixDynamicRowModel, QuestionMatrixDynamicModel, MatrixRowModel, MatrixCells, QuestionMatrixModel, QuestionMatrixBaseModel, MultipleTextItemModel, MultipleTextCell, MultipleTextErrorCell, MutlipleTextErrorRow, MutlipleTextRow, QuestionMultipleTextModel, MultipleTextEditorModel, PanelModel, PanelModelBase, QuestionRowModel, FlowPanelModel, PageModel, DefaultTitleModel, Question, QuestionNonValue, QuestionEmptyModel, QuestionCheckboxBase, QuestionSelectBase, QuestionCheckboxModel, QuestionTagboxModel, QuestionRankingModel, QuestionCommentModel, QuestionDropdownModel, QuestionFactory, ElementFactory, QuestionFileModel, QuestionHtmlModel, QuestionRadiogroupModel, QuestionRatingModel, RenderedRatingItem, QuestionExpressionModel, QuestionTextBase, CharacterCounter, QuestionTextModel, QuestionBooleanModel, QuestionImagePickerModel, ImageItemValue, QuestionImageModel, QuestionSignaturePadModel, QuestionPanelDynamicModel, QuestionPanelDynamicItem, SurveyTimer, SurveyTimerModel, tryNavigateToPage, tryFocusPage, createTOCListModel, getTocRootCss, TOCModel, SurveyProgressModel, SurveyProgressButtonsModel, SurveyModel, SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible, SurveyTriggerCopyValue, SurveyTriggerRunExpression, SurveyTriggerSkip, Trigger, PopupSurveyModel, SurveyWindowModel, TextPreProcessor, Notifier, Cover, CoverCell, dxSurveyService, englishStrings, surveyLocalization, surveyStrings, QuestionCustomWidget, CustomWidgetCollection, QuestionCustomModel, QuestionCompositeModel, ComponentQuestionJSON, ComponentCollection, StylesManager, ListModel, MultiSelectListModel, PopupModel, createDialogOptions, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, createPopupViewModel, createPopupModalViewModel, DropdownListModel, DropdownMultiSelectListModel, QuestionButtonGroupModel, ButtonGroupItemModel, ButtonGroupItemValue, IsMobile, IsTouch, _setIsTouch, confirmAction, confirmActionAsync, detectIEOrEdge, doKey2ClickUp, doKey2ClickDown, doKey2ClickBlur, loadFileFromBase64, increaseHeightByContent, createSvg, sanitizeEditableContent, CssClassBuilder, surveyCss, defaultV2Css, defaultV2ThemeName, DragDropCore, DragDropChoices, DragDropRankingSelectToRank, defaultStandardCss, modernCss, SvgIconRegistry, SvgRegistry, SvgBundleViewModel, RendererFactory, ResponsivityManager, VerticalResponsivityManager, unwrap, getOriginalEvent, getElement, createDropdownActionModel, createDropdownActionModelAdvanced, getActionDropdownButtonTarget, BaseAction, Action, ActionDropdownViewModel, AdaptiveActionContainer, defaultActionBarCss, ActionContainer, DragOrClickHelper */
 
-/*! exports provided: Version, checkLibraryVersion, settings, Helpers, AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator, SurveyValidator, TextValidator, ValidatorResult, ExpressionValidator, ValidatorRunner, ItemValue, Base, Event, EventBase, ArrayChanges, ComputedUpdater, SurveyError, SurveyElementCore, SurveyElement, DragTypeOverMeEnum, CalculatedValue, CustomError, AnswerRequiredError, OneAnswerRequiredError, RequreNumericError, ExceedSizeError, LocalizableString, LocalizableStrings, HtmlConditionItem, UrlConditionItem, ChoicesRestful, ChoicesRestfull, FunctionFactory, registerFunction, ConditionRunner, ExpressionRunner, ExpressionExecutor, Operand, Const, BinaryOperand, Variable, FunctionOperand, ArrayOperand, UnaryOperand, ConditionsParser, ProcessValue, JsonError, JsonIncorrectTypeError, JsonMetadata, JsonMetadataClass, JsonMissingTypeError, JsonMissingTypeErrorBase, JsonObject, JsonObjectProperty, JsonRequiredPropertyError, JsonUnknownPropertyError, Serializer, property, propertyArray, MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase, MatrixDropdownColumn, matrixDropdownColumnTypes, QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable, MatrixDropdownRowModel, QuestionMatrixDropdownModel, MatrixDynamicRowModel, QuestionMatrixDynamicModel, MatrixRowModel, MatrixCells, QuestionMatrixModel, QuestionMatrixBaseModel, MultipleTextItemModel, QuestionMultipleTextModel, MultipleTextEditorModel, PanelModel, PanelModelBase, QuestionRowModel, FlowPanelModel, PageModel, DefaultTitleModel, Question, QuestionNonValue, QuestionEmptyModel, QuestionCheckboxBase, QuestionSelectBase, QuestionCheckboxModel, QuestionTagboxModel, QuestionRankingModel, QuestionCommentModel, QuestionDropdownModel, QuestionFactory, ElementFactory, QuestionFileModel, QuestionHtmlModel, QuestionRadiogroupModel, QuestionRatingModel, RenderedRatingItem, QuestionExpressionModel, QuestionTextBase, CharacterCounter, QuestionTextModel, QuestionBooleanModel, QuestionImagePickerModel, ImageItemValue, QuestionImageModel, QuestionSignaturePadModel, QuestionPanelDynamicModel, QuestionPanelDynamicItem, SurveyTimer, SurveyTimerModel, tryNavigateToPage, createTOCListModel, getTocRootCss, TOCModel, SurveyProgressModel, SurveyProgressButtonsModel, SurveyModel, SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible, SurveyTriggerCopyValue, SurveyTriggerRunExpression, Trigger, PopupSurveyModel, SurveyWindowModel, TextPreProcessor, Notifier, dxSurveyService, englishStrings, surveyLocalization, surveyStrings, QuestionCustomWidget, CustomWidgetCollection, QuestionCustomModel, QuestionCompositeModel, ComponentQuestionJSON, ComponentCollection, StylesManager, ListModel, MultiSelectListModel, PopupModel, createDialogOptions, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, createPopupViewModel, createPopupModalViewModel, DropdownListModel, DropdownMultiSelectListModel, QuestionButtonGroupModel, ButtonGroupItemModel, ButtonGroupItemValue, IsMobile, IsTouch, _setIsTouch, confirmAction, detectIEOrEdge, doKey2ClickUp, doKey2ClickDown, doKey2ClickBlur, loadFileFromBase64, increaseHeightByContent, createSvg, sanitizeEditableContent, CssClassBuilder, surveyCss, defaultV2Css, defaultV2ThemeName, DragDropCore, DragDropChoices, DragDropRankingSelectToRank, defaultStandardCss, modernCss, SvgIconRegistry, SvgRegistry, SvgBundleViewModel, RendererFactory, ResponsivityManager, VerticalResponsivityManager, unwrap, getOriginalEvent, getElement, createDropdownActionModel, createDropdownActionModelAdvanced, getActionDropdownButtonTarget, BaseAction, Action, ActionDropdownViewModel, AdaptiveActionContainer, defaultActionBarCss, ActionContainer, TooltipManager, DragOrClickHelper, Model */
+/*! exports provided: Version, ReleaseDate, checkLibraryVersion, setLicenseKey, slk, hasLicense, settings, Helpers, AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator, SurveyValidator, TextValidator, ValidatorResult, ExpressionValidator, ValidatorRunner, ItemValue, Base, Event, EventBase, ArrayChanges, ComputedUpdater, SurveyError, SurveyElementCore, SurveyElement, DragTypeOverMeEnum, CalculatedValue, CustomError, AnswerRequiredError, OneAnswerRequiredError, RequreNumericError, ExceedSizeError, LocalizableString, LocalizableStrings, HtmlConditionItem, UrlConditionItem, ChoicesRestful, ChoicesRestfull, FunctionFactory, registerFunction, ConditionRunner, ExpressionRunner, ExpressionExecutor, Operand, Const, BinaryOperand, Variable, FunctionOperand, ArrayOperand, UnaryOperand, ConditionsParser, ProcessValue, JsonError, JsonIncorrectTypeError, JsonMetadata, JsonMetadataClass, JsonMissingTypeError, JsonMissingTypeErrorBase, JsonObject, JsonObjectProperty, JsonRequiredPropertyError, JsonUnknownPropertyError, Serializer, property, propertyArray, MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase, MatrixDropdownColumn, matrixDropdownColumnTypes, QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable, MatrixDropdownRowModel, QuestionMatrixDropdownModel, MatrixDynamicRowModel, QuestionMatrixDynamicModel, MatrixRowModel, MatrixCells, QuestionMatrixModel, QuestionMatrixBaseModel, MultipleTextItemModel, MultipleTextCell, MultipleTextErrorCell, MutlipleTextErrorRow, MutlipleTextRow, QuestionMultipleTextModel, MultipleTextEditorModel, PanelModel, PanelModelBase, QuestionRowModel, FlowPanelModel, PageModel, DefaultTitleModel, Question, QuestionNonValue, QuestionEmptyModel, QuestionCheckboxBase, QuestionSelectBase, QuestionCheckboxModel, QuestionTagboxModel, QuestionRankingModel, QuestionCommentModel, QuestionDropdownModel, QuestionFactory, ElementFactory, QuestionFileModel, QuestionHtmlModel, QuestionRadiogroupModel, QuestionRatingModel, RenderedRatingItem, QuestionExpressionModel, QuestionTextBase, CharacterCounter, QuestionTextModel, QuestionBooleanModel, QuestionImagePickerModel, ImageItemValue, QuestionImageModel, QuestionSignaturePadModel, QuestionPanelDynamicModel, QuestionPanelDynamicItem, SurveyTimer, SurveyTimerModel, tryNavigateToPage, tryFocusPage, createTOCListModel, getTocRootCss, TOCModel, SurveyProgressModel, SurveyProgressButtonsModel, SurveyModel, SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible, SurveyTriggerCopyValue, SurveyTriggerRunExpression, SurveyTriggerSkip, Trigger, PopupSurveyModel, SurveyWindowModel, TextPreProcessor, Notifier, Cover, CoverCell, dxSurveyService, englishStrings, surveyLocalization, surveyStrings, QuestionCustomWidget, CustomWidgetCollection, QuestionCustomModel, QuestionCompositeModel, ComponentQuestionJSON, ComponentCollection, StylesManager, ListModel, MultiSelectListModel, PopupModel, createDialogOptions, PopupBaseViewModel, PopupDropdownViewModel, PopupModalViewModel, createPopupViewModel, createPopupModalViewModel, DropdownListModel, DropdownMultiSelectListModel, QuestionButtonGroupModel, ButtonGroupItemModel, ButtonGroupItemValue, IsMobile, IsTouch, _setIsTouch, confirmAction, confirmActionAsync, detectIEOrEdge, doKey2ClickUp, doKey2ClickDown, doKey2ClickBlur, loadFileFromBase64, increaseHeightByContent, createSvg, sanitizeEditableContent, CssClassBuilder, surveyCss, defaultV2Css, defaultV2ThemeName, DragDropCore, DragDropChoices, DragDropRankingSelectToRank, defaultStandardCss, modernCss, SvgIconRegistry, SvgRegistry, SvgBundleViewModel, RendererFactory, ResponsivityManager, VerticalResponsivityManager, unwrap, getOriginalEvent, getElement, createDropdownActionModel, createDropdownActionModelAdvanced, getActionDropdownButtonTarget, BaseAction, Action, ActionDropdownViewModel, AdaptiveActionContainer, defaultActionBarCss, ActionContainer, DragOrClickHelper, Model */
 
 /*! exports provided: createDropdownActionModel, createDropdownActionModelAdvanced, getActionDropdownButtonTarget, BaseAction, Action, ActionDropdownViewModel */
 
@@ -1074,7 +1116,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: modernThemeColors, defaultThemeColors, orangeThemeColors, darkblueThemeColors, darkroseThemeColors, stoneThemeColors, winterThemeColors, winterstoneThemeColors, StylesManager */
 
-/*! exports provided: property, propertyArray, JsonObjectProperty, CustomPropertiesCollection, JsonMetadataClass, JsonMetadata, JsonError, JsonUnknownPropertyError, JsonMissingTypeErrorBase, JsonMissingTypeError, JsonIncorrectTypeError, JsonRequiredPropertyError, JsonObject, Serializer */
+/*! exports provided: property, propertyArray, JsonObjectProperty, CustomPropertiesCollection, JsonMetadataClass, JsonMetadata, JsonError, JsonUnknownPropertyError, JsonMissingTypeErrorBase, JsonMissingTypeError, JsonIncorrectTypeError, JsonRequiredPropertyError, JsonRequiredArrayPropertyError, JsonObject, Serializer */
 
 /*! exports provided: settings */
 
@@ -1084,9 +1126,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*! exports provided: surveyTimerFunctions, SurveyTimer */
 
-/*! exports provided: tryNavigateToPage, createTOCListModel, getTocRootCss, TOCModel */
+/*! exports provided: tryNavigateToPage, tryFocusPage, createTOCListModel, getTocRootCss, TOCModel */
 
-/*! exports provided: unwrap, getSize, doKey2ClickBlur, doKey2ClickUp, doKey2ClickDown, sanitizeEditableContent, Logger, mergeValues, getElementWidth, isContainerVisible, classesToSelector, compareVersions, confirmAction, detectIEOrEdge, detectIEBrowser, loadFileFromBase64, isMobile, isShadowDOM, getElement, isElementVisible, findScrollableParent, scrollElementByChildId, navigateToUrl, createSvg, getIconNameFromProxy, increaseHeightByContent, getOriginalEvent, preventDefaults, findParentByClassNames, getFirstVisibleChild */
+/*! exports provided: unwrap, getRenderedSize, getRenderedStyleSize, doKey2ClickBlur, doKey2ClickUp, doKey2ClickDown, sanitizeEditableContent, Logger, showConfirmDialog, mergeValues, getElementWidth, isContainerVisible, classesToSelector, compareVersions, confirmAction, confirmActionAsync, detectIEOrEdge, detectIEBrowser, loadFileFromBase64, isMobile, isShadowDOM, getElement, isElementVisible, findScrollableParent, scrollElementByChildId, navigateToUrl, wrapUrlForBackgroundImage, createSvg, getIconNameFromProxy, increaseHeightByContent, getOriginalEvent, preventDefaults, findParentByClassNames, getFirstVisibleChild */
 
 /*! no exports provided */
 
@@ -1123,6 +1165,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 /*!**********************!*\
   !*** ./src/popup.ts ***!
   \**********************/
+
+/*!***********************!*\
+  !*** ./src/header.ts ***!
+  \***********************/
 
 /*!***********************!*\
   !*** ./src/survey.ts ***!
@@ -1240,6 +1286,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   !*** ./src/survey-error.ts ***!
   \*****************************/
 
+/*!*****************************!*\
+  !*** ./src/utils/camera.ts ***!
+  \*****************************/
+
 /*!******************************!*\
   !*** ./src/dragdrop/core.ts ***!
   \******************************/
@@ -1276,10 +1326,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   !*** ./src/utils/devices.ts ***!
   \******************************/
 
-/*!******************************!*\
-  !*** ./src/utils/tooltip.ts ***!
-  \******************************/
-
 /*!*******************************!*\
   !*** ./src/actions/action.ts ***!
   \*******************************/
@@ -1313,6 +1359,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \*******************************/
 
 /*!*******************************!*\
+  !*** ./src/react/element.tsx ***!
+  \*******************************/
+
+/*!*******************************!*\
   !*** ./src/survey-element.ts ***!
   \*******************************/
 
@@ -1341,6 +1391,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \********************************/
 
 /*!********************************!*\
+  !*** ./src/images/loading.svg ***!
+  \********************************/
+
+/*!********************************!*\
   !*** ./src/question_custom.ts ***!
   \********************************/
 
@@ -1366,6 +1420,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*!*********************************!*\
   !*** ./src/conditionsParser.ts ***!
+  \*********************************/
+
+/*!*********************************!*\
+  !*** ./src/console-warnings.ts ***!
   \*********************************/
 
 /*!*********************************!*\
@@ -1473,6 +1531,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \***********************************/
 
 /*!***********************************!*\
+  !*** ./src/images/ShowCamera.svg ***!
+  \***********************************/
+
+/*!***********************************!*\
   !*** ./src/react/imagepicker.tsx ***!
   \***********************************/
 
@@ -1493,6 +1555,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \************************************/
 
 /*!************************************!*\
+  !*** ./src/images/CloseCamera.svg ***!
+  \************************************/
+
+/*!************************************!*\
   !*** ./src/images/DefaultFile.svg ***!
   \************************************/
 
@@ -1509,11 +1575,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \************************************/
 
 /*!************************************!*\
+  !*** ./src/images/TakePicture.svg ***!
+  \************************************/
+
+/*!************************************!*\
   !*** ./src/images/TimerCircle.svg ***!
   \************************************/
 
 /*!************************************!*\
   !*** ./src/images/clear_16x16.svg ***!
+  \************************************/
+
+/*!************************************!*\
+  !*** ./src/images/drag-n-drop.svg ***!
   \************************************/
 
 /*!************************************!*\
@@ -1561,7 +1635,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \*************************************/
 
 /*!*************************************!*\
+  !*** ./src/images/ChangeCamera.svg ***!
+  \*************************************/
+
+/*!*************************************!*\
   !*** ./src/images/expandDetail.svg ***!
+  \*************************************/
+
+/*!*************************************!*\
+  !*** ./src/images/ranking-dash.svg ***!
   \*************************************/
 
 /*!*************************************!*\
@@ -1681,6 +1763,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \***************************************/
 
 /*!***************************************!*\
+  !*** ./src/images/ranking-arrows.svg ***!
+  \***************************************/
+
+/*!***************************************!*\
   !*** ./src/images/smiley/average.svg ***!
   \***************************************/
 
@@ -1772,8 +1858,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   !*** ./src/images/smiley/very-poor.svg ***!
   \*****************************************/
 
+/*!*****************************************!*\
+  !*** ./src/react/components/header.tsx ***!
+  \*****************************************/
+
 /*!******************************************!*\
   !*** ./src/drag-drop-panel-helper-v1.ts ***!
+  \******************************************/
+
+/*!******************************************!*\
+  !*** ./src/images/TakePicture_24x24.svg ***!
   \******************************************/
 
 /*!******************************************!*\
@@ -1981,6 +2075,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   \****************************************************/
 
 /*!****************************************************!*\
+  !*** ./src/react/components/file/file-preview.tsx ***!
+  \****************************************************/
+
+/*!****************************************************!*\
+  !*** ./src/react/components/loading-indicator.tsx ***!
+  \****************************************************/
+
+/*!****************************************************!*\
   !*** ./src/react/components/svg-icon/svg-icon.tsx ***!
   \****************************************************/
 
@@ -2018,6 +2120,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 /*!**********************************************************!*\
   !*** ./node_modules/signature_pad/dist/signature_pad.js ***!
+  \**********************************************************/
+
+/*!**********************************************************!*\
+  !*** ./src/react/components/file/file-choose-button.tsx ***!
   \**********************************************************/
 
 /*!**********************************************************!*\
@@ -2144,6 +2250,48 @@ https://github.com/nodeca/pako/blob/main/LICENSE
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * use-sync-external-store-shim.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @license React
+ * use-sync-external-store-shim/with-selector.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @remix-run/router v1.11.0
+ *
+ * Copyright (c) Remix Software Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE.md file in the root directory of this source tree.
+ *
+ * @license MIT
+ */
+
+/**
+ * React Router v6.18.0
+ *
+ * Copyright (c) Remix Software Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE.md file in the root directory of this source tree.
+ *
+ * @license MIT
  */
 
 /** @license React v16.13.1

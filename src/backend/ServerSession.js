@@ -20,17 +20,18 @@ class ServerSession extends TimedEvent {
   }
 
   updateSessionStatus(){
-    if (this.room.allUsersReady()) {
+    const usersStatus = this.room.getUsersStatus();
+    if (usersStatus.missing.length <= 0) {
       if(this.isRunning()){
-        console.log(`All users ready in room ${this.room.id}, completing STEP in session`);
+        console.room(`All users ready in room ${this.room.id}, completing STEP in session`);
         this.currentStage.moveToNextStep();
       }
       else{
-        console.log(`All users ready in room ${this.room.id}, STARTING session`);
+        console.room(`All users ready in room ${this.room.id}, STARTING session`);
         this.start();
       }
     }
-    console.log(`NOT all users are ready in room ${this.room.id},`);
+    console.room(`NOT all users are ready in room ${this.room.id}. NOT ready: ${usersStatus.missing}, ready: ${usersStatus.ready}`);
   }
 
   // This will take care of starting the next (or first) stage, notifying of a new session update at the end of each stage
@@ -39,28 +40,27 @@ class ServerSession extends TimedEvent {
     if(this.currentStage == null || this.currentStage.status == STAGE.STATUS.COMPLETED){
       this.currentStageIdx += 1;
       if(this.currentStageIdx >= this.stages.length){
-        console.log("ALL STAGES COMPLETED");
         this.complete();
-        this.notifyRoom();
         return;
       }
       this.currentStage = this.stages[this.currentStageIdx];
       this.currentStage.initialize();
-
-      this.notifyRoom();
+      this.notifyRoom("First Session Tick");
     }
     this.currentStage.update();
   }
 
-  notifyRoom(){
-    const sessionData = this.getData();
+  notifyRoom(trigger=""){
+    const sessionData = this.getData(trigger);
+    console.log(`Notifying room (${trigger}): `, sessionData)
     this.room.notifyRoom(CMDS.SOCKET.SESSION_UPDATE, sessionData);
   }
 
-  getData(){
+  getData(trigger=""){
     var data = {};
     try{
       data = {
+        trigger: trigger,
         sessionId: this.id,
         status: this.status,
         startTime: this.startTick.time,
@@ -68,7 +68,7 @@ class ServerSession extends TimedEvent {
         elapsed: this.elapsed,
         startDateTime: this.startTick.date.getTime(),
         stages: this.stages.length,
-        stage: this.currentStage?.getData(),
+        stage: this.currentStage?.getData(trigger),
         room: this.room?.id,
         conditions: this.conditions
       };

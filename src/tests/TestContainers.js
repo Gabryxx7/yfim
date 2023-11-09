@@ -1,4 +1,5 @@
 import React, { Component, useEffect, useRef, useState } from "react";
+import { useParams } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
@@ -77,7 +78,8 @@ function FaceVideoTest(props) {
 
 function SurveyTest(props) {
   const [surveyModel, setSurveyModel] = useState(null)
-  const surveyId = props.match.params.surveyId ?? props.surveyId ?? AVAILABLE_SURVEYS.TEST.surveyId;
+  const params = useParams();
+  const surveyId = params.survey_id ?? props.surveyId ?? AVAILABLE_SURVEYS.TEST.surveyId;
 
   useEffect(() => {
     console.log(`SURVEY ID: `, surveyId);

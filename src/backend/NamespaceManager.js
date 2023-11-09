@@ -41,7 +41,7 @@ class NamespaceManager {
     getData(){
         const roomsData = {};
         for(let key in this.rooms){
-            roomsData[key] = this.rooms[key].getData();
+            roomsData[key] = this.rooms[key].getData("Namespace getData()");
         }
         return {
             namespace: this.namespace,

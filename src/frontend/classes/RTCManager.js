@@ -150,7 +150,7 @@ export default class WebRTCManager {
 	// send the offer to a server to be forwarded to the other peer
 	sendDescription() {
 		if (this.socketRef.current != null) {
-			console.log("RTC: Sending Local description")
+			// console.log(`RTC: Sending Local description`)
 			this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.MESSAGE, data:this.pc.localDescription});
 		}
 	}
@@ -263,7 +263,7 @@ export default class WebRTCManager {
 				},
 			],
 		});
-		console.log("RTC: PeerConnection created");
+		// console.log(`RTC: PeerConnection created`);
 
 		// this.pc.onconnectionstatechange = (event) => this.onConnectionStateChange(event);
 		this.pc.oniceconnectionstatechange = (event) => this.onIceConnectionStateChange(event);
@@ -272,10 +272,10 @@ export default class WebRTCManager {
 		this.pc.ontrack = (event) => this.onTrack(event);
 		this.pc.onaddstream = (event) => this.onAddStream(event);
 		this.pc.ondatachannel = (event) => this.onDataChannel(event);
-		console.log("RTC: PeerConnection listeners added, initiating call...");
+		// console.log(`RTC: PeerConnection listeners added, initiating call...`);
 
 		this.localVideo.srcObject.getTracks().forEach((track) => {
-			console.log(`RTC: Adding local video track ${track.label} to PeerConnection`);
+			// console.log(`RTC: Adding local video track ${track.label} to PeerConnection`);
 			this.pc.addTrack(track, this.localVideo.srcObject)
 		});
 		try{
@@ -309,7 +309,7 @@ export default class WebRTCManager {
 
 
 	onIceCandidate(event) {
-		console.log(`RTC: New ICE Candidate: ${event?.candidate?.candidate}`);
+		// console.log(`RTC: New ICE Candidate: ${event?.candidate?.candidate}`);
 		if (event.candidate) {
 			if (this.socketRef.current != null) {
 				this.socketRef.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {

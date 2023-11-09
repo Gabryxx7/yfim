@@ -21,7 +21,7 @@ const RoomInfo = (props) => {
    return(<div className={(props.className ?? '')+" features"}>
          {props.features && props.features.length > 0 && 
          <div className="features-list">
-            {props.features?.map((feature, i) => <div className="feature">{i > 0 && ', '}{feature}</div>)}
+            {props.features?.map((feature, i) => <div key={`feature-${i}`} className="feature">{feature}{i < props.features?.length-1 && ', '}</div>)}
          </div>}
       </div>
      )
@@ -32,7 +32,7 @@ const RoomInfo = (props) => {
    return(
        <div className={(props.className ?? '')+' conditions-list'}>
          <span>{props.title}:</span>
-         {props.conditions?.map((conditionFeaturesList, i) =><FeaturesList className='condition' features={conditionFeaturesList} />)}
+         {props.conditions?.map((conditionFeaturesList, i) => <FeaturesList key={`Condition-${i}`} className='condition' features={conditionFeaturesList} />)}
        </div>
      )
  }
@@ -53,9 +53,9 @@ export default function ToolbarDebug(props){
        </div>
        <SkipStage onClick={onSkipClicked} stageData={stageData} />
        <div className="conditions-dbg">
-         <ConditionsList title="Current" conditions={[sessionData?.data?.stage?.mask?.visibleFeatures]}/>
-         <ConditionsList title="Remaining" conditions={sessionData?.data?.conditions?.remaining}/>
-         <ConditionsList title="Completed" conditions={sessionData?.data?.conditions?.completed}/>
+         <ConditionsList title="Current" conditions={[sessionData?.stage?.mask?.visibleFeatures]}/>
+         <ConditionsList title="Remaining" conditions={sessionData?.conditions?.remaining}/>
+         <ConditionsList title="Completed" conditions={sessionData?.conditions?.completed}/>
        </div>
      </div>
    )

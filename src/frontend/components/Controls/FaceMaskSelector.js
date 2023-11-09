@@ -62,6 +62,7 @@ function SliderInput(props){
                 aria-labelledby="input-slider"
             />
             <input
+                aria-labelledby='input-slider'
                 value={value}
                 style={{
                     fontSize: '0.7rem',
@@ -71,12 +72,10 @@ function SliderInput(props){
                     width: '2em'}}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                inputProps={{
-                    step: 0.01,
-                    min: 0.001,
-                    max: 2.0,
-                    'aria-labelledby': 'input-slider',
-                }}
+                step={0.01}
+                min={0.001}
+                max={2.0}
+                
             />
         </div>
         )
@@ -161,6 +160,7 @@ function FaceMaskSelector(props) {
             faceProcessor={props.faceProcessor}/> */}
         {landmarksData?.map((landmark, i) => (
             <LandmarkSelector
+                key={landmark.name}
                 landmark={landmarksData[i]}
                 faceProcessor={faceProcessor}/>
         ))}

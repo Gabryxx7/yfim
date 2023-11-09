@@ -55,4 +55,19 @@ console.room = function(){
 }
 
 
+console.dump = function() {
+  var args = [].slice.call(arguments);
+  var argsWithObjectCopies = args.map(copyIfRegularObject)
+  return console.log.apply(console, argsWithObjectCopies)
+}
+
+function copyIfRegularObject (o) {
+  const isRegularObject = typeof o === 'object' && !(o instanceof RegExp)
+  return isRegularObject ? copyObject(o) : o
+}
+
+function copyObject (o) {
+  return JSON.parse(JSON.stringify(o))
+}
+
 export default console;

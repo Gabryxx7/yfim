@@ -7,6 +7,8 @@ import ToolbarDebug from '../components/ToolbarDebug.js';
 import SkipStage from '../components/Controls/SkipStage.js';
 import {RoomUsersList, RoomUser} from '../components/Controls/RoomUser.js'
 import { TimedEvent } from "../../backend/TimedEvent.js"
+import console from "../../utils/customLogger.js";
+
 
 export default function Toolbar(props) {
 	const sessionMap = useContext(SessionContext);
@@ -29,23 +31,13 @@ export default function Toolbar(props) {
   // let barPadding = `1rem ${remoteVideoSide == 'right' ? sidePadding : '0.5rem'} 0.5rem ${remoteVideoSide != "right" ? sidePadding : '0.5rem'}`
   let barPadding = "0.5rem 1rem";
   useEffect(() => {
-		console.log("Toolbar re-render");
     sessionMap.session.addOnStart((session) => {
       setSessionState(TimedEvent.STATUS.RUNNING);
-      console.log("Session started toolbar: ", session.data)
-      const stageType = session.data?.stage?.step?.type;
       setSessionData({...sessionData,
-        data: session?.data,
+        ...session?.data,
         sessionId: session.data?.sessionId,
-        index: session.data?.stage?.index,
-        name: session.data?.stage?.step?.name,
-        totalStages: session.data?.stages,
-        stageType: stageType,
-        topic: session.data?.stage?.topic
+        totalStages: session.data?.stages
       });
-      const newDuration = session.data?.stage?.step?.duration;
-      console.log("duration ", newDuration);
-      setDuration(newDuration);
     });
     sessionMap.session.addOnTick((session) => {
       setTimeElapsed(session.elapsed);
@@ -60,19 +52,20 @@ export default function Toolbar(props) {
   }, [])
 
   useEffect(() => {
-		console.log("Toolbar stage update" ), stageData;
+    console.log("Toolbar session updated! ", sessionData)
+  }, [sessionData])
+
+  useEffect(() => {
+		console.log("Toolbar stage updated", stageData);
+    setSessionData({...sessionData,
+      index: stageData?.index,
+      name: stageData?.step?.name,
+      stageType: stageData?.step?.type,
+      topic: stageData?.topic
+    });
+    const newDuration = stageData?.step?.duration;
+    setDuration(newDuration);
   }, [stageData])
-  // useEffect(() => {
-  //   // console.log("Toolbar STATE update!");
-  //   // setSessionData({
-  //   //   prompt: props.state?.side_prompt,
-  //   //   user: props.state?.user_role,
-  //   //   index: props.state?.session?.data?.currentStage,
-  //   //   name: props.state?.session?.data?.stage?.name,
-  //   //   totalStages: props.state?.session?.data?.totalStages,
-  //   // })
-  //   // console.log(props.state.session)
-  // }, [props.state]);
 
 
 
@@ -101,7 +94,7 @@ export default function Toolbar(props) {
         className={`toolbar-prompt`}>
         {prompt}</div>
         <div className="toolbar-block">
-          <div>{sessionData.name} ({stageData.state})</div>
+          <div>{sessionData.name} ({stageData?.state})</div>
           {sessionState != TimedEvent.STATUS.NONE && <ProgressBar
             max={sessionData.totalStages} 
             progress={sessionData.index+1}/> }

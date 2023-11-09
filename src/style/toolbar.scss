@@ -163,6 +163,19 @@
       .features-list{
         display: inline-flex;
         gap: 0.5em;
+
+        &::after, &::before{
+          display: inline;
+          position: relative;
+          width: auto;
+          color: white;
+        }
+        &::after{
+          content: ']';
+        }
+        &::before{
+          content: '[';
+        }
       }
     }
 

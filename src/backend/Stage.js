@@ -94,26 +94,18 @@ class Stage {
     else{
       condition = remainingConditions.shift();
     }
-
+    this.session.conditions.remaining = remainingConditions;
     this.session.conditions.completed.push(condition);
     maskData.visibleFeatures = condition;
     console.log(`New Condition idx ${conditionIdx}`, condition);
     console.log(`Remaining conditions`, remainingConditions);
-    return {mask: maskData, remainingConditions: this.session.conditions.remaining,};
+    return {mask: maskData, remainingConditions: this.session.conditions.remaining};
   }
 
   initialize() {
     this.startDateTime = new Date().getTime();
     this.startTime = performance.now();
     this.elapsed = 0;
-    console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
-    this.room.setUsersStatus(USER.STATUS.IN_SESSION);
-    this.extra = {
-      ...this.extra,
-      ...this.getQuestionData(),
-      ...this.getMaskData(),
-      ...this.config
-    };
 
     // If it does have multiple steps, then we should initialize the first step
     if (this.steps.length > 0) {
@@ -125,8 +117,20 @@ class Stage {
       for (let i = 0; i < this.config.steps.length; i++) {
         this.duration += this.steps[i].duration;
       }
-      return; // We should stop here since the stage updates with its internal steps and it does not have a progress on its own
+      this.extra = {
+        ...this.extra,
+        ...this.config,
+        ...this.getMaskData(),
+      };
+      return; // We should stop here since the stage updates with its internal steps and it does not have a progress of its own
     }
+    console.log(`${this.prefix} Starting ${this.name} (${this.type} - ${this.duration}s)`);
+    this.room.setUsersStatus(USER.STATUS.IN_SESSION);
+    this.extra = {
+      ...this.extra,
+      ...this.getQuestionData(),
+      ...this.config
+    };
     // If the stage does not have any step, then the current step is the stage itself
     this.status = STAGE.STATUS.IN_PROGRESS;
   }
@@ -142,8 +146,6 @@ class Stage {
       else{
         this.currentStep = this.steps[this.currentStepIdx];
         this.currentStep?.initialize();
-        const sessionData = this.session.getData();
-        this.room.notifyRoom(CMDS.SOCKET.SESSION_UPDATE, sessionData);
       }
     }
     else{
@@ -152,12 +154,14 @@ class Stage {
     if(this.status == STAGE.STATUS.COMPLETED){
       console.log(`Stage ${this.name} COMPLETED`)
     }
+    this.session.notifyRoom("Starting next step");
   }
 
-  getData(){
-    var data = {};
+  getData(trigger){
+    var data = {trigger: trigger};
     try{
       data = {
+        ...data,
         name: this.name, 
         id: this.id,
         index: this.index,
@@ -167,7 +171,7 @@ class Stage {
         ...this.extra,
       };
       if(this.currentStep){
-        data.step = this.currentStep.getData();
+        data.step = this.currentStep.getData(trigger);
       }
       else{
         data = {

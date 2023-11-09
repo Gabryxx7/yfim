@@ -1,6 +1,23 @@
 import { FACEAPI } from "../../backend/Definitions.js";
 let CustomLandmarkSettings = {};
-import {default as dataFromFile} from "../../../data/CustomLandmarkSettings.json"
+
+
+console.log("Loading json module")
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import
+// if (typeof window === "undefined") {
+//   myModule = await import("module-used-on-server");
+// } else {
+//   myModule = await import("module-used-in-browser");
+// }
+try{
+  let settings = await import('../../../data/CustomLandmarkSettings.json');
+  CustomLandmarkSettings = settings.default
+  console.log(CustomLandmarkSettings);
+} catch(e){
+  console.error("Exception loading module CustomLandmarkSettings.json: "+e, e)
+}
+// CustomLandmarkSettings = JSON.parse(jsonData)
+// import CustomLandmarkSettings from "../../../data/CustomLandmarkSettings.json"
 class Interpolation{
     static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
     static linear = (x) => x;

@@ -37,16 +37,17 @@ export default class Room{
   }
 
 
-  getData(){
+  getData(trigger=""){
     var data = {};
     try{
       data = {
+        trigger: trigger,
         id: this.id,
         users: Object.entries(this.users).map(([key, user]) => user.getData()),
         size: this.size,
         maxSize: this.maxSize,
         roomType: this.roomType,
-        session: this.session?.getData()
+        session: this.session?.getData(`RoomTrigger: ${trigger}`)
       };
     }catch(error){
       console.error(`Error getting session data: `, error);
@@ -65,7 +66,7 @@ export default class Room{
 
   togglePauseSession(){
     this.session.togglePause();
-    this.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.getData());
+    this.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.getData("Session Paused"));
   }
   // If `socket` is provided, then the broadcast will be sent from that user's socket
   // So it will notify everyone except for the sender
@@ -73,20 +74,20 @@ export default class Room{
     // const dbg_msg = message?.type ? `Type: ${message?.type}` : `${message}`
     const dbg_msg = data == null ? "NO DATA" : "WITH DATA";
     if(socket != null){
-      console.log(`Broadcasting (except sender) ${event} to Room ${this.id}: ${dbg_msg}`);
+      // console.room(`Broadcasting (except sender) ${event} to Room ${this.id}: ${dbg_msg}`);
       this.emitToRoom(socket, event, data);
       return;
     }
 
     let ns = "";
-		console.log(`Broadcasting (to all) ${event} to Room ${this.id}: ${dbg_msg}`);
+		// console.room(`Broadcasting (to all) ${event} to Room ${this.id}: ${dbg_msg}`);
     for(let nsManager of this.nsManagers){
       ns += `${nsManager.namespace}, `
       this.emitToRoom(nsManager.nsio, event, data);
        // this.chatsManager.to(this.room.id).nsio.emit(event, data)
        // this.controlManager.to(this.room.id).nsio.emit(event, data)
     }
-		console.log(`Namespaces broadcasted ${ns}`);
+		// console.room(`Namespaces broadcasted ${ns}`);
   }
 
   notifyHost(event, data={}){
@@ -97,19 +98,19 @@ export default class Room{
     for (let userId in this.users) {
       this.users[userId].setStatus(status);
     }
-    this.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.getData());
+    this.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.getData(`Updated all users status to ${status}`));
   }
 
-  allUsersReady(){
-    var count = 0;
-    var total = 0;
+  getUsersStatus(){
+    let usersStatus = {ready: [], missing: []}
     for (let userId in this.users) {
-      total += 1;
       if(this.users[userId].isReady()){
-        count += 1;
+        usersStatus.ready.push(this.users[userId].name)
+      } else {
+        usersStatus.missing.push(this.users[userId].name)
       }
     }
-    return count >= total;
+    return usersStatus;
   }
 
   startSession(){
@@ -153,7 +154,7 @@ export default class Room{
   updateHost(){
     var firstUser = this.users[Object.keys(this.users)[0]];
     firstUser.type = User.TYPE.HOST;
-    firstUser.notifyClient();
+    firstUser.notifyClient("Host update");
     this.host = firstUser;
   }
 
@@ -194,7 +195,7 @@ export default class Room{
     this.size += 1;
     this.onUserEnter(user);
     if(this.maxSize > 0 && this.size >= this.maxSize){
-      console.log(`Room ${this.id} is full, calling onRoomFull(room)`);
+      console.room(`Room ${this.id} is full, calling onRoomFull(room)`);
       this.onRoomFull(this);
     }
     if(user.name == null){

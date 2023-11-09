@@ -187,6 +187,8 @@ class TimedEvent {
 		if (this.timer != null) {
 			clearTimeout(this.timer);
 		}
+      console.log("ALL STAGES COMPLETED");
+      this.notifyRoom("All Stages completed");
       this.onCompleted();
       this.callAll(TimedEvent.CALLBACKS.onCompleted);
 	}
