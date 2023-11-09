@@ -78,20 +78,22 @@ class Stage {
     const randomize = maskData?.pick_random_condition ?? false;
     if(randomize){
         try{
-          console.log(`Available conditions ${this.session.availableConditions.length}`, this.session.availableConditions);
-          const randIdx = randomInRange(0, this.session.availableConditions.length);
-          let condition = this.session.availableConditions[randIdx];
+          const remainingConditions = this.session?.conditions?.remaining;
+          console.log(`Available conditions ${remainingConditions.length}`, remainingConditions);
+          const randIdx = randomInRange(0, remainingConditions.length);
+          let condition = remainingConditions[randIdx];
           if(maskData.no_repetitions){
-            condition = this.session.availableConditions.splice(randIdx, 1)[0];
+            condition = remainingConditions.splice(randIdx, 1)[0];
           }
+          this.session.conditions.completed.push(condition);
           maskData.visibleFeatures = condition;
           console.log(`New Condition idx ${randIdx}`, condition);
-          console.log(`Remaining conditions`, this.session.availableConditions);
+          console.log(`Remaining conditions`, remainingConditions);
         } catch(error){
           console.warn("error getting randomized condition", error);
       }
     }
-    return {mask: maskData};
+    return {mask: maskData, remainingConditions: this.session.conditions.remaining,};
   }
 
   initialize() {

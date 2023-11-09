@@ -149,3 +149,22 @@
     flex-direction: row;
   }
 }
+
+.conditions-dbg {
+  display: flex;
+  flex-direction: column;
+  place-items: start;
+  place-content: center;
+  .conditions-list{
+    display: flex;
+    gap: 1.2em;
+    .condition{
+      display: inline;
+      .features-list{
+        display: inline-flex;
+        gap: 0.5em;
+      }
+    }
+
+  }
+}

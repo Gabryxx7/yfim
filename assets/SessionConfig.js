@@ -39,30 +39,8 @@ const SessionConfig = {
 }
 
 const finalStages = [
-  // {
-  //   name: "TestSurvey",
-  //   topic: QUESTION.TYPE.QUEST,
-  //   steps: [
-  //     {
-  //       name: "Survey",
-  //       type: STAGE.TYPE.SURVEY,
-  //       surveyModelId: AVAILABLE_SURVEYS.POST_VIDEO_CHAT.id,
-  //     }
-  //   ]
-  // },
   makeStage('FINAL', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, null),
   ...SessionConfig.randomChoices.map((condition, index) => makeStage('FINAL',`Experiment - ${index}`, QUESTION.TYPE.QUEST, videoChatDuration, {pick_random_condition: true, no_repetitions: true})),
-  // {
-  //   name: "Experiment - Interview Placeholder",
-  //   topic: QUESTION.TYPE.QUEST,
-  //   steps: [
-  //     {
-  //       name: "Survey",
-  //       type: STAGE.TYPE.SURVEY,
-  //       surveyModelId: AVAILABLE_SURVEYS.INTERVIEW.id,
-  //     }
-  //   ]
-  // }
 ];
 
 const testStages = [

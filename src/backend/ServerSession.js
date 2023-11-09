@@ -13,7 +13,7 @@ class ServerSession extends TimedEvent {
       this.currentStage = null;
       this.currentStageIdx = -1;
       this.config = SessionConfig;
-      this.availableConditions = structuredClone(this.config.randomChoices);
+      this.conditions = {remaining: structuredClone(this.config.randomChoices), completed: []};
       this.stagesConfig = this.config.stages;
       this.question_selected = [];
       this.stages = [];
@@ -69,7 +69,8 @@ class ServerSession extends TimedEvent {
         startDateTime: this.startTick.date.getTime(),
         stages: this.stages.length,
         stage: this.currentStage?.getData(),
-        room: this.room?.id
+        room: this.room?.id,
+        conditions: this.conditions
       };
     }catch(error){
       console.error(`Error getting session data: `, error);

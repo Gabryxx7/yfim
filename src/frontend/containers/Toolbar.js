@@ -3,39 +3,10 @@ import { STAGE, USER, KEY_SHORTCUTS } from '../../backend/Definitions.js'
 import Clock from "../components/Controls/Clock.js";
 import { SessionContext } from "../classes/ClientSession.js";
 import ProgressBar from '../components/Controls/Progressbar.js';
+import ToolbarDebug from '../components/ToolbarDebug.js';
 import SkipStage from '../components/Controls/SkipStage.js';
 import {RoomUsersList, RoomUser} from '../components/Controls/RoomUser.js'
 import { TimedEvent } from "../../backend/TimedEvent.js"
-
-const RoomInfo = (props) => {
-  return(
-    <div className="room-info">
-      <div className="room-name">{props.room?.id}</div>
-      <RoomUsersList users={props.room?.users} />
-    </div>)
-}
-
-const ToolbarDebugging = (props) => {
-  const sessionData = props.sessionData ?? {};
-  const stageData = props.stageData ?? {};
-  const userData = props.userData ?? {};
-  const roomData = props.roomData ?? {};
-  const onSkipClicked = props.onSkipClicked ?? (() => {});
-  return(
-    <div className="meta-info" style={{...props.style}}>
-      <RoomInfo room={roomData} />
-      <div className="user-info">
-        <div> {userData.order} - {userData.name} ({userData.role})</div>
-        <div>{sessionData.stageType} - {sessionData.topic}</div>
-        <div>{sessionData.sessionId}</div>
-      </div>
-      <SkipStage onClick={onSkipClicked} stageData={stageData} />
-      {/* <div className="room-info">
-        <div>Waiting for your partner...</div>
-      </div> */}
-    </div>
-  )
-}
 
 export default function Toolbar(props) {
 	const sessionMap = useContext(SessionContext);
@@ -64,6 +35,7 @@ export default function Toolbar(props) {
       console.log("Session started toolbar: ", session.data)
       const stageType = session.data?.stage?.step?.type;
       setSessionData({...sessionData,
+        data: session?.data,
         sessionId: session.data?.sessionId,
         index: session.data?.stage?.index,
         name: session.data?.stage?.step?.name,
@@ -135,7 +107,7 @@ export default function Toolbar(props) {
             progress={sessionData.index+1}/> }
         </div>
       </div>
-          <ToolbarDebugging
+          <ToolbarDebug
             style={showDebug ? {} : {display: 'none'}}
             onSkipClicked={onSkipClicked}
             sessionData={sessionData}
