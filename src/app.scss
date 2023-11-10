@@ -179,10 +179,9 @@ input[type="checkbox"] {
 }
 .timer {
   box-sizing: border-box;
-  // backdrop-filter: blur(25px);
-  // background-color: #000000ca;
   border-radius: 14px;
-  box-shadow: 0px 0px 8px 3px #2424245e;
+  padding: 0.4rem 2rem;
+  /* box-shadow: 0px 0px 5px rgba(36, 36, 36, 0.368627451); */
   color: white;
   display: flex;
   place-items: center;
@@ -200,7 +199,7 @@ input[type="checkbox"] {
   background-size: cover;
   position: relative;
   // top: 16vh;
-  z-index: 19;
+  z-index: 40;
   // background-color: rgba(0,0,0,0.2);
   // backdrop-filter: blur(10px);
 }

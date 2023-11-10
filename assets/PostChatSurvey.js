@@ -148,7 +148,7 @@ const SurveyTemplate = {
   progressBarType: "pages",
   // widthMode: "responsive",
   widthMode: "static",
-  width: "70vw",
+  width: "80rem",
   pages: []
 }
 

@@ -6,6 +6,7 @@
   --sjs-general-backcolor-dim: #121212;
   --background-dim-light: #555555;
   --background-semitransparent: #555555EE;
+  --primary: #ff0000;
   --primary-foreground: #dddddd;
   --foreground: #dddddd;
   --foreground-light: #ffffff;
@@ -199,7 +200,13 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   color: white !important;
   //  text-align: center;
   padding: 0.2rem !important;
-  font-size: 2rem !important;
+  font-size: 1.6rem !important;
+}
+.sd-title:has(.sd-header__text) {
+  text-align: center;
+  background: transparent;
+  box-shadow: 0px 0px 0px transparent;
+  filter: none;
 }
 
 .sd-header__text{
@@ -234,8 +241,9 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   border: 1px solid #ffffff24;
 }
 .sd-panel{
+  max-width: 100% !important;
   box-shadow: 0px 0px 5px #dbdbdb2e;
-  box-sizing: content-box;
+  box-sizing: border-box;
   border-radius: 5px;
   &:has(.question-root){
     border-left: 4px solid #18a689;
@@ -269,6 +277,11 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   padding: 1rem 4rem !important;
 }
 
-.sd-row{
+.sd-page__row{
   box-sizing: content-box;
+}
+
+.sd-progress, .sd-progress__bar{
+  height: 4px;
+  border-radius: 21px;
 }
