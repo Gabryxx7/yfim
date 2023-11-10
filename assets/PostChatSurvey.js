@@ -81,18 +81,17 @@ const makeSAMQuestion = (type, number, samType, prompt) => {
 const makeESMQuestion = (type, number, esmType, prompt) => {
   if(Array.isArray(esmType)){
     let name = `${type}-Assessment ${number} [`
-    const elements = [];
-    for(let t of esmType){
+    const elements = esmType.map((t, i) => {
       let el = makeESMQuestion(type, number, t, prompt);
-      el.titleLocation = 'hidden';
-      elements.push(el);
+      // if(i > 0) el.titleLocation = 'hidden';
       name += `${t.name},`
-    }
-    name += ']';
+      return el
+    })
     return {
       title: prompt,
+      questionTitleLocation: 'hidden',
       type: "panel",
-      name: `${type}-Assessment ${number}`,
+      name: `${type}-Assessment ${number}]`,
       id: `${type}-${number}`,
       elements: elements
     }

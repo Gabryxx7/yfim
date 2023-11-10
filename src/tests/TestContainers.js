@@ -104,9 +104,9 @@ function SurveyTest(props) {
   }, [])
 
   return (
-    <div>
+    <>
 		  {surveyModel != null && <Survey className="survey-container" model={surveyModel} /> }
-    </div>
+    </>
   );
 }
 

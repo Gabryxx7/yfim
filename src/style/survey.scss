@@ -1,23 +1,31 @@
 /* You can add your custom css here.*/
 :root {
-  --background: #111111;
-  // --background: #070707;
-  --background-dim: #111111;
-  --sjs-general-backcolor-dim: #111111;
-  --background-dim-light: #333333;
-  --background-semitransparent: #333333EE;
+  // --background: #111111;
+  --background: #1d1d1d;
+  --background-dim: #121212;
+  --sjs-general-backcolor-dim: #121212;
+  --background-dim-light: #555555;
+  --background-semitransparent: #555555EE;
   --primary-foreground: #dddddd;
   --foreground: #dddddd;
   --foreground-light: #ffffff;
   --foreground-disabled: #CCCCCC;
   --sjs-general-dim-forecolor: #CCCCCC;
-  --border: #333333;
+  --border: #555555;
   --border-light: #555555;
   --sjs-general-backcolor-dark: #CCCCCC;
-  --sjs-font-size: 18px;
+  // --sjs-font-size: 18px;
+  --sjs-font-questiontitle-size: 1.5rem;
+  --sjs-font-size: 1.2rem;  
   --sjs-font-pagedescription-weight: 600;
   --sjs-general-dim-forecolor-light: #CCCCCC;
   --sjs-font-editorfont-color: #c6c6c6;
+}
+
+.sd-root-modern {
+  --sd-base-padding: calc(2 * var(--sjs-base-unit, var(--base-unit, 8px)));
+  --sd-base-vertical-padding: calc(1 * var(--sjs-base-unit, var(--base-unit, 8px)));
+  --sd-page-vertical-padding: calc(1 * var(--sjs-base-unit, var(--base-unit, 8px)));
 }
 
 $primary: var(--sjs-primary-backcolor, var(--primary, #ffffff));
@@ -98,7 +106,7 @@ $font-questiontitle-family: var(--sjs-font-questiontitle-family, var(--font-fami
 $font-questiontitle-weight: var(--sjs-font-questiontitle-weight, 600);
 $font-questiontitle-color: var(--sjs-font-questiontitle-color,
     var(--sjs-general-forecolor, var(--foreground, #161616)));
-$font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(1 * var(--sjs-font-size, $font-size)));
+$font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(2 * var(--sjs-font-size, $font-size)));
 
 $font-questiondescription-family: var(--sjs-font-questiondescription-family, var(--font-family));
 $font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
@@ -202,47 +210,65 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   color: white !important;
 }
 
-.question-content, .sd-question__content, .question-root {
+.sd-element__num{
+  display: none;
+}
+
+.question-content, .sd-question__content, .question-root:not(.sd-element--nested) {
   display: flex;
   flex-direction: column;
   place-items: center;
   place-content: center;
-  width: 100%;
-}
-
-.question-content, .sd-question__content{
-  border: 1px solid #ffffff24;
-  border-radius: 5px;
-  border-left: 4px solid #18a689;
-  padding: 20px;
-  margin: 10px 0;
   width: 100% !important;
+  box-sizing: content-box;
+  border-radius: 5px;
+  padding: 0.8rem;
+  // margin: 10px 0;
   .sd-scrollable-container{
     width: auto;
   }
-
 }
 
-// div[data-name*="Self"],
-.question-self {
-  // .sd-question__header{
-  //   *{
-  //     color: red !important;
-  //   }
-  // }
-  .question-content, .sd-question__content{
-    border-left: 4px solid red;
+.question-content{
+
+  border: 1px solid #ffffff24;
+}
+.sd-panel{
+  box-shadow: 0px 0px 5px #dbdbdb2e;
+  box-sizing: content-box;
+  border-radius: 5px;
+  &:has(.question-root){
+    border-left: 4px solid #18a689;
+
+  }
+  &:has(.question-self){
+    border-left: 4px solid rgb(251, 105, 105);
+  }
+
+  &:has(.question-other){
+    border-left: 4px solid rgb(159, 162, 218);
+  }
+}
+.question-root:not(.sd-element--nested){
+  box-sizing: content-box;
+  border-radius: 5px;
+  border-left: 4px solid #18a689;
+
+  &.question-self, .question-self {
+    border-left: 4px solid rgb(251, 105, 105);
+  }
+
+  &.question-other, .question-other{
+    border-left: 4px solid rgb(159, 162, 218);
   }
 }
 
 // div[data-name*="Other"],
-.question-other{
-  // .sd-question__header{
-  //   *{
-  //     color: blue !important;
-  //   }
-  // }
-  .question-content, .sd-question__content{
-    border-left: 4px solid blue;
-  }
+
+.sd-panel, .sd-panel, .question-root:not(.sd-element--nested){
+  padding: 1rem 4rem !important;
+}
+
+.sd-row{
+  box-sizing: content-box;
 }
