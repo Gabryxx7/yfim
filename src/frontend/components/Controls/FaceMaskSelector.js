@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 
 import Grid from '@mui/material/Grid';
+import { useSocket } from "../../classes/SocketContext.js";
 
 const switchStyle={
     "& .MuiSwitch-track": {
@@ -126,13 +127,13 @@ function LandmarkSelector(props) {
 
 function FaceMaskSelector(props) {
     const faceProcessor = props.faceProcessor ?? null;
-    const controlSocketRef = props.socket ?? null;
+    const socket = useSocket(CMDS.NAMESPACES.CONTROL)
     const [landmarksData, setLandmarksData] = useState(faceProcessor?.landmarksData);
     const onSaveClick = props.onSaveClick ?? (() => {
-        if(!controlSocketRef?.current) return;
+        if(!socket) return;
         const data = {};
         faceProcessor?.landmarksData.forEach((l, i) => data[l.name] = {name: l.name, scale: l.scale, visible: l.visible})
-        controlSocketRef.current.emit(CMDS.SOCKET.CONTROL_ROOM_SETTINGS_UPDATE, {filename: "CustomLandmarkSettings.json", data: data})
+        socket.emit(CMDS.SOCKET.CONTROL_ROOM_SETTINGS_UPDATE, {filename: "CustomLandmarkSettings.json", data: data})
     });
     const onRestoreClick = props.onClick ?? (() => {
         faceProcessor?.landmarksData.forEach((l, i) => l.reset());

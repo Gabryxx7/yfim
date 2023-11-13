@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext, useReducer, useCallback } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import io from "socket.io-client";
 import "survey-react/survey.css";
 import { CMDS, DATA, KEY_SHORTCUTS} from "../../backend/Definitions.js";
@@ -6,7 +6,6 @@ import Toolbar from "./Toolbar.js";
 import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
-import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
 import VideoContainer from "../containers/VideoContainer.js";
 import {FaceProcessor} from "../classes/FaceProcessor.js";
 import { STAGE } from "../../backend/Definitions.js"
@@ -18,6 +17,8 @@ import FileSaver from "file-saver";
 import Introduction from "../components/Introduction.js";
 import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES, } from "../../../assets/PostChatSurvey.js";
 import { TimedEvent } from "../../backend/TimedEvent.js";
+import {useSocket} from "../classes/SocketContext.js";
+import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 // var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
@@ -25,19 +26,18 @@ import { TimedEvent } from "../../backend/TimedEvent.js";
 const START_SHORTCUTS_ENABLED = false;
 
 export default function RoomSession(props) {
-	const sessionMap = useContext(SessionContext);
 	return (
-		<SessionProvider>
-			<Room {...props}/>
-		</SessionProvider>
+			<SessionProvider>
+				<Room {...props}/>
+			</SessionProvider>
 	);
 }
 
 function Room(props) {
 	const sessionMap = useContext(SessionContext);
+	const socket = useSocket(CMDS.NAMESPACES.CHAT);
 	const useJoinForm = props.useJoinForm ?? true;
 	const [faceProcessor, setFaceProcessor] = useState(null);
-	const socket = useRef(null);
 	const [prompt, setPrompt] = useState("Waiting for your conversation partner to join the call...")
 	const [RTCManager, setRTCManager] = useState(null)
 	const [connectionStatus, setConnectionStatus] = useState("none")
@@ -87,7 +87,7 @@ function Room(props) {
 				}
 				// setPrompt("Waiting for your conversation partner to complete the survey...");
 			}
-			socket.current.emit(CMDS.SOCKET.STEP_COMPLETED, completionData);
+			socket.emit(CMDS.SOCKET.STEP_COMPLETED, completionData);
 			const blob = new Blob([JSON.stringify(completionData.data)], {type: "text/plain;charset=utf-8"});
 			FileSaver.saveAs(blob, baseFilename)
 			return;
@@ -194,7 +194,7 @@ function Room(props) {
 	const onJoinRequestAnswer = (answer) => {
 		if(RTCManager.lastUserIdRequest != null){
 			// console.log(`RTC: ${answer}ing join request from ${RTCManager.lastUserIdRequest}`);
-			socket.current.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: RTCManager.lastUserIdRequest});
+			socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: RTCManager.lastUserIdRequest});
 			RTCManager.lastUserIdRequest = null;
 		}
 		// socketRef.current.emit(e.target.dataset.ref, state.sid); // I'm not sure why so many emit() calls had an array [cmd] as command
@@ -202,9 +202,6 @@ function Room(props) {
 	 }
 
 	 useEffect(() => {
-		// console.log("Room page render");
-		socket.current = io.connect(`/${CMDS.NAMESPACES.CHAT}`);
-		console.log(`Created Socket: `,socket.current);
 		setRTCManager(new WebRTCManager(socket, sessionMap));
 	  	setFaceProcessor(new FaceProcessor());
 	}, []);
@@ -216,36 +213,39 @@ function Room(props) {
 		// 	room: room,
 		// 	user: user,
 		// });
-		// socket.current.onAny((eventName, ...args) => {
+		// socket.onAny((eventName, ...args) => {
 		// 	if(eventName !== CMDS.SOCKET.FACE_DETECTED){
 		// 		console.log(`Received event ${eventName}`, args)
 		// 	}
 		// });
-		socket.current.on(CMDS.SOCKET.RTC_COMMUNICATION, (data) => {
+		socket.on(CMDS.SOCKET.CONNECT, () => {
+			console.log(`CONNECTED TO THE SOCKET CONTEXT`);
+		});
+		socket.on(CMDS.SOCKET.RTC_COMMUNICATION, (data) => {
 			if(data.bridge != CMDS.RTC.ACTIONS.MESSAGE){
 				setBridge(data.bridge);
 			}
 			RTCManager.handleRTCCommunication(data);
 		})
-		socket.current.on(CMDS.SOCKET.CONNECT_ERROR, (err) => {
+		socket.on(CMDS.SOCKET.CONNECT_ERROR, (err) => {
 		  console.log(`connect_error due to ${err.message}`);
 		});
-		socket.current.on(CMDS.SOCKET.ROOM_IDLE, () => resetParams());
-		socket.current.on(CMDS.SOCKET.SURVEY_START, (data) => onSurveyStart(data));
-		socket.current.on(CMDS.SOCKET.FACE_DETECTED, () => setFaceOn(true));
-      socket.current.on(CMDS.SOCKET.SESSION_UPDATE, (data) => onSessionUpdate(data));
-		// socket.current.on(CMDS.SOCKET.PROCESS_START, () => onProcessStart());
-		socket.current.on(CMDS.SOCKET.ROOM_UPDATE, (data) => onRoomUpdate(data));
-		socket.current.on(CMDS.SOCKET.USER_UPDATE, (data) => onUserUpdate(data));
+		socket.on(CMDS.SOCKET.ROOM_IDLE, () => resetParams());
+		socket.on(CMDS.SOCKET.SURVEY_START, (data) => onSurveyStart(data));
+		socket.on(CMDS.SOCKET.FACE_DETECTED, () => setFaceOn(true));
+      socket.on(CMDS.SOCKET.SESSION_UPDATE, (data) => onSessionUpdate(data));
+		// socket.on(CMDS.SOCKET.PROCESS_START, () => onProcessStart());
+		socket.on(CMDS.SOCKET.ROOM_UPDATE, (data) => onRoomUpdate(data));
+		socket.on(CMDS.SOCKET.USER_UPDATE, (data) => onUserUpdate(data));
 		// socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => onProcessStop(data));
-		socket.current.on(CMDS.SOCKET.RESET, () => resetParams());
+		socket.on(CMDS.SOCKET.RESET, () => resetParams());
 
-		socket.current.on(CMDS.SOCKET.MESSAGE, (data) => RTCManager.onMessage(data));
-		socket.current.on(CMDS.SOCKET.CONTROL, (data) => RTCManager.onControl(data));
+		socket.on(CMDS.SOCKET.MESSAGE, (data) => RTCManager.onMessage(data));
+		socket.on(CMDS.SOCKET.CONTROL, (data) => RTCManager.onControl(data));
 		// setSocket(socket);
 		if(!useJoinForm){
 		// CHANGE THIS TO IMMEDIATELY JOIN THE ROOM
-    		socket.current.emit(CMDS.SOCKET.JOIN_ROOM);
+    		socket.emit(CMDS.SOCKET.JOIN_ROOM);
 		}
 	}, [RTCManager])
 
@@ -315,7 +315,7 @@ function Room(props) {
 		}
 		if(keyCode === KEY_SHORTCUTS.PAUSE_TIMER.keyCode){
 			sessionMap.session.togglePause();
-			socket.current.emit(CMDS.SOCKET.TOGGLE_SESSION_PAUSE);
+			socket.emit(CMDS.SOCKET.TOGGLE_SESSION_PAUSE);
 			e.preventDefault()
 		}
 	}
@@ -324,12 +324,11 @@ function Room(props) {
 	return (
 		<div className='main-room' tabIndex={"0"} onKeyDown={handleKeyPress}>
 		<Toolbar 
-			socket={socket}
 			onSkipClicked={skipStage}
 			onTimerEnd={() => {
 				setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.COMPLETED, data: null}));
 				console.log("STAGE COMPLETED (time limit reached)");
-				socket.current.emit(CMDS.SOCKET.STEP_COMPLETED);
+				socket.emit(CMDS.SOCKET.STEP_COMPLETED);
 			}}
 			prompt={prompt}
 			stageData={stageData}
@@ -355,7 +354,6 @@ function Room(props) {
 				recordingEnabled={shortcutsControls.recordingEnabled}
 				stageData={stageData}
 				userData={userData}
-				socket={socket}
 				onStreamAdded={() => {
 					setBridge(CMDS.RTC.STATUS.ESTABLISHED)
 				}}
@@ -376,7 +374,7 @@ function Room(props) {
 			 onUsernameFormSubmit={(name) => {
 				console.log(`New user ${name}, stage state: ${stageData}`)
 				if(stageData.state == STAGE.STATUS.NONE){
-					socket.current.emit(CMDS.SOCKET.JOIN_ROOM, {name: name});
+					socket.emit(CMDS.SOCKET.JOIN_ROOM, {name: name});
 				}
 			 }}/>
 			 <ToastCommunications />

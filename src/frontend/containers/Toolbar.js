@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import { STAGE, USER, KEY_SHORTCUTS } from '../../backend/Definitions.js'
+import { CMDS } from '../../backend/Definitions.js'
 import Clock from "../components/Controls/Clock.js";
 import { SessionContext } from "../classes/ClientSession.js";
 import ProgressBar from '../components/Controls/Progressbar.js';
@@ -7,12 +7,13 @@ import ToolbarDebug from '../components/ToolbarDebug.js';
 import SkipStage from '../components/Controls/SkipStage.js';
 import {RoomUsersList, RoomUser} from '../components/Controls/RoomUser.js'
 import { TimedEvent } from "../../backend/TimedEvent.js"
-import console from "../../utils/customLogger.js";
+import { useSocket } from "../classes/SocketContext.js";
+// import console from "../../utils/customLogger.js";
 
 
 export default function Toolbar(props) {
 	const sessionMap = useContext(SessionContext);
-  const socket = props.socket;
+  const socket = useSocket(CMDS.NAMESPACES.CHAT);
   const [sessionState, setSessionState] = useState(TimedEvent.STATUS.NONE);
   const [timeElapsed, setTimeElapsed] = useState(0)
   const [duration, setDuration] = useState(0)

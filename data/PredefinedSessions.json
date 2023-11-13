@@ -1,8 +1,37 @@
+
+LANDMARK: {
+   JAWOUTLINE: "JawOutline",
+   LEFTEYEBROW: "LeftEyeBrow",
+   RIGHTEYEBROW: "RightEyeBrow",
+   NOSE: "Nose",
+   LEFTEYE: "LeftEye",
+   RIGHTEYE: "RightEye",
+   MOUTH: "Mouth"
+}
+
 {
-   "EM": {
+   "EM_E_M": {
       [],
-      [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH],
-      [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE],
-      [FACEAPI.LANDMARK.MOUTH]
-   }
+      ["LeftEye", "RightEye", "Mouth"],
+      ["LeftEye", "RightEye"],
+      ["Mouth"]
+   },
+   "EM_E_M": {
+      [],
+      ["LeftEye", "RightEye", "Mouth"],
+      ["LeftEye", "RightEye"],
+      ["Mouth"]
+   },
+   "E_EM_M": {
+      [],
+      ["LeftEye", "RightEye"],
+      ["LeftEye", "RightEye", "Mouth"],
+      ["Mouth"]
+   },
+   "M_E_EM": {
+      [],
+      ["Mouth"]
+      ["LeftEye", "RightEye", "Mouth"],
+      ["LeftEye", "RightEye"],
+   },
 }

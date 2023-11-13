@@ -1,15 +1,12 @@
-import React, { useEffect, useState, useRef, useContext, useReducer, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import io from "socket.io-client";
 import "survey-react/survey.css";
-import { CMDS, DATA} from "../../backend/Definitions.js";
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
-import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
-import { STAGE } from "../../backend/Definitions.js"
-import RoomControlPanel from "../components/Controls/RoomControlPanel.js";
 import ServerConfig from "../../../../data/ServerConfig.json"
+import { useSocket } from "../../classes/SocketContext";
+import { CMDS } from "../../../backend/Definitions";
 
-export default function SettingsPanel(props) {
+function SettingInput(props) {
 	const label = props.label ?? "Setting";
 	const [setting, setSetting] = useState("none");
    const type = props.type ?? "text";
@@ -26,9 +23,8 @@ export default function SettingsPanel(props) {
 
 
 export default function SettingsPanel(props) {
-	const sessionMap = useContext(SessionContext);
-	const chatSocket = useRef(null);
-	const controlSocket = useRef(null);
+	const chatSocket = useSocket(CMDS.NAMESPACES.CHAT);
+	const socket = useSocket(CMDS.NAMESPACES.CONTROL);
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [settings, setSettings] = useState(ServerConfig);
 

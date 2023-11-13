@@ -7,6 +7,7 @@ import FileSaver from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import JSZip from "jszip";
+import { useSocket } from "../classes/SocketContext.js";
 
 
 const setVideoConstraints = (video) => {
@@ -41,7 +42,7 @@ export default function VideoContainer(props) {
 	const stageData = props.stageData ?? null;
 	const userData = props.userData ?? {name: "VideoTest"};
 	const mediaChunks = useRef([]);
-	const socket = props.socket ?? null;
+	const socket = useSocket(CMDS.NAMESPACES.CHAT);
 	const rtcManager = props.rtcManager ?? null;
 	const canvasRef = useRef();
 	const localVideo = useRef();
@@ -381,7 +382,7 @@ export default function VideoContainer(props) {
 				</div>
 				<canvas className="canvas" ref={canvasRef} />
 				{(() => {
-					// if (socket.current == null) return <></>;
+					// if (socket == null) return <></>;
 					// if (!this.props.roomPage.state.session.running) {
 					// 	if (this.state.intro.visible)
 					// 		return (
@@ -393,7 +394,7 @@ export default function VideoContainer(props) {
 					// }
 				})()}
 
-				{socket?.current != null && (
+				{socket != null && (
 					<video className={VIDEO_ID.REMOTE} id={VIDEO_ID.REMOTE} ref={remoteVideo} autoPlay></video>
 				)}
 				<video className={VIDEO_ID.LOCAL} id={VIDEO_ID.LOCAL} ref={localVideo} autoPlay muted></video>

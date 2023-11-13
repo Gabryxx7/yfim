@@ -5,17 +5,20 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import store from "./store.js";
 import RoomSession from "./frontend/containers/RoomSession.js";
 import { ROUTES } from "./backend/Definitions.js"
-import { FaceVideoTest, SurveyTest } from "./tests/TestContainers.js";
 // import styles from "/Users/marinig/Documents/GitHub/yfim/src/surveyStyle.scss";
 import "./app.scss"
 import ControlRoom from "./frontend/containers/ControlRoom.js";
+import SurveyTest from "./frontend/containers/SurveyTestPage.js";
+import { SocketProvider } from "./frontend/classes/SocketContext.js";
 const root = createRoot(document.getElementById("app"));
 root.render(
   <Provider store={store}>
+
+		<SocketProvider>
     <BrowserRouter>
       <Routes>
         {/* <Route exact path="/" element={<Home />} /> */}
-        <Route path={ROUTES.FACE_API_TEST.path} element={<FaceVideoTest />} />
+        {/* <Route path={ROUTES.FACE_API_TEST.path} element={<MaskSettingsPage />} /> */}
         <Route path={ROUTES.SURVEY_TEST.path} element={<SurveyTest />} />
         <Route path={ROUTES.ROOM.path} element={<RoomSession />} />
         <Route path={ROUTES.CONTROL.path} element={<ControlRoom />} />
@@ -25,6 +28,7 @@ root.render(
         {/* <Route exact path="/data" element={<DataMonitor />} /> */}
       </Routes>
     </BrowserRouter>
+    </SocketProvider>
   </Provider>
 );
 

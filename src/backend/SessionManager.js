@@ -14,7 +14,11 @@ class SessionManager {
     this.chatsManager = new NamespaceManager(this.sio, "Chat", CMDS.NAMESPACES.CHAT, this, User);
     this.controlManager = new NamespaceManager(this.sio, "Control", CMDS.NAMESPACES.CONTROL, this, ControlUser, (socket) => {
       // Making sure the control room gets the session's data even if it just started (or after refresh)
-      socket.emit(CMDS.SOCKET.SESSION_UPDATE, this.chatsManager.getData("initial"));
+      console.log("Control room connected!")
+      socket.on(CMDS.SOCKET.CONTROL_ROOM, (data) => {
+        socket.emit(CMDS.SOCKET.SESSION_UPDATE, this.chatsManager.getData());
+
+      })
       socket.on(CMDS.SOCKET.CONTROL_ROOM_SETTINGS_UPDATE, (data) => {
         console.log("Received settings update data: ",data)
         const uploadDir = "data/";
