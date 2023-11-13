@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { STAGE, USER, KEY_SHORTCUTS } from '../../backend/Definitions.js'
 import Clock from "../components/Controls/Clock.js";
-import { SessionContext } from "../classes/ClientSession.js";
+import { AppContext } from '../../context/AppContext.js';
 import ProgressBar from '../components/Controls/Progressbar.js';
 import SkipStage from '../components/Controls/SkipStage.js';
 import {RoomUsersList, RoomUser} from '../components/Controls/RoomUser.js'
@@ -53,7 +53,7 @@ export default function ToolbarDebug(props){
        </div>
        <SkipStage onClick={onSkipClicked} stageData={stageData} />
        <div className="conditions-dbg">
-         <ConditionsList title="Current" conditions={[sessionData?.stage?.mask?.visibleFeatures]}/>
+         <ConditionsList title="Current" conditions={[sessionData?.conditions?.current]}/>
          <ConditionsList title="Remaining" conditions={sessionData?.conditions?.remaining}/>
          <ConditionsList title="Completed" conditions={sessionData?.conditions?.completed}/>
        </div>

@@ -3,11 +3,6 @@ import io from "socket.io-client";
 import "survey-react/survey.css";
 import { CMDS } from "../../backend/Definitions.js";
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
-import { SessionContext } from "../classes/ClientSession.js";
-import { STAGE } from "../../backend/Definitions.js"
-import RoomControlPanel from "../components/Controls/RoomControlPanel.js";
-import SettingsPanel from "../components/Controls/SettingsPanel.js";
 // import * as React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
@@ -16,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import RoomsView from "./RoomsView.js";
 import MaskControlPanel from "./MaskControlPanel.js";
-import { useSocket } from "../classes/SocketContext.js";
+import { useSocket } from '../../context/SocketContext.js';
 
 function a11yProps(index) {
   return {

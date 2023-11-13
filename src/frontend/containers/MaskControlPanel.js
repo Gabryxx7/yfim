@@ -7,12 +7,13 @@ import { FaceProcessor } from "../classes/FaceProcessor.js";
 import { FaceMaskSelector } from "../components/Controls/FaceMaskSelector.js";
 import { RecordingControls } from "../components/Controls/RecordingControls.js";
 import io from "socket.io-client";
-import { useSocket } from "../classes/SocketContext.js";
+import { useSocket } from "../../context/SocketContext.js";
+import { useFaceProcessor } from "../../context/useFaceProcessor.js";
 
 export default function MaskControlPanel(props) {
 	const socket = useSocket(CMDS.NAMESPACES.CONTROL);
 	const [recording, setRecording] = useState(false);
-	const [faceProcessor, setFaceProcessor] = useState(null);
+	const faceProcessor = useFaceProcessor();
 	const [stageData, setStageData] = useState({ type: STAGE.TYPE.VIDEO_CHAT, sessionId: "testSession" });
 	const [userData, setUserData] = useState({ name: "faceTest" });
 	const sessionDataFields = (
@@ -32,10 +33,6 @@ export default function MaskControlPanel(props) {
 		</div>
 	);
 	// const recordControls = <RecordingControls recording={recording} onClick={() => setRecording(!recording)} />
-
-	useEffect(() => {
-		setFaceProcessor(new FaceProcessor());
-	}, []);
 
 	return (
 		<div

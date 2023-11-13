@@ -18,9 +18,9 @@ class FaceProcessor extends VideoProcessor {
 		this.allVisible = true;
 	}
 
-   setMaskData(maskData=null){
+   setMaskData(maskFeatures=null){
 		this.allVisible = true;
-		if(maskData?.visibleFeatures == null || maskData?.visibleFeatures.length <= 0){
+		if(maskFeatures == null || maskFeatures?.length <= 0){
 			for (let l of this.landmarksData){
 				l.visible = true;
 			}
@@ -28,7 +28,7 @@ class FaceProcessor extends VideoProcessor {
 		else{
 			for (let l of this.landmarksData){
 				l.visible = false;
-				for(let feature of maskData.visibleFeatures){
+				for(let feature of maskFeatures){
 					if(l.name.toUpperCase() == feature.toUpperCase()){
 						l.visible = true;
 						break;

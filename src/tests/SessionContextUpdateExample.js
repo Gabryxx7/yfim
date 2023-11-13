@@ -1,8 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
-import { SessionContext } from "../frontend/classes/ClientSession.js";
+import { SessionProvider } from "../context/AppContext.js";
 
 export default function TestComponent(props) {
-	const sessionMap = useContext(SessionContext);
+	const sessionMap = useContext(AppContext);
 	const userInfo = props.userInfo ?? {};
 	const [count, setCount] = useState(sessionMap.session.testCount);
    const index = props.index ?? 0;

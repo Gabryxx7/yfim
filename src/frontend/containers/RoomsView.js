@@ -4,11 +4,11 @@ import "survey-react/survey.css";
 import { CMDS } from "../../backend/Definitions.js";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
-import { SessionProvider, SessionContext } from "../classes/ClientSession.js";
+import { SessionProvider, AppContext } from '../../context/AppContext.js';
 import { STAGE } from "../../backend/Definitions.js"
 import RoomControlPanel from "../components/Controls/RoomControlPanel.js";
 import SettingsPanel from "../components/Controls/SettingsPanel.js";
-import { useSocket } from "../classes/SocketContext.js";
+import { useSocket } from "../../context/SocketContext.js";
 
 
 /**
@@ -29,7 +29,7 @@ const updateRoomData = (rooms, data=null, key=null) => {
 }
 
 export default function RoomsView(props) {
-	const sessionMap = useContext(SessionContext);
+	const sessionMap = useContext(AppContext);
 	const socket = useSocket(CMDS.NAMESPACES.CONTROL);
 	const [stageData, setStageData] = useState({reason: "", state: STAGE.STATUS.NONE, type: STAGE.TYPE.NONE, data: null});
 	const [userData, setUserData] = useState({});

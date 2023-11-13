@@ -231,7 +231,7 @@ class User {
 		const msg = `User ${this.name} - ${this.id} completed the stage`;
 		console.log(msg);
 		if (data != null && data != undefined) {
-			console.log("User completion data: ", data);
+			// console.log("User completion data: ", data);
 			var uploadDir = userUploadsRoot;
 			try{
 				if (!fs.existsSync(uploadDir)) {

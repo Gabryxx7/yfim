@@ -4,12 +4,12 @@ import { STAGE, FACEAPI, QUESTION } from "../src/backend/Definitions.js"
 import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES } from "./PostChatSurvey.js"
 // const { AVAILABLE_SURVEYS } = require("./PostChatSurvey.js")
 
-const makeStage = (tag="NONE", name="Experiment", topic=QUESTION.TYPE.ICEBREAKER, videoStageDuration=10, stageMaskSettings={}) => {
+const makeStage = (tag="NONE", name="Experiment", topic=QUESTION.TYPE.ICEBREAKER, videoStageDuration=10, stageMaskSettings=null) => {
   return {
     tag: tag,
     name: name,
     topic: topic,
-    maskSettings: {...stageMaskSettings},
+    maskSettings: !stageMaskSettings ? null : {...stageMaskSettings},
     steps: [{
         name: "Video",
         type: STAGE.TYPE.VIDEO_CHAT,
@@ -28,13 +28,13 @@ const videoChatDuration = 300; // It was 300 (5mins)
 const warmupDuration = 120;
 const SessionConfig = {
   options: {
-    pick_random_condition: false,
-    no_repetitions: true
+    randomized: true,
+    noRepetitions: true
   },
   featuresCombinations: [
     // [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE],
     // [FACEAPI.LANDMARK.RIGHTEYE],
-    [],
+    [FACEAPI.LANDMARK.NONE],
     [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH],
     [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE],
     [FACEAPI.LANDMARK.MOUTH]
@@ -46,7 +46,7 @@ const finalStages = [
   ...SessionConfig.featuresCombinations.map((condition, index) => makeStage('FINAL',`Experiment - ${index}`,
       QUESTION.TYPE.QUEST,
       videoChatDuration,
-      SessionConfig.options
+      { withMasks: true }
       )),
 ];
 
@@ -76,6 +76,6 @@ export default SessionConfig;
 //     ]
 //   },
 //   makeStage('TEST', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, {visibleFeatures: [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.NOSE]}),
-//   ...SessionConfig.featuresCombinations.map((condition, index) => makeStage('TEST', `Experiment - ${index}`, QUESTION.TYPE.QUEST, 10, {pick_random_condition: true, no_repetitions: true})),
+//   ...SessionConfig.featuresCombinations.map((condition, index) => makeStage('TEST', `Experiment - ${index}`, QUESTION.TYPE.QUEST, 10, {pick_random_condition: true, noRepetitions: true})),
   
 // ];

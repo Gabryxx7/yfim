@@ -1,18 +1,16 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { CMDS } from '../../backend/Definitions.js'
 import Clock from "../components/Controls/Clock.js";
-import { SessionContext } from "../classes/ClientSession.js";
+import { AppContext } from '../../context/AppContext.js';
 import ProgressBar from '../components/Controls/Progressbar.js';
 import ToolbarDebug from '../components/ToolbarDebug.js';
-import SkipStage from '../components/Controls/SkipStage.js';
-import {RoomUsersList, RoomUser} from '../components/Controls/RoomUser.js'
 import { TimedEvent } from "../../backend/TimedEvent.js"
-import { useSocket } from "../classes/SocketContext.js";
+import { useSocket } from "../../context/SocketContext.js";
 // import console from "../../utils/customLogger.js";
 
 
 export default function Toolbar(props) {
-	const sessionMap = useContext(SessionContext);
+	const sessionMap = useContext(AppContext);
   const socket = useSocket(CMDS.NAMESPACES.CHAT);
   const [sessionState, setSessionState] = useState(TimedEvent.STATUS.NONE);
   const [timeElapsed, setTimeElapsed] = useState(0)
@@ -55,6 +53,11 @@ export default function Toolbar(props) {
   useEffect(() => {
     console.log("Toolbar session updated! ", sessionData)
   }, [sessionData])
+
+  // useEffect(() => {
+  //   setSessionData({...sessionData, ...roomData.session})
+  //   console.log("Toolbar Room updated! ", roomData)
+  // }, [roomData])
 
   useEffect(() => {
 		console.log("Toolbar stage updated", stageData);

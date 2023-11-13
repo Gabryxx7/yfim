@@ -3,8 +3,8 @@ import io from "socket.io-client";
 import "survey-react/survey.css";
 import 'react-toastify/dist/ReactToastify.css';
 import ServerConfig from "../../../../data/ServerConfig.json"
-import { useSocket } from "../../classes/SocketContext";
-import { CMDS } from "../../../backend/Definitions";
+import { CMDS } from "../../../backend/Definitions.js";
+import { useSocket } from "../../../context/SocketContext.js"
 
 function SettingInput(props) {
 	const label = props.label ?? "Setting";

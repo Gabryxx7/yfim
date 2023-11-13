@@ -2,7 +2,6 @@ import { CMDS, STAGE, USER } from "./Definitions.js";
 import Topics from "../../assets/Topics.js";
 
 
-const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 class Stage {
   constructor(room, session, config, parent = null, idx = -1) {
     this.session = session;
@@ -72,34 +71,9 @@ class Stage {
   }
 
   getMaskData(){
-    if(!this.config?.maskSettings) return {};
-    let maskData = this.config.maskSettings;
-
-    const randomize = maskData?.pick_random_condition ?? false;
-    const remainingConditions = this.session?.conditions?.remaining;
-    let condition = null;
-    let conditionIdx = 0;
-    if(randomize){
-        try{
-          console.log(`Available conditions ${remainingConditions.length}`, remainingConditions);
-          conditionIdx = randomInRange(0, remainingConditions.length);
-          condition = remainingConditions[conditionIdx];
-          if(maskData.no_repetitions){
-            condition = remainingConditions.splice(conditionIdx, 1)[0];
-          }
-        } catch(error){
-          console.warn("error getting randomized condition", error);
-      }
-    }
-    else{
-      condition = remainingConditions.shift();
-    }
-    this.session.conditions.remaining = remainingConditions;
-    this.session.conditions.completed.push(condition);
-    maskData.visibleFeatures = condition;
-    console.log(`New Condition idx ${conditionIdx}`, condition);
-    console.log(`Remaining conditions`, remainingConditions);
-    return {mask: maskData, remainingConditions: this.session.conditions.remaining};
+    if(!this.config?.maskSettings || !this.config.maskSettings.withMasks) return {};
+    let condition = this.session.getNextCondition();
+    return {mask: condition, conditions: this.session.conditions};
   }
 
   initialize() {
@@ -154,7 +128,7 @@ class Stage {
     if(this.status == STAGE.STATUS.COMPLETED){
       console.log(`Stage ${this.name} COMPLETED`)
     }
-    this.session.notifyRoom("Starting next step");
+    // this.session.notifyRoom("Starting next step");
   }
 
   getData(trigger){

@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
 import { CMDS, DATA, STAGE, KEY_SHORTCUTS } from "../../backend/Definitions.js";
 import "react-toastify/dist/ReactToastify.css";
-import { SessionContext } from "../classes/ClientSession.js";
+import { AppContext, useFaceProcessor, useSession, useSettings, useStage, useUser } from '../../context/AppContext.js';
 import FileSaver from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import JSZip from "jszip";
-import { useSocket } from "../classes/SocketContext.js";
+import { useSocket } from "../../context/SocketContext.js";
 
 
 const setVideoConstraints = (video) => {
@@ -28,25 +28,20 @@ const VIDEO_ID = {
 }
 
 export default function VideoContainer(props) {
-	const sessionMap = useContext(SessionContext) ?? null;
-	const faceProcessor = props.faceProcessor;
-	const recordingEnabled = props.recordingEnabled ?? false;
-	const audioEnabled= props.audioEnabled ?? true;
-	const micEnabled= props.micEnabled ?? true;
-	const videoEnabled= props.videoEnabled ?? true;
+	const faceProcessor = useFaceProcessor();
+	const { settings, updateSettings } = useSettings();
+	const { session } = useSession();
+	const { localVideo, remoteVideo, canvas } = session;
+	const { user } = useUser();
+	const { stage } = useStage();
+	const socket = useSocket(CMDS.NAMESPACES.CHAT);
 	const customVideoActions = props.customVideoActions ?? [];
 	const mediaRecorder = useRef(null);
 	const [videoStatus, setVideoStatus] = useState(null);
 	const [recording, setRecording] = useState(false);
 	// recording = props.recording ?? recording;
-	const stageData = props.stageData ?? null;
-	const userData = props.userData ?? {name: "VideoTest"};
 	const mediaChunks = useRef([]);
-	const socket = useSocket(CMDS.NAMESPACES.CHAT);
 	const rtcManager = props.rtcManager ?? null;
-	const canvasRef = useRef();
-	const localVideo = useRef();
-	const remoteVideo = useRef();
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
 	const onStreamAdded = props.onStreamAdded;
 
@@ -61,7 +56,7 @@ export default function VideoContainer(props) {
 		mediaRecorder.current.onstop = (e) => onRecordingStop(e);
 		mediaRecorder.current.start();
 		console.log("Recording started!", mediaRecorder.current.state)
-		faceProcessor.startRecording(sessionMap?.session);
+		faceProcessor.startRecording(session);
 	}
 
 	const onRecordingStart = (e) => {
@@ -73,7 +68,7 @@ export default function VideoContainer(props) {
 		try{
 			// convert saved chunks to blob
 			const date = new Date().toISOString().split(".")[0];
-			let baseFilename = `YFIM_<type>_${userData?.name}_${date}`;
+			let baseFilename = `YFIM_<type>_${user?.name}_${date}`;
 			const files = [];
 			files.push({
 				name: baseFilename.replace("<type>", "VIDEO")+".webm",
@@ -104,9 +99,9 @@ export default function VideoContainer(props) {
 
 					var fd = new FormData();
 					// fd.append("test", "test1");
-					fd.append("stageIndex", stageData?.index);
-					fd.append("userName", userData?.name);
-					fd.append("sessionId", stageData?.sessionId);
+					fd.append("stageIndex", stage?.index);
+					fd.append("userName", user?.name);
+					fd.append("sessionId", stage?.sessionId);
 					fd.append("zipFile", content, zipFilename);
 
 					console.log("FORM DATA", fd);
@@ -162,13 +157,6 @@ export default function VideoContainer(props) {
 		});
 		updateVideoStatus(video.id, {audio: newStatus})
 	}
-	useEffect(() => {
-		toggleAudioMuted(remoteVideo.current, audioEnabled);
-	}, [audioEnabled])
-	useEffect(() => {
-		toggleAudioMuted(localVideo.current, micEnabled);
-	}, [micEnabled])
-
 	const toggleVideoMuted = (video, override=null) => {
 		if(!video || !video.srcObject) return;
 		var newStatus = null;
@@ -177,13 +165,6 @@ export default function VideoContainer(props) {
 		});
 		updateVideoStatus(video.id, {video: newStatus})
 	}
-	useEffect(() => {
-		toggleVideoMuted(localVideo.current, videoEnabled);
-	}, [videoEnabled])
-
-	useEffect(() => {
-		setRecording(recordingEnabled)
-	}, [recordingEnabled])
 
 	useEffect(() => {
 		console.log("RECORDING CHANGED", recording, mediaRecorder.current);
@@ -199,19 +180,19 @@ export default function VideoContainer(props) {
 	}, [recording])
 
 	useEffect(() => {
-		if(stageData == null) return;
-		if(stageData.type != STAGE.TYPE.VIDEO_CHAT){
+		if(stage == null) return;
+		if(stage.type != STAGE.TYPE.VIDEO_CHAT){
 			return;
 		}
-		if(stageData.state == STAGE.STATUS.COMPLETED){
+		if(stage.state == STAGE.STATUS.COMPLETED){
 			setRecording(false);
-		} else if(stageData.state == STAGE.STATUS.IN_PROGRESS){
+		} else if(stage.state == STAGE.STATUS.IN_PROGRESS){
 			console.log("New stage in progress. mediaRecorder's state", mediaRecorder.current?.state);
 			setRecording(true);
 		}
-		console.log(`User name: ${userData?.name}, SessionId: ${stageData?.sessionId}`)
-		console.log(`Video Container state ${stageData?.state}. Type: ${stageData?.type}. mediaRecorder: ${mediaRecorder.current?.state}`)
-	}, [stageData])
+		console.log(`User name: ${user?.name}, SessionId: ${stage?.sessionId}`)
+		console.log(`Video Container state ${stage?.state}. Type: ${stage?.type}. mediaRecorder: ${mediaRecorder.current?.state}`)
+	}, [stage])
 
 	// when the other side added a media stream, show it on screen
 	const onAddStream = (e) => {
@@ -221,9 +202,9 @@ export default function VideoContainer(props) {
 			remoteVideo.current.addEventListener("play", () => {
 				// console.log(`RTC: Remote Video is now playing`);
 				faceProcessor.setVideo(remoteVideo.current);
-				if(sessionMap?.session){
-					sessionMap.session.remoteVideo = remoteVideo.current;
-				}
+				// if(session){
+				// 	session.remoteVideo = remoteVideo.current;
+				// }
 				// setVideoConstraints(remoteVideo.current);
 				onRemotePlay();
 				
@@ -256,9 +237,9 @@ export default function VideoContainer(props) {
 				},
 			});
 			localVideo.current.srcObject = stream;
-			toggleVideoMuted(localVideo.current, videoEnabled);
-			toggleAudioMuted(localVideo.current, videoEnabled);
-			if(recordingEnabled){
+			toggleVideoMuted(localVideo.current, settings.video);
+			toggleAudioMuted(localVideo.current, settings.video);
+			if(settings.recording){
 				if(mediaRecorder.current != null){
 					return;
 				}
@@ -283,7 +264,7 @@ export default function VideoContainer(props) {
 		// });
 
 		// try{
-		// 	if(this.sessionMap?.session?.user.role.toLowerCase() === "host"){
+		// 	if(this.session?.user.role.toLowerCase() === "host"){
 		// 		this.initiateCall()
 		// 	}
 		// }
@@ -293,32 +274,37 @@ export default function VideoContainer(props) {
 	};
 
 	useEffect(() => {
-		if(stageData == null) return;
-		if(stageData.type == STAGE.TYPE.VIDEO_CHAT){
+		toggleAudioMuted(remoteVideo.current, settings.audio);
+	}, [settings.audio])
+	useEffect(() => {
+		toggleAudioMuted(localVideo.current, settings.audio);
+	}, [settings.mic])
+	useEffect(() => {
+		toggleVideoMuted(localVideo.current, settings.video);
+	}, [settings.video])
+
+
+	useEffect(() => {
+		if(stage == null) return;
+		if(stage.type == STAGE.TYPE.VIDEO_CHAT){
 			toggleVideoMuted(localVideo.current, true);
 			toggleAudioMuted(localVideo.current, true);
 			return;
 		}
-		if(stageData.type == STAGE.TYPE.SURVEY){
+		if(stage.type == STAGE.TYPE.SURVEY){
 			toggleVideoMuted(localVideo.current, false);
 			toggleAudioMuted(localVideo.current, false);
 		}
-	}, [stageData])
-
-	useEffect(() => {
-		if(faceProcessor != null){
-			faceProcessor.canvas = canvasRef.current;
-		}
-	}, [])
+	}, [stage])
 
 	useEffect(() => {
 		if(faceProcessor == null) return;
-		faceProcessor.canvas = canvasRef.current;
+		faceProcessor.canvas = canvas.current;
 		if(!faceProcessor.isRunning()){
 			faceProcessor.setVideo(localVideo.current);
-			if(sessionMap?.session){
-				sessionMap.session.localVideo = localVideo.current;
-			}
+			// if(session){
+			// 	session.localVideo = localVideo.current;
+			// }
 			initLocalVideo()
 				.then(async () => {
 					if(rtcManager != null){
@@ -329,13 +315,13 @@ export default function VideoContainer(props) {
 				})
 				.then(async () => faceProcessor.start())
 			
-			sessionMap?.session?.addOnStart((session) => {
-				const maskData = session.data?.stage?.mask;
-				// console.log("New stage started, mask data:", maskData)
-				if(maskData != null && maskData != undefined){
-					faceProcessor.setMaskData(maskData);
-				}
-			});
+			// session?.addOnStart((session) => {
+			// 	const maskFeatures = session.data?.stage?.mask;
+			// 	// console.log("New stage started, mask data:", maskData)
+			// 	if(!!maskFeatures){
+			// 		faceProcessor.setMaskData(maskFeatures);
+			// 	}
+			// });
 		}
 	}, [faceProcessor]);
 
@@ -348,39 +334,36 @@ export default function VideoContainer(props) {
 
 	return (
 			<div className='media-bridge'>
-				<div className="actions-panel video-actions">
-					<div className="actions">
-						<div className="live-icon action" onClick={() => toggleVideoMuted(localVideo.current)}>
-							{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].video ?
-								<FontAwesomeIcon icon={icon({name: 'video'})} /> :
-								<FontAwesomeIcon icon={icon({name: 'video-slash'})} />
-							}
-						</div>
-						<div className="mic-icon action" onClick={() => toggleAudioMuted(localVideo.current)}>
-							{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].audio ?
-								<FontAwesomeIcon icon={icon({name: 'microphone'})} /> :
-								<FontAwesomeIcon icon={icon({name: 'microphone-slash'})} />
-							}
-						</div>
-						<div className="headset-icon action" onClick={() => toggleAudioMuted(remoteVideo.current)}>
-							{videoStatus == null ? <></> :
-							remoteVideo.current == null ?
-								<FontAwesomeIcon icon={icon({name: 'volume-off'})} /> :
-								videoStatus[VIDEO_ID.REMOTE].audio ?
-									<FontAwesomeIcon icon={icon({name: 'volume-high'})} /> :
-									<FontAwesomeIcon icon={icon({name: 'volume-xmark'})} />
-							}
-						</div>
-						<div className={`recording-icon action ${recording ? "recording" : ""}`} onClick={() => setRecording((prev) => !prev)}>
-							{recording ?
-								<FontAwesomeIcon icon={icon({name: 'circle'})} /> :
-								<FontAwesomeIcon icon={icon({name: 'play'})} />
-							}
-						</div>
+				<div className="actions-panel video-actions overlay-panel">
+					<div className="live-icon action" onClick={() => toggleVideoMuted(localVideo.current)}>
+						{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].video ?
+							<FontAwesomeIcon icon={icon({name: 'video'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'video-slash'})} />
+						}
 					</div>
-					{customVideoActions.map((component) => component)}
+					<div className="mic-icon action" onClick={() => toggleAudioMuted(localVideo.current)}>
+						{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].audio ?
+							<FontAwesomeIcon icon={icon({name: 'microphone'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'microphone-slash'})} />
+						}
+					</div>
+					<div className="headset-icon action" onClick={() => toggleAudioMuted(remoteVideo.current)}>
+						{videoStatus == null ? <></> :
+						remoteVideo.current == null ?
+							<FontAwesomeIcon icon={icon({name: 'volume-off'})} /> :
+							videoStatus[VIDEO_ID.REMOTE].audio ?
+								<FontAwesomeIcon icon={icon({name: 'volume-high'})} /> :
+								<FontAwesomeIcon icon={icon({name: 'volume-xmark'})} />
+						}
+					</div>
+					<div className={`recording-icon action ${recording ? "recording" : ""}`} onClick={() => setRecording((prev) => !prev)}>
+						{recording ?
+							<FontAwesomeIcon icon={icon({name: 'circle'})} /> :
+							<FontAwesomeIcon icon={icon({name: 'play'})} />
+						}
+					</div>
 				</div>
-				<canvas className="canvas" ref={canvasRef} />
+				<canvas className="canvas" ref={canvas} />
 				{(() => {
 					// if (socket == null) return <></>;
 					// if (!this.props.roomPage.state.session.running) {

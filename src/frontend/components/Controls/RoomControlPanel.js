@@ -5,14 +5,12 @@ import "survey-core/defaultV2.min.css";
 import {RoomUsersList, RoomUser} from "./RoomUser.js"
 import Clock from "./Clock.js";
 import { TimedEvent } from "../../../backend/TimedEvent.js"
-import {ClientSession} from "../../classes/ClientSession.js"
 
 export default function RoomControlPanel(props) {
    const room = props.room ?? {};
-   const clientSession = useRef(new ClientSession("MainSession"));
 
    useEffect(() => {
-      clientSession.current.start();
+      // clientSession.current.start();
    }, [])
 
    return(

@@ -18,6 +18,11 @@ const ROUTES = {
     path: "/room/:room_id/",
     description: "Generic chat room with id 'room_id'. The room ID is extracted from the URL request sent to the server. The server then creates a new room on the backend with the extracted ID.",
   },
+  ROOM_TEST: {
+    name: "Rooms",
+    path: "/roomTest/:room_id/",
+    description: "Generic chat room with id 'room_id'. The room ID is extracted from the URL request sent to the server. The server then creates a new room on the backend with the extracted ID.",
+  },
   CONTROL: {
     name: "Control Room",
     path: "/control/",
@@ -53,6 +58,7 @@ QUESTION.TYPE.WOULDYOU
 
 const FACEAPI = {
   LANDMARK: {
+    NONE: "NONE",
 	  JAWOUTLINE: "JawOutline",
 	  LEFTEYEBROW: "LeftEyeBrow",
 	  RIGHTEYEBROW: "RightEyeBrow",

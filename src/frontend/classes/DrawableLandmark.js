@@ -1,23 +1,4 @@
 import { FACEAPI } from "../../backend/Definitions.js";
-let CustomLandmarkSettings = {};
-
-
-console.log("Loading json module")
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import
-// if (typeof window === "undefined") {
-//   myModule = await import("module-used-on-server");
-// } else {
-//   myModule = await import("module-used-in-browser");
-// }
-try{
-  let settings = await import('../../../data/CustomLandmarkSettings.json');
-  CustomLandmarkSettings = settings.default
-  console.log(CustomLandmarkSettings);
-} catch(e){
-  console.error("Exception loading module CustomLandmarkSettings.json: "+e, e)
-}
-// CustomLandmarkSettings = JSON.parse(jsonData)
-// import CustomLandmarkSettings from "../../../data/CustomLandmarkSettings.json"
 class Interpolation{
     static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
     static linear = (x) => x;
@@ -450,6 +431,26 @@ const defLandData = {
   visible : false
 };
 
+let CustomLandmarkSettings = {};
+
+
+console.log("Loading json module")
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import
+// if (typeof window === "undefined") {
+//   myModule = await import("module-used-on-server");
+// } else {
+//   myModule = await import("module-used-in-browser");
+// }
+try{
+  let settings = await import('../../../data/CustomLandmarkSettings.json');
+  CustomLandmarkSettings = settings.default
+  console.log(CustomLandmarkSettings);
+} catch(e){
+  console.error("Exception loading module CustomLandmarkSettings.json: "+e, e)
+}
+// CustomLandmarkSettings = JSON.parse(jsonData)
+// import CustomLandmarkSettings from "../../../data/CustomLandmarkSettings.json"
+
 let CustomLandmarks = [
   { ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: false },
   { ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: false },
@@ -462,7 +463,8 @@ let CustomLandmarks = [
 
 CustomLandmarks = CustomLandmarks.map((l, i) => {
   if(l.name in CustomLandmarkSettings){
-    l = {...l, ...CustomLandmarkSettings[l.name]}
+    // l = {...l, ...CustomLandmarkSettings[l.name]}
+    l = {...l, scale: CustomLandmarkSettings[l.name]?.scale}
   }
   return new DrawableLandmark(l);
 })

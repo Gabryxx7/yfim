@@ -68,6 +68,8 @@ export default class Room{
     this.session.togglePause();
     this.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.getData("Session Paused"));
   }
+
+  
   // If `socket` is provided, then the broadcast will be sent from that user's socket
   // So it will notify everyone except for the sender
   notifyRoom(event, data=null, socket=null){

@@ -1,17 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
 import { STAGE } from '../../backend/Definitions.js'
+import { useUser } from "../../context/AppContext.js";
+useUser
 
 export default function Introduction(props) {
-  const stageData = props.stageData ?? {reason: "", state: STAGE.STATUS.IN_PROGRESS};
-  const useJoinForm = props.useJoinForm ?? false;
+  const stageData = props.stageData ?? {reason: "", state: STAGE.STATUS.NONE};
+  const useJoinForm = props.useJoinForm ?? true;
   const nameInput = useRef();
-  const [name, setName] = useState(null);
-  const onUsernameFormSubmit = props.onUsernameFormSubmit ?? (() => {});
+  const { user, updateUser } = useUser();
 
-  useEffect(() => {
-    if(name == null) return;
-
-  }, [name])
   return (
     <div className={`intro-container ${stageData.state}`}>
     <div className={`intro ${stageData.state}`}>
@@ -55,14 +52,13 @@ export default function Introduction(props) {
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
-                onUsernameFormSubmit(nameInput.current.value);
-                setName(nameInput.current.value);
+                updateUser({name: nameInput.current.value});
               }}>
               {/* <label htmlFor="user-name"> What is your name?</label> */}
               <label htmlFor="user-name"> What is your Participant ID?</label>
-              <input type="text" id="user-name" name="name" ref={nameInput} disabled={name != null} required />
-              {name == null && <input type="submit" id="join-btn" className="primary-button" value="Join" name="join-room" />}
-              {name != null && <div> Welcome, <strong>{name}</strong>! We are just setting up a few more things...</div>}
+              <input type="text" id="user-name" name="name" ref={nameInput} disabled={user.name != null} required />
+              {user.name == null && <input type="submit" id="join-btn" className="primary-button" value="Join" name="join-room" />}
+              {user.name != null && <div> Welcome, <strong>{user.name}</strong>! We are just setting up a few more things...</div>}
             </form>
           </div>}
     </div>

@@ -5,6 +5,7 @@ import { User } from '../backend/User.js';
 import console from "../utils/colouredLogger.js";
 import SessionConfig from '../../assets/SessionConfig.js';
 import {TimedEvent} from "./TimedEvent.js";
+const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
 class ServerSession extends TimedEvent {
   constructor(room=null) {
@@ -13,7 +14,7 @@ class ServerSession extends TimedEvent {
       this.currentStage = null;
       this.currentStageIdx = -1;
       this.config = SessionConfig;
-      this.conditions = {remaining: structuredClone(this.config.featuresCombinations), completed: []};
+      this.conditions = {remaining: structuredClone(this.config.featuresCombinations), completed: [], current: null, isRandomized: false};
       this.stagesConfig = this.config.stages;
       this.question_selected = [];
       this.stages = [];
@@ -30,6 +31,7 @@ class ServerSession extends TimedEvent {
         console.room(`All users ready in room ${this.room.id}, STARTING session`);
         this.start();
       }
+      return;
     }
     console.room(`NOT all users are ready in room ${this.room.id}. NOT ready: ${usersStatus.missing}, ready: ${usersStatus.ready}`);
   }
@@ -45,15 +47,52 @@ class ServerSession extends TimedEvent {
       }
       this.currentStage = this.stages[this.currentStageIdx];
       this.currentStage.initialize();
-      this.notifyRoom("First Session Tick");
+      this.notifyRoom("Starting next step");
     }
     this.currentStage.update();
   }
 
   notifyRoom(trigger=""){
     const sessionData = this.getData(trigger);
-    console.log(`Notifying room (${trigger}): `, sessionData)
+    // console.log(`Notifying room (${trigger}): `, sessionData)
     this.room.notifyRoom(CMDS.SOCKET.SESSION_UPDATE, sessionData);
+  }
+
+  randomizeConditions(){
+    let conditions = this.conditions.remaining;
+    console.log(`Un-randomized conditions ${conditions.length}`, conditions);
+    let randomized = [];
+    let totalConditions = conditions.length;
+    while(!(randomized.length >= totalConditions && conditions.length <= 0)){
+      try{
+        let conditionIdx = randomInRange(0, conditions.length);
+        let newCondition = conditions[conditionIdx];
+        if(this.config.options.noRepetitions){
+          newCondition = conditions.splice(conditionIdx, 1)[0];
+        }
+        randomized.push(newCondition);
+      } catch(error){
+        console.warn("error getting randomized condition", error);
+      }
+    }
+    this.conditions.remaining = randomized;
+    this.conditions['isRandomized'] = true;
+    console.log(`Randomized conditions ${this.conditions.remaining.length}`, this.conditions.remaining);
+  }
+
+  getNextCondition(){
+    if(this.config.options.randomized && !this.conditions.isRandomized){
+      this.randomizeConditions();
+    }
+    let newCondition = this.conditions.remaining.shift();
+    if(this.conditions.current){
+      this.conditions.completed.push(this.conditions.current);
+    }
+    this.conditions.current = newCondition;
+    
+    console.log(`New Condition`, newCondition);
+    console.log(`Remaining conditions`, this.conditions.remaining);
+    return newCondition;
   }
 
   getData(trigger=""){

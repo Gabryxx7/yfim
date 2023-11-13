@@ -10,7 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 
 import Grid from '@mui/material/Grid';
-import { useSocket } from "../../classes/SocketContext.js";
+import { useSocket } from '../../../context/SocketContext.js'
+import { useFaceProcessor } from "../../../context/useFaceProcessor.js";
+import { useSettings } from "../../../context/useSettings.js";
 
 const switchStyle={
     "& .MuiSwitch-track": {
@@ -126,7 +128,8 @@ function LandmarkSelector(props) {
 
 
 function FaceMaskSelector(props) {
-    const faceProcessor = props.faceProcessor ?? null;
+    const faceProcessor = useFaceProcessor();
+    const { settings } = useSettings();
     const socket = useSocket(CMDS.NAMESPACES.CONTROL)
     const [landmarksData, setLandmarksData] = useState(faceProcessor?.landmarksData);
     const onSaveClick = props.onSaveClick ?? (() => {
@@ -145,16 +148,8 @@ function FaceMaskSelector(props) {
     }, [faceProcessor])
 
     return(
-        <div className="face-mask-selector"
-        style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.4rem',
-            placeItems: 'stretch',
-            placeContent: 'center',
-            width: '35rem',
-            fontSize: '0.7em'
-        }}>
+        <div className={`face-mask-selector actions-panel ${props.className}`}
+        style={settings.shortcutsEnabled ? {} : {display: 'none'}}>
         {/* <LandmarkSelector
             landmark={{name: "ALL", visible: () => faceProcessor?.allVisible}}
             onChange={() => faceProcessor.allVisible = !faceProcessor.allVisible }
