@@ -11,6 +11,7 @@ import ShortcutsPanel from "../components/ShortcutsPanel.js";
 import VideoContainer from "./VideoContainer.js";
 import { FaceMaskSelector } from "../components/Controls/FaceMaskSelector.js";
 import { WebRTCContext, WebRTCProvider } from "../../context/WebRTCContext.js";
+import Toolbar from "./Toolbar.js";
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 // var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
@@ -34,14 +35,14 @@ export default function RoomTest(props) {
 
 function RoomTestSession(props) {
 	const socket = useSocket(CMDS.NAMESPACES.CHAT);
-	const {bridge} = useWebRTC();
    const { shortcutsHandler } = useShortcuts();
    const { settings, updateSettings } = useSettings();
-   const { faceProcessor, fps } = useFaceProcessor();
+   const { faceProcessor } = useFaceProcessor();
    const { user,  updateUser } = useUser();
    const { room,  updateRoom } = useRoom();
    const { stage, updateStage } = useStage();
    const { step,  updateStep } = useStep();
+	const { bridge } = useWebRTC();
 
 	useEffect(() => {
 		updateSettings({ debug: true })
@@ -77,6 +78,14 @@ function RoomTestSession(props) {
 	
 	return (
 			<div className='main-room' tabIndex={"0"} onKeyDown={shortcutsHandler}>
+				<Toolbar 
+					// onTimerEnd={() => {
+					// 	setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.COMPLETED, data: null}));
+					// 	console.log("STAGE COMPLETED (time limit reached)");
+					// 	socket.emit(CMDS.SOCKET.STEP_COMPLETED);
+					// }}
+				/>
+					
 			<div className={`main-call-container ${bridge}`}>
 				<div className='main-room-container' style={{display: `${stage.type == STAGE.TYPE.SURVEY ? 'none' : 'block'}`}}>
 					<VideoContainer />

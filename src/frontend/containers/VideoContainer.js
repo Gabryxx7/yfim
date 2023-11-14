@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import JSZip from "jszip";
 import { useSocket, useWebRTC } from "../../context";
+import { FPSViewer } from "../components/FPSViewer.js";
 
 
 const setVideoConstraints = (video) => {
@@ -28,7 +29,7 @@ const VIDEO_ID = {
 }
 
 export default function VideoContainer(props) {
-	const { faceProcessor, fps} = useFaceProcessor();
+	const { faceProcessor } = useFaceProcessor();
 	const { stream } = useWebRTC();
 	const { settings, updateSettings } = useSettings();
 	const { session } = useSession();
@@ -42,7 +43,6 @@ export default function VideoContainer(props) {
 	const [recording, setRecording] = useState(false);
 	// recording = props.recording ?? recording;
 	const mediaChunks = useRef([]);
-	const rtcManager = props.rtcManager ?? null;
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
 
 	useEffect(() => {
@@ -213,32 +213,14 @@ export default function VideoContainer(props) {
 		console.log(`Video Container state ${stage?.state}. Type: ${stage?.type}. mediaRecorder: ${mediaRecorder.current?.state}`)
 	}, [stage])
 
-	useEffect(() => {
-		if(props.connectionStatus == "disconnected"){
-			if(faceProcessor != null){
-				faceProcessor.setVideo(localVideo.current);
-			}
-		}
-	}, [props.connectionStatus]);
-
 	const initLocalVideo = async () => {
-		// call if we were the last to connect (to increase
-		// chances that everything is set up properly at both ends)
-		// console.log(`State user: ${this.state.user}`);
 		console.log("initializing local video");
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
-				audio: true,
-				video: {
-					width: { min: 1280, ideal: 1280 },
-					height: { min: 720, ideal: 720 },
-					frameRate: 30,
-					colorTemperature: 7000.0,
-				},
+				audio: settings.audio,
+				video: {...settings.video },
 			});
 			localVideo.current.srcObject = stream;
-			toggleVideoMuted(localVideo.current, settings.video);
-			toggleAudioMuted(localVideo.current, settings.video);
 			if(settings.recording){
 				if(mediaRecorder.current != null){
 					return;
@@ -248,7 +230,6 @@ export default function VideoContainer(props) {
 				// if(recording && mediaRecorder?.current?.state != "recording"){
 				// 	startRecording();
 				// }
-				faceProcessor.start();
 			}
 		} catch (error) {
 			console.error("Error getting user media: " + error);
@@ -280,7 +261,7 @@ export default function VideoContainer(props) {
 		toggleAudioMuted(localVideo.current, settings.audio);
 	}, [settings.mic])
 	useEffect(() => {
-		toggleVideoMuted(localVideo.current, settings.video);
+		toggleVideoMuted(localVideo.current, settings.video?.enabled);
 	}, [settings.video])
 
 
@@ -301,19 +282,10 @@ export default function VideoContainer(props) {
 		if(faceProcessor == null) return;
 		faceProcessor.canvas = canvas.current;
 		if(!faceProcessor.isRunning()){
-			faceProcessor.setVideo(localVideo.current);
-			// if(session){
-			// 	session.localVideo = localVideo.current;
-			// }
 			initLocalVideo()
-				.then(async () => {
-					if(rtcManager != null){
-						rtcManager.localVideo = localVideo.current;
-					}
-					faceProcessor.setVideo(localVideo.current);
-					return faceProcessor.loadModels();
-				})
-				.then(async () => faceProcessor.start())
+				.then(() => faceProcessor.setVideo(localVideo.current))
+				.then(() => faceProcessor.loadModels())
+				.then(() => faceProcessor.start())
 			
 			// session?.addOnStart((session) => {
 			// 	const maskFeatures = session.data?.stage?.mask;
@@ -356,9 +328,7 @@ export default function VideoContainer(props) {
 							<FontAwesomeIcon icon={icon({name: 'play'})} />
 						}
 					</div>
-					<div className={`fps-viewer`}>
-						{fps}
-					</div>
+					<FPSViewer />
 				</div>
 				<canvas className="canvas" ref={canvas} />
 				{(() => {

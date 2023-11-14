@@ -4,7 +4,9 @@ import { TOASTS } from "../frontend/components/ToastCommunications.js";
 import { useSocket } from "./useSocket.js";
 import { useUser, useSession } from ".";
 
-const renderLog = (trigger) => console.log("WEBRTC UPDATED! Triggered by: "+trigger);
+const renderLog = (trigger) => {
+	// console.log("WEBRTC UPDATED! Triggered by: "+trigger);
+}
 // The context is some sort of "global static" object that can be retrieved by any component at any time
 export const WebRTCContext = createContext()
 
@@ -151,7 +153,7 @@ export const WebRTCProvider = (props) => {
 	const handleRTCCommunication = (data) => {
       const user = userRef.current;
       const peerConnection = peerConnectionRef.current;
-		console.log("RTC connection updated", data);
+		// console.log("RTC connection updated", data);
 		switch (data?.bridge) {
 			case CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST: {
 				console.log(`Received approval request for auth/join request from user ${data.userId}`);

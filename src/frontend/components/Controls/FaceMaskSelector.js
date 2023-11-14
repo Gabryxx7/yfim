@@ -11,11 +11,22 @@ import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { useSocket, useFaceProcessor, useSettings } from '../../../context'
 import ClosablePanel from "../ClosablePanel.js";
 
-const switchStyle={
-    "& .MuiSwitch-track": {
-        backgroundColor: "white"
-    }
-}
+const EyeCheckbox = (props) => <Checkbox
+    {...props}
+    sx={{
+        width: '1rem',
+        height: '1rem',
+        color: 'tomato',
+        '& input': {
+            padding: 0,
+            margin: 0,
+            pl: 0,
+        },
+        '&$checked': { opacity: 0.6 },
+    }}
+    icon={<FontAwesomeIcon icon={icon({name: 'eye-slash'})} />}
+    checkedIcon={<FontAwesomeIcon icon={icon({name: 'eye'})} />}
+/>
 
 const rowStyle = {
     display: 'flex',
@@ -24,10 +35,16 @@ const rowStyle = {
     placeItems: 'center'
 }
 function SliderInput(props){
-    const [value, setValue] = useState(props.defaultValue);
+    const {defaultValue, onChange, label} = props;
+    const [value, setValue] = useState(defaultValue) ?? 0.5;
+    const inptProps = {
+        min: props.min ?? 0.1,
+        max: props.max ?? 1,
+        step: props.step ?? 0.001
+    }
 
     useEffect(() => {
-        props.onChange && props.onChange(value)
+        onChange && onChange(value)
     }, [value])
 
     const handleSliderChange = (event, newValue) => {
@@ -51,17 +68,16 @@ function SliderInput(props){
             placeItems: 'center',
             gap: '0.4rem'
         }}>
-            <span>{props.label ?? ""}</span>
+            <span>{label ?? ""}</span>
             <Slider
-                min={0.001}
-                max={2.0}
-                step={0.001}
+                {...inptProps}
                 sx={{'width': '4rem'}}
                 value={value}
                 onChange={handleSliderChange}
                 aria-labelledby="input-slider"
             />
             <input
+                {...inptProps}
                 aria-labelledby='input-slider'
                 value={value}
                 style={{
@@ -72,10 +88,6 @@ function SliderInput(props){
                     width: '2em'}}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                step={0.01}
-                min={0.001}
-                max={2.0}
-                
             />
         </div>
         )
@@ -105,16 +117,10 @@ function LandmarkSelector(props) {
     return(
         <div className="landmark-selector"
             style={rowStyle}>
-            <label style={{width: '4.5rem'}}>{landmark?.name}</label>
-            <Checkbox
+            <label style={{width: '8rem'}}>{landmark?.name}</label>
+            <EyeCheckbox
                 checked={visible}
                 onChange={onVisibleClicked}
-                sx={{
-                    'color': 'tomato',
-                    '&$checked': { opacity: 0.6 },
-                }}
-                icon={<FontAwesomeIcon icon={icon({name: 'eye-slash'})} />}
-                checkedIcon={<FontAwesomeIcon icon={icon({name: 'eye'})} />}
             />
             <SliderInput label='scale.x' defaultValue={landmark.scale[0]} onChange={(value) => onScaleChanged(value, 0)}/>
             <SliderInput label='scale.y' defaultValue={landmark.scale[1]} onChange={(value) => onScaleChanged(value, 1)}/>
@@ -129,6 +135,8 @@ function FaceMaskSelector(props) {
     const { settings } = useSettings();
     const socket = useSocket(CMDS.NAMESPACES.CONTROL)
     const [landmarksData, setLandmarksData] = useState(faceProcessor?.landmarksData);
+    const [ interpTime, setInterpTime ] = useState(0.5);
+    const [ showPoints, setShowPoints ] = useState(false);
     const onSaveClick = props.onSaveClick ?? (() => {
         if(!socket) return;
         const data = {};
@@ -139,6 +147,18 @@ function FaceMaskSelector(props) {
         faceProcessor?.landmarksData.forEach((l, i) => l.reset());
         setLandmarksData(faceProcessor?.landmarksData)
     });
+
+    useEffect(() => {
+        landmarksData?.forEach((landmark, i) => {
+            landmarksData[i].showPoints = showPoints;
+        })
+    }, [showPoints])
+
+    useEffect(() => {
+        landmarksData?.forEach((landmark, i) => {
+            landmarksData[i].interpTime = interpTime;
+        })
+    }, [interpTime])
 
     useEffect(() => {
         setLandmarksData(faceProcessor?.landmarksData);
@@ -157,6 +177,9 @@ function FaceMaskSelector(props) {
                 landmark={landmarksData[i]}
                 faceProcessor={faceProcessor}/>
         ))}
+
+            <EyeCheckbox onChange={() => setShowPoints(prev => !prev)}/>
+        <SliderInput label='lerp time' min={0.001} max={0.6} step={0.001} defaultValue={0.12} onChange={(value) => setInterpTime(value)}/>
         <div  style={{...rowStyle, rowGap: '1em', marginTop: '1rem'}}>
             <span className='primary-button'
                 style={{padding: '0.5rem 0rem'}}

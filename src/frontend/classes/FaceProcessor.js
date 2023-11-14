@@ -13,8 +13,8 @@ class FaceProcessor extends VideoProcessor {
 		this.detections = null;
 		this.detectionsUpdated = false;
 		this.ctx = null;
-      	this.recording = false;
-      	this.chunks = [];
+		this.recording = false;
+		this.chunks = [];
 		this.allVisible = true;
 	}
 
@@ -67,12 +67,27 @@ class FaceProcessor extends VideoProcessor {
 	async loadModels() {
 		// load faceapi models for detection
 		console.info("++ loading model");
+	  	await faceapi.tf?.setWasmPaths(`https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${faceapi.tf.version_core}/dist/`);
+
 		await faceapi.tf.setBackend("webgl"); // Or 'wasm'
+		await faceapi.tf.ready();
+		if (faceapi.tf?.ENV.flagRegistry.CANVAS2D_WILL_READ_FREQUENTLY){
+			faceapi.tf.ENV.set('CANVAS2D_WILL_READ_FREQUENTLY', true);
+		}
+		if (faceapi.tf?.ENV.flagRegistry.WEBGL_EXP_CONV){
+			faceapi.tf.ENV.set('WEBGL_EXP_CONV', true);
+		}
+		
 		const MODEL_URL = "/models";
-		const tinyFaceDetectorModel = await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
-		const faceLandmarkModel = await faceapi.loadFaceLandmarkModel(MODEL_URL);
-		const faceRecognitionModel = await faceapi.loadFaceRecognitionModel(MODEL_URL);
-		const faceExpressionModel = await faceapi.loadFaceExpressionModel(MODEL_URL);
+		await faceapi.nets.ssdMobilenetv1.load(MODEL_URL);
+		await faceapi.nets.ageGenderNet.load(MODEL_URL);
+		await faceapi.nets.faceLandmark68Net.load(MODEL_URL);
+		await faceapi.nets.faceRecognitionNet.load(MODEL_URL);
+		await faceapi.nets.faceExpressionNet.load(MODEL_URL);
+		// await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
+		// await faceapi.loadFaceLandmarkModel(MODEL_URL);
+		// await faceapi.loadFaceRecognitionModel(MODEL_URL);
+		// await faceapi.loadFaceExpressionModel(MODEL_URL);
 	}
 
 	async init() {
@@ -95,7 +110,7 @@ class FaceProcessor extends VideoProcessor {
 		// }
 		try {
 			const newDetections = await faceapi
-				.detectSingleFace(this.video, new faceapi.TinyFaceDetectorOptions())
+				.detectSingleFace(this.video, new faceapi.SsdMobilenetv1Options())
 				.withFaceLandmarks()
 				.withFaceExpressions();
 			if (newDetections != undefined && newDetections != null) {
@@ -202,10 +217,10 @@ class FaceProcessor extends VideoProcessor {
 			this.detectionsUpdated = false;
 		}
 
-		// for(let l of this.landmarksData){
-		//   l.drawPoints(ctx)
-		//   l.drawCentroid(ctx, false)
-		// }
+		for(let l of this.landmarksData){
+		  l.drawPoints(this.ctx)
+		  l.drawCentroid(this.ctx, false)
+		}
 
 		// This is just a quick test to check whether the animated value/points structure works
 		// if(updateCenterOffsetInterval == null) updateCenterOffsetInterval = setInterval(() => {centerOffset = randomInRange(-200, 200)}, 2000);

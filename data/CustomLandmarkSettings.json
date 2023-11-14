@@ -34,24 +34,24 @@
    "LeftEye": {
       "name": "LeftEye",
       "scale": [
-         1.5,
-         1.35
+         0.573,
+         0.593
       ],
-      "visible": false
+      "visible": true
    },
    "RightEye": {
       "name": "RightEye",
       "scale": [
-         1.5,
-         1.35
+         0.531,
+         0.523
       ],
-      "visible": false
+      "visible": true
    },
    "Mouth": {
       "name": "Mouth",
       "scale": [
-         2,
-         0.296
+         0.32,
+         0.34
       ],
       "visible": true
    }

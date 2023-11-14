@@ -8,10 +8,17 @@ import { FaceProcessor } from "../frontend/classes/FaceProcessor.js";
 
 export const defaultSettings ={
    shortcutsEnabled: false,
-   audio: true,
-   mic: true,
-   video: true,
-   recording: true,
+   audio: false,
+   mic: false,
+   video: {
+      enabled: true,
+      width: { min: 1280, ideal: 1280 },
+      height: { min: 720, ideal: 720 },
+      frameRate: 30,
+      // resizeMode: 'crop-and-scale',
+      colorTemperature: 7000.0,
+   },
+   recording: false,
    debug: false,
 } 
 
@@ -43,22 +50,27 @@ const AppProvider = (props) => {
       console.log("USER UPDATED ", JSON.stringify(user))
    }, [user])
 
-   useEffect(() => {
-      if(!faceProcessor) return;
-      faceProcessorRef.current = faceProcessor;
-   }, [faceProcessor])
 
    useEffect(() => {
-      console.log("Initializing App context")
+      if(!room) return;
+      console.log("ROOM UPDATED ", JSON.stringify(room))
+   }, [room])
+
+   useEffect(() => {
       socket.on(CMDS.SOCKET.CONNECT, () => {
-         console.log(`CONNECTED TO THE SOCKET CONTEXT`);
+         console.log(`Socket connected`);
       });
 
 		socket.on(CMDS.SOCKET.USER_UPDATE, (data) => {
          setUser(prev => ({...prev, ...data}))
       });
 
-      setFaceProcessor(new FaceProcessor());
+		socket.on(CMDS.SOCKET.ROOM_UPDATE, (data) => {
+         setRoom(prev => ({...prev, ...data}))
+      });
+
+      faceProcessorRef.current = new FaceProcessor();
+      setFaceProcessor(faceProcessorRef.current);
    }, [])
 
 

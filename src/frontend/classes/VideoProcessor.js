@@ -34,7 +34,7 @@ export default class VideoProcessor {
 
    subscribe(event, callback){
       if(!this.subscribers[event]) this.subscribers[event] = [];
-      console.log("Subscribint to " +event)
+      console.log("Subscribing to " +event)
       this.subscribers[event].push(callback);
    }
 

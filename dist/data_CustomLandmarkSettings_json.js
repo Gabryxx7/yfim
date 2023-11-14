@@ -15,7 +15,7 @@
   \******************************************/
 /***/ ((module) => {
 
-eval("module.exports = JSON.parse('{\"JawOutline\":{\"name\":\"JawOutline\",\"scale\":[1,1],\"visible\":false},\"LeftEyeBrow\":{\"name\":\"LeftEyeBrow\",\"scale\":[1,1],\"visible\":false},\"RightEyeBrow\":{\"name\":\"RightEyeBrow\",\"scale\":[1,1],\"visible\":false},\"Nose\":{\"name\":\"Nose\",\"scale\":[0.5,1],\"visible\":false},\"LeftEye\":{\"name\":\"LeftEye\",\"scale\":[1.5,1.35],\"visible\":false},\"RightEye\":{\"name\":\"RightEye\",\"scale\":[1.5,1.35],\"visible\":false},\"Mouth\":{\"name\":\"Mouth\",\"scale\":[2,0.296],\"visible\":true}}');\n\n//# sourceURL=webpack://webrtc-video-room/./data/CustomLandmarkSettings.json?");
+eval("module.exports = JSON.parse('{\"JawOutline\":{\"name\":\"JawOutline\",\"scale\":[1,1],\"visible\":false},\"LeftEyeBrow\":{\"name\":\"LeftEyeBrow\",\"scale\":[1,1],\"visible\":false},\"RightEyeBrow\":{\"name\":\"RightEyeBrow\",\"scale\":[1,1],\"visible\":false},\"Nose\":{\"name\":\"Nose\",\"scale\":[0.5,1],\"visible\":false},\"LeftEye\":{\"name\":\"LeftEye\",\"scale\":[0.573,0.593],\"visible\":true},\"RightEye\":{\"name\":\"RightEye\",\"scale\":[0.531,0.523],\"visible\":true},\"Mouth\":{\"name\":\"Mouth\",\"scale\":[0.32,0.34],\"visible\":true}}');\n\n//# sourceURL=webpack://webrtc-video-room/./data/CustomLandmarkSettings.json?");
 
 /***/ })
 
