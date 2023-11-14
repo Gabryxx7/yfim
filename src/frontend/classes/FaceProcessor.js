@@ -1,6 +1,6 @@
 import VideoProcessor from "./VideoProcessor.js";
 // import * as faceapi from "face-api.js"; // Updated face-api, check below
-import * as faceapi from "@vladmandic/face-api"; // https://github.com/justadudewhohacks/face-api.js/issues?q=undefined+backend+#issuecomment-681001997
+import * as faceapi from '@vladmandic/face-api/dist/face-api.esm.js'; // https://github.com/vladmandic/face-api
 import { CustomLandmarks } from "./DrawableLandmark.js"
 
 

@@ -17,6 +17,7 @@
    }
  
    .intro {
+    position: relative;
     aspect-ratio: 5;
     max-height: 50%;
     font-family: "Montserrat";
@@ -44,12 +45,6 @@
     @include lg {
       padding: 6rem;
     }
- 
-     * {
-       width: 100%;
-       color: #fff;
-       margin: 0;
-     }
  
      .title {
        font-size: 3rem;

@@ -15,7 +15,9 @@ import { WebRTCContext, WebRTCProvider } from "../../context/WebRTCContext.js";
 // const require = createRequire(import.meta.url);
 // var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
 
-const renderLog = (trigger, data) => console.log("ROOM RERENDER! Triggered by: "+trigger, data);
+const renderLog = (trigger, data) => {
+	// console.log("ROOM RERENDER! Triggered by: "+trigger, data);
+}
 
 function ControlsOverlay(props){
 	return <div className="overlay-panel">
@@ -35,7 +37,7 @@ function RoomTestSession(props) {
 	const {bridge} = useWebRTC();
    const { shortcutsHandler } = useShortcuts();
    const { settings, updateSettings } = useSettings();
-   const faceProcessor = useFaceProcessor();
+   const { faceProcessor, fps } = useFaceProcessor();
    const { user,  updateUser } = useUser();
    const { room,  updateRoom } = useRoom();
    const { stage, updateStage } = useStage();

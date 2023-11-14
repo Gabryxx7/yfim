@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
 import { CMDS, DATA, STAGE, KEY_SHORTCUTS } from "../../backend/Definitions.js";
 import "react-toastify/dist/ReactToastify.css";
-import { AppContext, useFaceProcessor, useSession, useSettings, useStage, useUser } from '../../context';
+import { useFaceProcessor, useSession, useSettings, useStage, useUser } from '../../context';
 import FileSaver from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
@@ -28,7 +28,7 @@ const VIDEO_ID = {
 }
 
 export default function VideoContainer(props) {
-	const faceProcessor = useFaceProcessor();
+	const { faceProcessor, fps} = useFaceProcessor();
 	const { stream } = useWebRTC();
 	const { settings, updateSettings } = useSettings();
 	const { session } = useSession();
@@ -248,7 +248,7 @@ export default function VideoContainer(props) {
 				// if(recording && mediaRecorder?.current?.state != "recording"){
 				// 	startRecording();
 				// }
-				// faceProcessor.start();
+				faceProcessor.start();
 			}
 		} catch (error) {
 			console.error("Error getting user media: " + error);
@@ -355,6 +355,9 @@ export default function VideoContainer(props) {
 							<FontAwesomeIcon icon={icon({name: 'circle'})} /> :
 							<FontAwesomeIcon icon={icon({name: 'play'})} />
 						}
+					</div>
+					<div className={`fps-viewer`}>
+						{fps}
 					</div>
 				</div>
 				<canvas className="canvas" ref={canvas} />

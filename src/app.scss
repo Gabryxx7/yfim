@@ -253,6 +253,11 @@ input[type="checkbox"] {
   // }
 }
 
+.fps-viewer {
+  text-shadow: 0 0 2px black;
+
+}
+
 .overlay-transparent {
   background-color: #00000044;
   box-shadow: 0px 0px 3px #00000061;
@@ -539,5 +544,27 @@ main, .main-room{
       background-color: rgba(255,255,255,0.2);
     }
 
+  }
+}
+.close-button{
+  position: absolute;
+  top: -0.4em;
+  right: -0.4em;
+  font-size: 2rem;
+  width: fit-content;
+  height: fit-content;
+  aspect-ratio: 1 / 1;
+  display: block;
+  border-radius: 100%;
+  color: black;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  svg path {
+    fill: rgb(203, 203, 203);
+  }
+  &:hover {
+    transition: opacity 0.2s ease-in-out;
+    cursor: pointer;
+    filter: brightness(0.2);
   }
 }

@@ -2,7 +2,7 @@ import React, { createContext, useReducer, useCallback, useContext, useState, us
 import { TIMES, CMDS, STAGE, KEY_SHORTCUTS } from '../backend/Definitions.js';
 import { TOASTS } from "../frontend/components/ToastCommunications.js";
 import { useSocket } from "./useSocket.js";
-import { useUser, useSession } from "./AppContext.js";
+import { useUser, useSession } from ".";
 
 const renderLog = (trigger) => console.log("WEBRTC UPDATED! Triggered by: "+trigger);
 // The context is some sort of "global static" object that can be retrieved by any component at any time

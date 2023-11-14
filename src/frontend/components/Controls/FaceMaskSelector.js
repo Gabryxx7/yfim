@@ -9,6 +9,7 @@ import { CMDS, DATA, KEY_SHORTCUTS} from "../../../backend/Definitions.js";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { useSocket, useFaceProcessor, useSettings } from '../../../context'
+import ClosablePanel from "../ClosablePanel.js";
 
 const switchStyle={
     "& .MuiSwitch-track": {
@@ -124,7 +125,7 @@ function LandmarkSelector(props) {
 
 
 function FaceMaskSelector(props) {
-    const faceProcessor = useFaceProcessor();
+    const {faceProcessor} = useFaceProcessor();
     const { settings } = useSettings();
     const socket = useSocket(CMDS.NAMESPACES.CONTROL)
     const [landmarksData, setLandmarksData] = useState(faceProcessor?.landmarksData);
@@ -144,7 +145,7 @@ function FaceMaskSelector(props) {
     }, [faceProcessor])
 
     return(
-        <div className={`face-mask-selector actions-panel ${props.className}`}
+        <ClosablePanel className={`face-mask-selector actions-panel ${props.className}`}
         style={settings.shortcutsEnabled ? {} : {display: 'none'}}>
         {/* <LandmarkSelector
             landmark={{name: "ALL", visible: () => faceProcessor?.allVisible}}
@@ -164,7 +165,7 @@ function FaceMaskSelector(props) {
                 style={{padding: '0.5rem 0rem'}}
                 onClick={onRestoreClick}>Restore</span>
         </div>
-    </div>
+    </ClosablePanel>
     )
 }
 

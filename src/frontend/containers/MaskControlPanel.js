@@ -9,7 +9,7 @@ import { useSocket, useFaceProcessor } from '../../context'
 export default function MaskControlPanel(props) {
 	const socket = useSocket(CMDS.NAMESPACES.CONTROL);
 	const [recording, setRecording] = useState(false);
-	const faceProcessor = useFaceProcessor();
+	const {faceProcessor} = useFaceProcessor();
 	const [stageData, setStageData] = useState({ type: STAGE.TYPE.VIDEO_CHAT, sessionId: "testSession" });
 	const [userData, setUserData] = useState({ name: "faceTest" });
 	const sessionDataFields = (

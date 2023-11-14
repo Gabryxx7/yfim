@@ -1,11 +1,12 @@
 import React from "react";
 import { CMDS, DATA, KEY_SHORTCUTS} from "../../backend/Definitions.js";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useSettings } from '../../context/AppContext.js';
+import { useSettings } from '../../context';
+import ClosablePanel from "./ClosablePanel.js";
 
 export default function ShortcutsPanel(props) {
    const { settings } = useSettings();
-   return <div className={`actions-panel keyboard-actions ${props.className}`}
+   return <ClosablePanel className={`actions-panel keyboard-actions ${props.className}`}
             style={settings.shortcutsEnabled ? {} : {display: 'none'}}>
          {Object.values(KEY_SHORTCUTS).map((s, i) => 
             <div key={`Key-Action-${i}`} className="action">
@@ -13,6 +14,6 @@ export default function ShortcutsPanel(props) {
                <span>{s.name}</span>
             </div>
          )}
-      </div>
+      </ClosablePanel>
 }
 

@@ -26,6 +26,7 @@ const AppProvider = (props) => {
       canvas: useRef(),
    });
 	const [faceProcessor, setFaceProcessor] = useState();
+   const faceProcessorRef = useRef();
    const [settings, setSettings] = useState({...defaultSettings});
    const [user, setUser] = useState({ initialized: false });
    const [room, setRoom] = useState({});
@@ -41,6 +42,11 @@ const AppProvider = (props) => {
       }
       console.log("USER UPDATED ", JSON.stringify(user))
    }, [user])
+
+   useEffect(() => {
+      if(!faceProcessor) return;
+      faceProcessorRef.current = faceProcessor;
+   }, [faceProcessor])
 
    useEffect(() => {
       console.log("Initializing App context")
@@ -63,7 +69,7 @@ const AppProvider = (props) => {
       session,       setSession,
       stage,         setStage,
       step,          setStep,
-      faceProcessor,
+      faceProcessorRef,
       socket,
       sessionTimer
    }
@@ -73,16 +79,6 @@ const AppProvider = (props) => {
       {props.children}
    </AppContext.Provider>;
 }
-
-
-export { useFaceProcessor } from './useFaceProcessor.js'
-export { useShortcuts } from './useShortcuts.js'
-export { useSettings } from './useSettings.js'
-export { useRoom } from './useRoom.js'
-export { useUser } from './useUser.js'
-export { useStage } from './useStage.js'
-export { useStep } from './useStep.js'
-export { useSession } from './useSession.js'
 
 export { AppContext, AppProvider }
 

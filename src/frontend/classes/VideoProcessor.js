@@ -3,6 +3,12 @@ export default class VideoProcessor {
       name: "VideoProcessor",
       waitForProcessor: true, // Only draw after the video processor is done, otherwise draw will just run on its own in the "background" (Javascript in single threaded anyway...)
    }
+
+   static Event = {
+      UPDATE: 'update',
+      DRAW: 'draw',
+      INIT: 'init'
+   }
    static Status = {
       ERROR: -1,
       NONE: 0,
@@ -20,6 +26,22 @@ export default class VideoProcessor {
 		this.video = video;
       this.drawCount = 0;
       this.updateCount = 0;
+      this.lastTime = performance.now();
+      this.deltaTime = 0;
+      this.fps = 0;
+      this.subscribers = {}
+   }
+
+   subscribe(event, callback){
+      if(!this.subscribers[event]) this.subscribers[event] = [];
+      console.log("Subscribint to " +event)
+      this.subscribers[event].push(callback);
+   }
+
+   dispatch(event, ...rest){
+      this.subscribers[event]?.forEach(fun => {
+         fun(...rest)
+      });
    }
 
    isRunning(){
@@ -63,7 +85,7 @@ export default class VideoProcessor {
          this.status = VideoProcessor.Status.ERROR;
          console.error(`Error in video processor LOOP ${this.config.name}`, error);
       }
-      window.requestAnimationFrame(async () => await this.loop());
+      window.requestAnimationFrame(() => this.loop());
    }
 
    /**
@@ -80,6 +102,7 @@ export default class VideoProcessor {
          this.status = VideoProcessor.Status.ERROR;
          console.error(`Error initializing video processor ${this.config.name}`, error);
       }
+      this.dispatch(VideoProcessor.Event.INIT);
    }
 
    /**
@@ -87,6 +110,9 @@ export default class VideoProcessor {
     */
    async update(){}
    async _update(){
+      this.deltaTime = performance.now() - this.lastTime;
+      this.lastTime = performance.now();
+      this.fps = Math.round(1000/this.deltaTime);
       this.updateCount += 1;
       // console.log(`Update(): ${this.updateCount}`);
       try {
@@ -100,6 +126,7 @@ export default class VideoProcessor {
          this.status = VideoProcessor.Status.ERROR;
          console.error(`Error in video processor UPDATE ${this.config.name}`, error);
       }
+      this.dispatch(VideoProcessor.Event.UPDATE, this.fps, this.deltaTime);
       if(!this.config.waitForProcessor){
          setTimeout(async () => await this._update(), 0);
       }
@@ -120,8 +147,9 @@ export default class VideoProcessor {
          this.status = VideoProcessor.Status.ERROR;
          console.error(`Error in video processor DRAW ${this.config.name}`, error);  
       }
-      if(!this.config.waitForProcessor){
-         window.requestAnimationFrame(() => this._draw());
-      }
+      this.dispatch(VideoProcessor.Event.DRAW);
+      // if(!this.config.waitForProcessor){
+      //    window.requestAnimationFrame(() => this._draw());
+      // }
    }
 }
