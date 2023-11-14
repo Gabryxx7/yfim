@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import "survey-react/survey.css";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AppContext } from '../../context/AppContext.js';
 
 /**
  * I MIGHT have overengineered this...
@@ -172,7 +171,6 @@ TOASTS.KEYBOARD_SHORTCUTS = new YFIMToast(
 
 
 function ToastCommunications({ closeToast, toastProps }) {
-	const sessionMap = useContext(AppContext);
 	
    return(<ToastContainer
       position="bottom-right"

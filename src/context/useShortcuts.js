@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { AppContext, useStage, useSettings } from "./AppContext";
+import { useStage, useSettings } from "./AppContext";
+import { useApp } from "./useApp";
 import { CMDS, KEY_SHORTCUTS } from "../backend/Definitions";
 import { TOASTS } from "../frontend/components/ToastCommunications";
 

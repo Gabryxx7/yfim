@@ -4,11 +4,11 @@ import "survey-react/survey.css";
 import { CMDS } from "../../backend/Definitions.js";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastCommunications, TOASTS } from "../components/ToastCommunications.js";
-import { SessionProvider, AppContext } from '../../context/AppContext.js';
+import { AppProvider, AppContext } from '../../context/AppContext.js';
 import { STAGE } from "../../backend/Definitions.js"
 import RoomControlPanel from "../components/Controls/RoomControlPanel.js";
 import SettingsPanel from "../components/Controls/SettingsPanel.js";
-import { useSocket } from "../../context/SocketContext.js";
+import { useSocket } from "../../context";
 
 
 /**

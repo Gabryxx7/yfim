@@ -8,11 +8,7 @@ import MuiInput from '@mui/material/Input';
 import { CMDS, DATA, KEY_SHORTCUTS} from "../../../backend/Definitions.js";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
-
-import Grid from '@mui/material/Grid';
-import { useSocket } from '../../../context/SocketContext.js'
-import { useFaceProcessor } from "../../../context/useFaceProcessor.js";
-import { useSettings } from "../../../context/useSettings.js";
+import { useSocket, useFaceProcessor, useSettings } from '../../../context'
 
 const switchStyle={
     "& .MuiSwitch-track": {

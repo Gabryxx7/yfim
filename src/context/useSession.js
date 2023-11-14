@@ -1,10 +1,9 @@
-import React, { useContext } from "react";
-import { AppContext } from "./AppContext.js";
+import { useApp } from "./useApp";
 
 export const useSession = () => {
-   const {session, setSession} = useContext(AppContext);
+   const {session, setSession}= useApp();
    return {
       session,
-      update: (sessionData) => setSession(prevSession => ({...prevSession, ...sessionData}))
+      updateSession: (sessionData) => setSession(prevSession => ({...prevSession, ...sessionData}))
    }
 }

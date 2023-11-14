@@ -281,17 +281,18 @@ class User {
 			this.status = USER.STATUS.READY;
 			this.room?.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.room?.getData(msg));
 			if (userRoom.size > 1) {
-        // Broadcast to room this.room.id except for the sender
-        this.room.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.JOIN_REQUEST, msg: `User ${this} is requesting to join the call`}, this.socket);
+				// Broadcast to room this.room.id except for the sender
+				console.log("Sending join request");
+				this.room.notifyRoom(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.JOIN_REQUEST, msg: `User ${this} is requesting to join the call`}, this.socket);
 
-        // Only send this to the user who requested the approval, NOT a broadcast
+				// Only send this to the user who requested the approval, NOT a broadcast
 				this.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, { bridge: CMDS.RTC.STATUS.PENDING_APPROVAL, msg: `Waiting for host to approve request`});
 
-        userRoom.notifyHost(CMDS.SOCKET.RTC_COMMUNICATION, {
-					bridge: CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST,
-					userId: this.id,
-					userName: this.name,
-				});
+				userRoom.notifyHost(CMDS.SOCKET.RTC_COMMUNICATION, {
+						bridge: CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST,
+						userId: this.id,
+						userName: this.name,
+					});
 			} else {
 				this.socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, { bridge: CMDS.RTC.ACTIONS.START_CALL }); // Broadcast to room this.room.id except for the sender
 			}

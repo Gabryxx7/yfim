@@ -10,7 +10,7 @@ import { ROUTES } from "./backend/Definitions.js"
 import "./app.scss"
 import ControlRoom from "./frontend/containers/ControlRoom.js";
 import SurveyTest from "./frontend/containers/SurveyTestPage.js";
-import { SessionProvider } from "./context/AppContext.js";
+import { AppProvider } from "./context/AppContext.js";
 import { SocketProvider } from "./context/SocketContext.js";
 
 const root = createRoot(document.getElementById("app"));
@@ -22,8 +22,8 @@ root.render(
         {/* <Route exact path="/" element={<Home />} /> */}
         {/* <Route path={ROUTES.FACE_API_TEST.path} element={<MaskSettingsPage />} /> */}
         <Route path={ROUTES.SURVEY_TEST.path} element={<SurveyTest />} />
-        <Route path={ROUTES.ROOM.path} element={<SessionProvider><Room /></SessionProvider>} />
-        <Route path={ROUTES.ROOM_TEST.path} element={<SessionProvider><RoomTest /></SessionProvider>} />
+        <Route path={ROUTES.ROOM.path} element={<AppProvider><Room /></AppProvider>} />
+        <Route path={ROUTES.ROOM_TEST.path} element={<AppProvider><RoomTest /></AppProvider>} />
         <Route path={ROUTES.CONTROL.path} element={<ControlRoom />} />
         {/* <Route path="*" element={<NotFound />} /> */}
         {/* <Route exact path="/control/:room" element={<RoomControl />} /> */}

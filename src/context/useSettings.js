@@ -1,10 +1,7 @@
-import React, { useContext } from "react";
-import { AppContext, useStage } from "./AppContext";
-import { CMDS, KEY_SHORTCUTS } from "../backend/Definitions";
-import { TOASTS } from "../frontend/components/ToastCommunications";
+import { useApp } from "./useApp";
 
 export const useSettings = () => {
-   const { settings, setSettings, socket } = useContext(AppContext);
+   const { settings, setSettings, socket }= useApp();
    
    return {
       settings,

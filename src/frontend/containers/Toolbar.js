@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext.js';
 import ProgressBar from '../components/Controls/Progressbar.js';
 import ToolbarDebug from '../components/ToolbarDebug.js';
 import { TimedEvent } from "../../backend/TimedEvent.js"
-import { useSocket } from "../../context/SocketContext.js";
+import { useSocket } from "../../context";
 // import console from "../../utils/customLogger.js";
 
 

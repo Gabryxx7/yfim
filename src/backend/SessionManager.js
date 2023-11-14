@@ -29,7 +29,7 @@ class SessionManager {
       });
     });
     this.chatsManager.onRoomCreated = (room) => {
-      console.log("New Room Created, Joining Control Users ", room.id, this.controlManager.connections);
+      console.log("New Room Created, Adding to Control Users ", room.id);
       for(let conn of this.controlManager.connections){
         conn.socket.join(room.id);
       }

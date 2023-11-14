@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { STAGE } from '../../backend/Definitions.js'
-import { useUser } from "../../context/AppContext.js";
+import { useUser } from "../../context";
 useUser
 
 export default function Introduction(props) {

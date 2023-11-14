@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { SessionProvider } from "../context/AppContext.js";
+import { AppProvider } from "../context/AppContext.js";
 
 export default function TestComponent(props) {
 	const sessionMap = useContext(AppContext);

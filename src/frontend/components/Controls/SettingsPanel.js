@@ -4,7 +4,7 @@ import "survey-react/survey.css";
 import 'react-toastify/dist/ReactToastify.css';
 import ServerConfig from "../../../../data/ServerConfig.json"
 import { CMDS } from "../../../backend/Definitions.js";
-import { useSocket } from "../../../context/SocketContext.js"
+import { useSocket } from "../../../context"
 
 function SettingInput(props) {
 	const label = props.label ?? "Setting";

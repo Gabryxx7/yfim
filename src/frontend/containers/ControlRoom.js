@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import RoomsView from "./RoomsView.js";
 import MaskControlPanel from "./MaskControlPanel.js";
-import { useSocket } from '../../context/SocketContext.js';
+import { useSocket } from '../../context';
 
 function a11yProps(index) {
   return {

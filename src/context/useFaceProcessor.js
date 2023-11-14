@@ -1,7 +1,6 @@
-import React, { useContext } from "react";
-import { AppContext } from "./AppContext.js";
+import { useApp } from "./useApp";
 
 export const useFaceProcessor = () => {
-   const { faceProcessor, setFaceProcessor, socket } = useContext(AppContext);
+   const { faceProcessor, setFaceProcessor, socket }= useApp();
    return faceProcessor;
 }

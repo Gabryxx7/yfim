@@ -3,7 +3,6 @@ import io from "socket.io-client";
 import "survey-react/survey.css";
 import { CMDS, DATA, KEY_SHORTCUTS} from "../../backend/Definitions.js";
 import Toolbar from "./Toolbar.js";
-import WebRTCManager from "../classes/RTCManager.js"
 import 'react-toastify/dist/ReactToastify.css';
 import VideoContainer from "./VideoContainer.js";
 import {FaceProcessor} from "../classes/FaceProcessor.js";
@@ -16,8 +15,7 @@ import FileSaver from "file-saver";
 import Introduction from "../components/Introduction.js";
 import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES, } from "../../../assets/PostChatSurvey.js";
 import { TimedEvent } from "../../backend/TimedEvent.js";
-import {useSocket} from "../../context/SocketContext.js";
-import { useUser, useRoom, useSession, useStage, useStep } from '../../context/AppContext.js';
+import {useSocket} from "../../context";
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 // var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
@@ -29,7 +27,6 @@ export default function Room(props) {
 	const useJoinForm = props.useJoinForm ?? true;
 	const [faceProcessor, setFaceProcessor] = useState(null);
 	const [prompt, setPrompt] = useState("Waiting for your conversation partner to join the call...")
-	const [RTCManager, setRTCManager] = useState(null)
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");
 	const [stageData, setStageData] = useState({reason: "", state: STAGE.STATUS.NONE, type: STAGE.TYPE.NONE, data: null});
@@ -177,20 +174,11 @@ export default function Room(props) {
 		}
 	}
 
-	const onJoinRequestAnswer = (answer) => {
-		if(RTCManager.lastUserIdRequest != null){
-			// console.log(`RTC: ${answer}ing join request from ${RTCManager.lastUserIdRequest}`);
-			socket.emit(CMDS.SOCKET.RTC_COMMUNICATION, {bridge: CMDS.RTC.ACTIONS.ACCEPT_JOIN_REQUEST, userId: RTCManager.lastUserIdRequest});
-			RTCManager.lastUserIdRequest = null;
-		}
-		// socketRef.current.emit(e.target.dataset.ref, state.sid); // I'm not sure why so many emit() calls had an array [cmd] as command
-		setBridge(CMDS.RTC.STATUS.CONNECTING)
-	 }
 
-	 useEffect(() => {
-		setRTCManager(new WebRTCManager(socket, sessionMap));
-	  	// setFaceProcessor(new FaceProcessor());
-	}, []);
+	//  useEffect(() => {
+	// 	setRTCManager(new WebRTCManager(socket, sessionMap));
+	//   	// setFaceProcessor(new FaceProcessor());
+	// }, []);
 
 	useEffect(() => {
 		if(RTCManager == null) return;
@@ -207,12 +195,6 @@ export default function Room(props) {
 		socket.on(CMDS.SOCKET.CONNECT, () => {
 			console.log(`CONNECTED TO THE SOCKET CONTEXT`);
 		});
-		socket.on(CMDS.SOCKET.RTC_COMMUNICATION, (data) => {
-			if(data.bridge != CMDS.RTC.ACTIONS.MESSAGE){
-				setBridge(data.bridge);
-			}
-			RTCManager.handleRTCCommunication(data);
-		})
 		socket.on(CMDS.SOCKET.CONNECT_ERROR, (err) => {
 		  console.log(`connect_error due to ${err.message}`);
 		});
@@ -226,8 +208,6 @@ export default function Room(props) {
 		// socket.on(CMDS.SOCKET.PROCESS_STOP, (data) => onProcessStop(data));
 		socket.on(CMDS.SOCKET.RESET, () => resetParams());
 
-		socket.on(CMDS.SOCKET.MESSAGE, (data) => RTCManager.onMessage(data));
-		socket.on(CMDS.SOCKET.CONTROL, (data) => RTCManager.onControl(data));
 		// setSocket(socket);
 		if(!useJoinForm){
 		// CHANGE THIS TO IMMEDIATELY JOIN THE ROOM
@@ -244,68 +224,6 @@ export default function Room(props) {
 			TOASTS.USER_LEFT.show();
 		}
 	}, [connectionStatus]);
-
-	 useEffect(() => {
-		if(bridge == null) return;
-		// console.log(`RTC: Bridge Updated`,bridge);
-		if(bridge == "none"){
-			TOASTS.WAITING.show();
-			return;
-		}
-		TOASTS.WAITING.dismiss();
-		if(bridge == CMDS.RTC.ACTIONS.HOST_APPROVAL_REQUEST){
-			TOASTS.JOIN_REQUEST.show({onAction: onJoinRequestAnswer});
-		} else if(bridge == CMDS.RTC.STATUS.PENDING_APPROVAL){
-			TOASTS.PENDING_APPROVAL.show();
-		} else{
-			TOASTS.PENDING_APPROVAL.dismiss();
-		}
-	}, [bridge])
-
-	const skipStage = () => setStageData((prev) => ({...prev, reason: "Skip clicked", state: STAGE.STATUS.COMPLETED, data: {waitOtherUsers: false}}))
-
-	const handleKeyPress = (e) => {
-		if(!e) return;
-		const keyCode = e.code;
-		// console.log(`${shortcutsControls.shortcutsEnabled ? '[ENABLED]' : '[DISABLED]'} Key Pressed: ${e.code}, ${keyCode}`);
-		if(keyCode === KEY_SHORTCUTS.ENABLE_SHORTCUTS.keyCode){
-			setShortcutsControls((prev) => ({...prev, shortcutsEnabled: !prev.shortcutsEnabled, show_debug: !prev.shortcutsEnabled}))
-			TOASTS.KEYBOARD_SHORTCUTS.show({enabled: !shortcutsControls.shortcutsEnabled}) // At this stage it did not change yet!
-			e.preventDefault()
-		}
-
-		if(!shortcutsControls.shortcutsEnabled) return;
-		if(keyCode === KEY_SHORTCUTS.MUTE_VIDEO.keyCode){
-			setShortcutsControls((prev) => ({...prev, video: !prev.video}))
-			e.preventDefault()
-		} 
-		if(keyCode === KEY_SHORTCUTS.MUTE_SELF.keyCode){
-			setShortcutsControls((prev) => ({...prev, mic: !prev.mic}))
-			e.preventDefault()
-		} 
-		if(keyCode === KEY_SHORTCUTS.MUTE_OTHERS.keyCode){
-			setShortcutsControls((prev) => ({...prev, audio: !prev.audio}))
-			e.preventDefault()
-		} 
-		if(keyCode === KEY_SHORTCUTS.TOGGLE_RECORDING.keyCode){
-			setShortcutsControls((prev) => ({...prev, recording: !prev.recording}))
-			e.preventDefault()
-		}
-		if(keyCode === KEY_SHORTCUTS.SHOW_DEBUG.keyCode){
-			setShortcutsControls((prev) => ({...prev, show_debug: !prev.show_debug}))
-			e.preventDefault()
-		}
-		if(keyCode === KEY_SHORTCUTS.SKIP_STAGE.keyCode){
-			skipStage()
-			e.preventDefault()
-		}
-		if(keyCode === KEY_SHORTCUTS.PAUSE_TIMER.keyCode){
-			sessionMap.session.togglePause();
-			socket.emit(CMDS.SOCKET.TOGGLE_SESSION_PAUSE);
-			e.preventDefault()
-		}
-	}
-
 
 	return (
 		<div className='main-room' tabIndex={"0"} onKeyDown={handleKeyPress}>

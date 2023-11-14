@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
 import { CMDS, DATA, STAGE, KEY_SHORTCUTS } from "../../backend/Definitions.js";
 import "react-toastify/dist/ReactToastify.css";
-import { AppContext, useFaceProcessor, useSession, useSettings, useStage, useUser } from '../../context/AppContext.js';
+import { AppContext, useFaceProcessor, useSession, useSettings, useStage, useUser } from '../../context';
 import FileSaver from "file-saver";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import JSZip from "jszip";
-import { useSocket } from "../../context/SocketContext.js";
+import { useSocket, useWebRTC } from "../../context";
 
 
 const setVideoConstraints = (video) => {
@@ -29,6 +29,7 @@ const VIDEO_ID = {
 
 export default function VideoContainer(props) {
 	const faceProcessor = useFaceProcessor();
+	const { stream } = useWebRTC();
 	const { settings, updateSettings } = useSettings();
 	const { session } = useSession();
 	const { localVideo, remoteVideo, canvas } = session;
@@ -43,7 +44,25 @@ export default function VideoContainer(props) {
 	const mediaChunks = useRef([]);
 	const rtcManager = props.rtcManager ?? null;
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
-	const onStreamAdded = props.onStreamAdded;
+
+	useEffect(() => {
+		if(!stream) return;
+		// when the other side added a media stream, show it on screen
+		// console.log(`RTC: Adding MediaStream ${e?.stream?.id}`);
+		if (remoteVideo.current != null) {
+			remoteVideo.current.srcObject = stream;
+			remoteVideo.current.addEventListener("play", () => {
+				// console.log(`RTC: Remote Video is now playing`);
+				faceProcessor.setVideo(remoteVideo.current);
+				// if(session){
+				// 	session.remoteVideo = remoteVideo.current;
+				// }
+				// setVideoConstraints(remoteVideo.current);
+				onRemotePlay();					
+			});
+		}
+	
+	}, [stream])
 
 	const stopRecording = () => {
 		mediaRecorder.current.stop();
@@ -194,25 +213,6 @@ export default function VideoContainer(props) {
 		console.log(`Video Container state ${stage?.state}. Type: ${stage?.type}. mediaRecorder: ${mediaRecorder.current?.state}`)
 	}, [stage])
 
-	// when the other side added a media stream, show it on screen
-	const onAddStream = (e) => {
-		// console.log(`RTC: Adding MediaStream ${e?.stream?.id}`);
-		if (remoteVideo.current != null) {
-			remoteVideo.current.srcObject = e.stream;
-			remoteVideo.current.addEventListener("play", () => {
-				// console.log(`RTC: Remote Video is now playing`);
-				faceProcessor.setVideo(remoteVideo.current);
-				// if(session){
-				// 	session.remoteVideo = remoteVideo.current;
-				// }
-				// setVideoConstraints(remoteVideo.current);
-				onRemotePlay();
-				
-			});
-			onStreamAdded();
-		}
-	};
-
 	useEffect(() => {
 		if(props.connectionStatus == "disconnected"){
 			if(faceProcessor != null){
@@ -325,12 +325,6 @@ export default function VideoContainer(props) {
 		}
 	}, [faceProcessor]);
 
-	useEffect(() => {
-		if (rtcManager == null) return;
-		rtcManager.onAddStream = onAddStream;
-		rtcManager.localVideo = localVideo.current;
-		rtcManager.remoteVideo = remoteVideo.current;
-	}, [rtcManager]);
 
 	return (
 			<div className='media-bridge'>

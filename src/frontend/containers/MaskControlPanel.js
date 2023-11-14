@@ -3,12 +3,8 @@ import TextField from "@mui/material/TextField";
 import "survey-core/defaultV2.min.css";
 import { CMDS, DATA, STAGE } from "../../backend/Definitions.js";
 import VideoContainer from "./VideoContainer.js";
-import { FaceProcessor } from "../classes/FaceProcessor.js";
 import { FaceMaskSelector } from "../components/Controls/FaceMaskSelector.js";
-import { RecordingControls } from "../components/Controls/RecordingControls.js";
-import io from "socket.io-client";
-import { useSocket } from "../../context/SocketContext.js";
-import { useFaceProcessor } from "../../context/useFaceProcessor.js";
+import { useSocket, useFaceProcessor } from '../../context'
 
 export default function MaskControlPanel(props) {
 	const socket = useSocket(CMDS.NAMESPACES.CONTROL);

@@ -1,12 +1,10 @@
-import React, { useContext } from "react";
-import { AppContext } from "./AppContext.js";
+import { useApp } from "./useApp";
 
 export const useRoom = () => {
-   const { room, setRoom, socket } = useContext(AppContext);
-   
+   const { room, setRoom, socket } = useApp();
    return {
       room,
-      update: (roomData) => setRoom(prevRoom => ({...prevRoom, ...roomData})),
-      join: () => console.log("Joining room!")
+      updateRoom: (roomData) => setRoom(prevRoom => ({...prevRoom, ...roomData})),
+      joinRoom: () => console.log("Joining room!")
    }
 }
