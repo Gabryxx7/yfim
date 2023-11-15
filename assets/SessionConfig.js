@@ -1,6 +1,6 @@
 
-import { STAGE, FACEAPI, QUESTION } from "../src/backend/Definitions.js"
-// const { STAGE, FACEAPI, QUESTION } = require("../src/backend/Definitions.js")
+import { STAGE, FACE_LANDMARKS, QUESTION } from "../src/backend/Definitions.js"
+// const { STAGE, QUESTION } = require("../src/backend/Definitions.js")
 import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES } from "./PostChatSurvey.js"
 // const { AVAILABLE_SURVEYS } = require("./PostChatSurvey.js")
 
@@ -32,12 +32,12 @@ const SessionConfig = {
     noRepetitions: true
   },
   featuresCombinations: [
-    // [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE],
-    // [FACEAPI.LANDMARK.RIGHTEYE],
-    [FACEAPI.LANDMARK.NONE],
-    [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH],
-    [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE],
-    [FACEAPI.LANDMARK.MOUTH]
+    // [FACE_LANDMARKS.LEFTEYE, FACE_LANDMARKS.RIGHTEYE],
+    // [FACE_LANDMARKS.RIGHTEYE],
+    [FACE_LANDMARKS.NONE],
+    [FACE_LANDMARKS.LEFTEYE, FACE_LANDMARKS.RIGHTEYE, FACE_LANDMARKS.MOUTH],
+    [FACE_LANDMARKS.LEFTEYE, FACE_LANDMARKS.RIGHTEYE],
+    [FACE_LANDMARKS.MOUTH]
   ]
 }
 
@@ -75,7 +75,7 @@ export default SessionConfig;
 //       }
 //     ]
 //   },
-//   makeStage('TEST', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, {visibleFeatures: [FACEAPI.LANDMARK.LEFTEYE, FACEAPI.LANDMARK.RIGHTEYE, FACEAPI.LANDMARK.MOUTH, FACEAPI.LANDMARK.NOSE]}),
+//   makeStage('TEST', `Warm-Up`, QUESTION.TYPE.ICEBREAKER, warmupDuration, {visibleFeatures: [FACE_LANDMARKS.LEFTEYE, FACE_LANDMARKS.RIGHTEYE, FACE_LANDMARKS.MOUTH, FACE_LANDMARKS.NOSE]}),
 //   ...SessionConfig.featuresCombinations.map((condition, index) => makeStage('TEST', `Experiment - ${index}`, QUESTION.TYPE.QUEST, 10, {pick_random_condition: true, noRepetitions: true})),
   
 // ];

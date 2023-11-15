@@ -56,17 +56,15 @@ const QUESTION = {
 }
 QUESTION.TYPE.WOULDYOU
 
-const FACEAPI = {
-  LANDMARK: {
-    NONE: "NONE",
-	  JAWOUTLINE: "JawOutline",
-	  LEFTEYEBROW: "LeftEyeBrow",
-	  RIGHTEYEBROW: "RightEyeBrow",
-	  NOSE: "Nose",
-	  LEFTEYE: "LeftEye",
-	  RIGHTEYE: "RightEye",
-	  MOUTH: "Mouth"
-  }
+const FACE_LANDMARKS = {
+  NONE: "NONE",
+  JAWOUTLINE: "JawOutline",
+  LEFTEYEBROW: "LeftEyeBrow",
+  RIGHTEYEBROW: "RightEyeBrow",
+  NOSE: "Nose",
+  LEFTEYE: "LeftEye",
+  RIGHTEYE: "RightEye",
+  MOUTH: "Mouth"
 }
 
 const STAGE = {
@@ -229,4 +227,4 @@ const DATA = {
 }
 
 
-export { CMDS, DATA, STAGE, FACEAPI, QUESTION, TIMES, USER, ROUTES, KEY_SHORTCUTS }
+export { CMDS, DATA, STAGE, FACE_LANDMARKS, QUESTION, TIMES, USER, ROUTES, KEY_SHORTCUTS }

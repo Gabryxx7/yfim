@@ -283,7 +283,10 @@ input[type="checkbox"] {
   display: none;
   &.debug-mode{
     display: block;
-  };
+  }
+  &.video-actions{
+    display: flex;
+  }
   & > div{
     position: relative;
   }

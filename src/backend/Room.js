@@ -97,7 +97,7 @@ export default class Room{
   }
 
   setUsersStatus(status){
-    for (let userId in this.users) {
+    for(let userId in this.users) {
       this.users[userId].setStatus(status);
     }
     this.notifyRoom(CMDS.SOCKET.ROOM_UPDATE, this.getData(`Updated all users status to ${status}`));
@@ -105,7 +105,7 @@ export default class Room{
 
   getUsersStatus(){
     let usersStatus = {ready: [], missing: []}
-    for (let userId in this.users) {
+    for(let userId in this.users) {
       if(this.users[userId].isReady()){
         usersStatus.ready.push(this.users[userId].name)
       } else {
@@ -225,7 +225,7 @@ export default class Room{
 
   getUsersByType(userType){
     const users = [];
-    for (let key in this.users) {
+    for(let key in this.users) {
       if(this.users[key].type === userType){
         users.push(this.users[key]);
       }

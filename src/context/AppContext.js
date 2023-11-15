@@ -6,6 +6,7 @@ import { TimedEvent } from "../backend/TimedEvent.js"
 import { FaceProcessor } from "../frontend/classes/FaceProcessor.js";
 import VideoProcessor from "../frontend/classes/VideoProcessor.js";
 import { MediaPipeProcessor } from "../frontend/classes/MediaPipeProcessor.js";
+import { FaceApiProcessor } from "../frontend/classes/FaceApiProcessor.js";
 
 export const AvailableVideoProcessors = {
    VIDEO: 'video',
@@ -83,7 +84,7 @@ const AppProvider = (props) => {
       if(faceProcessorRef.current && faceProcessorRef.current.tag === faceProcessorId) return;
       let fp = null;
       switch (faceProcessorId){
-         case AvailableVideoProcessors.FACE_API: fp = new FaceProcessor(defaultSettings.video); break;
+         case AvailableVideoProcessors.FACE_API: fp = new FaceApiProcessor(defaultSettings.video); break;
          case AvailableVideoProcessors.MEDIA_PIPE: fp = new MediaPipeProcessor(defaultSettings.video); break;
          default: fp = new VideoProcessor(defaultSettings.video); break;
       }

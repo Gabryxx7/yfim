@@ -1,41 +1,36 @@
 import VideoProcessor from "./VideoProcessor.js";
 import { DrawingUtils, FilesetResolver, FaceLandmarker } from "@mediapipe/tasks-vision";
 import { CustomLandmarks } from "./DrawableLandmark.js"
+import { FACE_LANDMARKS } from "../../backend/Definitions.js";
+import { FaceProcessor } from "./FaceProcessor.js";
 const runningMode = "VIDEO";
 
- class MediaPipeProcessor extends VideoProcessor {
-	constructor(overrides = null, canvas = null, video=null, landmarksData=null) {
-		super(overrides, canvas), video;
+const landmarksMap = {};
+landmarksMap[FACE_LANDMARKS.JAWOUTLINE] = 		() => FaceLandmarker.FACE_LANDMARKS_CONTOURS;
+landmarksMap[FACE_LANDMARKS.LEFTEYEBROW] = 		() => FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW;
+landmarksMap[FACE_LANDMARKS.RIGHTEYEBROW] = 		() => FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW;
+landmarksMap[FACE_LANDMARKS.NOSE] = 				() => FaceLandmarker.FACE_LANDMARKS_FACE_OVAL;
+landmarksMap[FACE_LANDMARKS.LEFTEYE] = 			() => FaceLandmarker.FACE_LANDMARKS_LEFT_EYE;
+landmarksMap[FACE_LANDMARKS.RIGHTEYE] = 			() => FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE;
+landmarksMap[FACE_LANDMARKS.MOUTH] = 				() => FaceLandmarker.FACE_LANDMARKS_LIPS;
 
-		this.landmarksData = landmarksData ?? CustomLandmarks;
-		this.faceLandmarker = null;
-		this.ctx = null;
-		this.results = null;
-		this.lastVideoTime = -1;
+
+ class MediaPipeProcessor extends FaceProcessor {
+
+	constructor(...rest){
+		super(...rest);
+		this.drawingUtils = new DrawingUtils(this.ctx);
 	}
 
-   setMaskData(maskFeatures=null){
-		this.allVisible = true;
-		if(maskFeatures == null || maskFeatures?.length <= 0){
-			for (let l of this.landmarksData){
-				l.visible = true;
-			}
-		}
-		else{
-			for (let l of this.landmarksData){
-				l.visible = false;
-				for(let feature of maskFeatures){
-					if(l.name.toUpperCase() == feature.toUpperCase()){
-						l.visible = true;
-						break;
-					}
-				}
-				this.allVisible = this.allVisible && l.visible;
-				// console.log(`Updated Mask Data ${l.name} ${l.visible}` )
-			}
-		}
-   }
-
+	getLandmarkPoints(landmark, points){
+		if(!points) return;
+		const lPoints = landmarksMap[landmark.name]();
+		if(!lPoints) return;
+		const newPointsIdx = lPoints?.map(p => p.start);
+		const newPoints = newPointsIdx.map(i => ({x: points[i].x*1280, y: points[i].y*720}));
+		// console.log(landmark.name, newPoints)
+		return newPoints
+	}
 
 	async init() {
 		const filesetResolver = await FilesetResolver.forVisionTasks(
@@ -51,6 +46,57 @@ const runningMode = "VIDEO";
 		  numFaces: 1
 		});
 	 }
+
+	drawMesh(){
+		if(!this.showPoints) return;
+		const drawingUtils = new DrawingUtils(this.ctx);
+		const landmarks = this.landmarks;
+		drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+			{ color: "#C0C0C044", lineWidth: 1 }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
+			{ color: "#FF3030" }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+			{ color: "#FF3030" }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
+			{ color: "#30FF30" }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
+			{ color: "#30FF30" }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+			{ color: "#E0E0E0" }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_LIPS,
+			{ color: "#E0E0E0" }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
+			{ color: "#FF3030" }
+		 );
+		 drawingUtils.drawConnectors(
+			landmarks,
+			FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS,
+			{ color: "#30FF30" }
+		 );
+	}
 	
 	async update() {
 		const video = this.video;
@@ -65,57 +111,16 @@ const runningMode = "VIDEO";
 		}
 		// console.log(this.results.faceLandmarks);
 		if (this.results.faceLandmarks) {
-			const drawingUtils = new DrawingUtils(this.ctx);
-		  for (const landmarks of this.results.faceLandmarks) {
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-				{ color: "#C0C0C070", lineWidth: 1 }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
-				{ color: "#FF3030" }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
-				{ color: "#FF3030" }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
-				{ color: "#30FF30" }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
-				{ color: "#30FF30" }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
-				{ color: "#E0E0E0" }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_LIPS,
-				{ color: "#E0E0E0" }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
-				{ color: "#FF3030" }
-			 );
-			 drawingUtils.drawConnectors(
-				landmarks,
-				FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS,
-				{ color: "#30FF30" }
-			 );
-		  }
+			for (const landmarks of this.results.faceLandmarks) {
+				this.updateLandmarks(landmarks)
+			}
 		}
 	 }
-	
+
+	 draw(){
+		this.drawFaceMask();
+		this.drawMesh();
+	 }
 }
 
 export { MediaPipeProcessor };

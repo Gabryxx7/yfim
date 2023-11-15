@@ -1,5 +1,5 @@
-import { FACEAPI } from "../../backend/Definitions.js";
-const DEF_TIME = 0.09;
+import { FACE_LANDMARKS } from "../../backend/Definitions.js";
+const DEF_TIME = 0.04;
 class Interpolation {
 	static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
 	static linear = (x) => x;
@@ -163,20 +163,18 @@ class AnimatedPoint {
 }
 
 class DrawableLandmark {
-	// new DrawableLandmark({ name:"JawOutline", pointsRange:[0, 17], scale:[1, 1], visible:true, pointSize:2, pointColor:"#f00", drawMask:true }),
+	// new DrawableLandmark({ name:"JawOutline", pointsIdx:[0,1,2,3,...,17], scale:[1, 1], visible:true, pointSize:2, pointColor:"#f00", drawMask:true }),
 	setData(data = null) {
 		this.name = data.name ?? "Landmark";
 		this.scale = data.scale ?? [1, 1];
 		this.visible = data.visible ?? true;
-		this.showPoints = data.showPoints ?? false;
+		this.showPoints = data.showPoints ?? true;
 		this.pointSize = data.pointSize ?? 5;
 		this.pointColor = data.pointColor ?? "fff";
 		this.drawMask = data.drawMask ?? true;
 		this.closedPath = data.closedPath ?? false;
-		this.pointsRange = data.pointsRange ?? [0, 0];
 		this.interpFun = data.interpFun ?? INTERP_FUNCTIONS.easeInOut;
 		this.interpTime = data.interpTime ?? DEF_TIME;
-		this.pointsRange = this.pointsRange.sort();
 	}
 
 	reset() {
@@ -186,23 +184,19 @@ class DrawableLandmark {
 		this.name = "Landmark";
 		this.scale = [1, 1];
 		this.visible = true;
-		this.showPoints = false;
+		this.showPoints = true;
 		this.closedPath = false;
 		this.pointSize = 5;
 		this.pointColor = "fff";
 		this.drawMask = true;
-		this.pointsRange = [0, 0];
 		this.interpFun = INTERP_FUNCTIONS.easeInOut;
 		this.interpTime = DEF_TIME;
 		this.data = data ?? {};
 		this.setData(this.data);
 
-		this.rotation = 0;
 		this.points = [];
-		for (let i = this.pointsRange[0]; i < this.pointsRange[1]; i++) {
-			this.points.push(new AnimatedPoint(0, 0, this));
-		}
-		this.startPoint = this.points[0];
+		this.lastPointIdx = 0;
+		this.rotation = 1;
 		this.centerPoint = new AnimatedPoint(0, 0, this);
 		this.radius = new AnimatedValue(0, this);
 		this.lastUpdate = performance.now();
@@ -214,8 +208,9 @@ class DrawableLandmark {
 	updateAnimations() {
 		this.deltaTime = (performance.now() - this.lastUpdate) / 1000;
 		this.lastUpdate = performance.now();
-		for (let p of this.points) {
-			p.update(this.deltaTime);
+		for(let i = 0; i < this.lastPointIdx; i++) {
+			let p = this.points[i]
+			p?.update(this.deltaTime);
 		}
 		this.updateCentroid(this.deltaTime);
 	}
@@ -223,7 +218,6 @@ class DrawableLandmark {
 	// The centroid and the radius are not animated by themselves, they just take the value updated by the animated points
 	// So it should be automatically animated if the points it's calculated from are animated
 	updateCentroid(deltaTime, animated = false) {
-		this.startPoint = this.points[0];
 		if (!animated) {
 			let updatedCenter = this.getCenterPoint(this.points);
 			// console.log(`${this.name} Updated Center x: ${updatedCenter.x}, y: ${updatedCenter.y}`)
@@ -241,35 +235,27 @@ class DrawableLandmark {
 	}
 
 	updatePoints(newPoints) {
-		if (newPoints.length != this.points.length) {
-			console.warn(
-				`Number of new points does not match the number of points for landmark ${this.name}. \n Landmark Points: ${this.points.length} \n New points: ${newPoints.length}`
-			);
-		}
-		for (let i = 0; i < newPoints.length; i++) {
-			if (i >= this.points.length) {
-				this.points.push(new AnimatedPoint(newPoints[i].x, newPoints[i].y, this, this));
+		if(newPoints){
+			if (this.points.length > 0 && newPoints.length > this.points.length) {
+				console.warn(
+					`Number of new points does not match the number of points for landmark ${this.name}. Landmark Points: ${this.points.length} \n New points: ${newPoints.length}`
+				);
 			}
-			// this.points[i].setPosition(newPoints[i].x, newPoints[i].y); // Immediate
-			this.points[i].updatePosition(newPoints[i].x, newPoints[i].y); // Goes through the interpolation
+			for(let i = 0; i < newPoints.length; i++) {
+				const newP = newPoints[i];
+				// console.log(`P[${i}]`, newP)
+				if(!newP) continue;
+				if (i >= this.points.length) {
+					this.points.push(new AnimatedPoint(newP.x, newP.y, this, this));
+				}
+				// this.points[i].setPosition(newP.x, newP.y); // Immediate
+				this.points[i].updatePosition(newP.x, newP.y); // Goes through the interpolation
+			}
+			this.lastPointIdx = newPoints.length;
 		}
 		this.updateAnimations();
 	}
 
-	getUpdatedPoints(landmarkPositions) {
-		let newPoints = [];
-		if (this.pointsRange[0] >= this.pointsRange[1]) {
-			newPoints = landmarkPositions;
-		} else {
-			newPoints = landmarkPositions.slice(this.pointsRange[0], this.pointsRange[1]);
-		}
-		return newPoints;
-	}
-
-	updatePointsFromLandmark(landmarkPositions) {
-		const newPoints = this.getUpdatedPoints(landmarkPositions);
-		this.updatePoints(newPoints);
-	}
 
 	setRotation(degrees) {
 		this.rotation = degrees * (Math.PI / 180);
@@ -424,32 +410,36 @@ class DrawableLandmark {
 		ctx.lineWidth = 2;
 
 		ctx.beginPath();
-		this.points.forEach((p, i) => {
+		for(let i = 0; i < this.lastPointIdx; i++) {
+			let p = this.points[i];
+			if(!p) continue;
 			if(i <= 0){
-				return ctx.moveTo(p.x, p.y);
+				ctx.moveTo(p.x, p.y);
+			} else{
+				ctx.lineTo(p.x, p.y);
 			}
-			ctx.lineTo(p.x, p.y);
-		})
+		}
 		if(this.closedPath) ctx.lineTo(this.points[0].x, this.points[0].y)
 		ctx.stroke();
 		ctx.closePath();
 		
-		this.points.forEach((p, i) => {
+		for(let i = 0; i < this.lastPointIdx; i++) {
+			let p = this.points[i];
+			if(!p) continue;
 			ctx.beginPath();
 			ctx.arc(p.x, p.y, this.pointSize, 0, 2 * Math.PI);
 			ctx.fill();
 			ctx.closePath();
-		})
+		}
 	}
 }
 
 // Points positions are defined here: https://github.com/justadudewhohacks/face-api.js/blob/master/src/frontend/classes/FaceLandmarks68.ts
 // Alternatively, one could use reflection to just call the function by name. I just find it easier to pass the list of points and let the landmark object updates itself
-// PointsRange refers to which points belong to the landmark in the list of landmark positions so pointsRange=[i,j] would use the points positions.slice(i, j)
-// If pointsRange is [] or [0,0] or in general i and j are such that j <= i, the whole list of given positions will be used
+// PointsRange (now PointsIdx) refers to which points belong to the landmark in the list of landmark positions so pointsIdx=[i1, i2, i3] would use the points landmarks[i1], landmarks[i2] etc...
+// If pointsRange (now PointsIdx) is [] or [0,0] or in general i and j are such that j <= i, the whole list of given positions will be used
 const defLandData = {
 	name: "Test",
-	pointsRange: [0, 0],
 	scale: [1, 1],
 	pointSize: 2,
 	pointColor: "#f00",
@@ -457,6 +447,8 @@ const defLandData = {
 	interpFun: INTERP_FUNCTIONS.easeInOut,
 	interpTime: DEF_TIME,
 	visible: false,
+	closedPath: false,
+	showPoints: true
 };
 
 let CustomLandmarkSettings = {};
@@ -478,14 +470,15 @@ try {
 // CustomLandmarkSettings = JSON.parse(jsonData)
 // import CustomLandmarkSettings from "../../../data/CustomLandmarkSettings.json"
 
+const range = (from, to) => Array(to-from).fill(0).map((_, i) => from+i)
 let CustomLandmarks = [
-	{ ...defLandData, name: FACEAPI.LANDMARK.JAWOUTLINE, pointsRange: [0, 17], scale: [1, 1], visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.NOSE, pointsRange: [27, 36], scale: [0.5, 1], visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35], closedPath: true, visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35], closedPath: true,visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8], closedPath: true, visible: false },
+	{ ...defLandData, name: FACE_LANDMARKS.JAWOUTLINE, 	 },
+	{ ...defLandData, name: FACE_LANDMARKS.LEFTEYEBROW, 	 },
+	{ ...defLandData, name: FACE_LANDMARKS.RIGHTEYEBROW, 	 },
+	{ ...defLandData, name: FACE_LANDMARKS.NOSE, 			 scale: [0.5, 1], 	 },
+	{ ...defLandData, name: FACE_LANDMARKS.LEFTEYE, 		 scale: [1.5, 1.35], 	closedPath: true },
+	{ ...defLandData, name: FACE_LANDMARKS.RIGHTEYE, 		 scale: [1.5, 1.35], 	closedPath: true },
+	{ ...defLandData, name: FACE_LANDMARKS.MOUTH, 			 scale: [0.8, 0.8], 		closedPath: true },
 ];
 
 CustomLandmarks = CustomLandmarks.map((l, i) => {
@@ -495,18 +488,5 @@ CustomLandmarks = CustomLandmarks.map((l, i) => {
 	}
 	return new DrawableLandmark(l);
 });
-
-const centerLandmarkPoint = new DrawableLandmark({
-	...defLandData,
-	name: "Center",
-	pointsRange: [],
-	scale: [1, 1],
-	pointSize: 10,
-	pointColor: "#ff0",
-	drawMask: false,
-});
-let centerOffset = 0;
-const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
-let updateCenterOffsetInterval = null;
 
 export { CustomLandmarks, DEF_TIME };

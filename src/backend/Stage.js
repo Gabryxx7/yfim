@@ -29,7 +29,7 @@ class Stage {
     this.selectedQuestionPrompts = null;
     this.steps = [];
     if (this.config.steps) {
-      for (let i = 0; i < this.config.steps.length; i++) {
+      for(let i = 0; i < this.config.steps.length; i++) {
         this.steps.push(new Stage(this.room, this.session, this.config.steps[i], this, i));
       }
     }
@@ -88,7 +88,7 @@ class Stage {
       this.currentStep.initialize();
       this.status = STAGE.STATUS.IN_PROGRESS;
       this.duration = 0;
-      for (let i = 0; i < this.config.steps.length; i++) {
+      for(let i = 0; i < this.config.steps.length; i++) {
         this.duration += this.steps[i].duration;
       }
       this.extra = {

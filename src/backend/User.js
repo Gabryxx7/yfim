@@ -182,7 +182,7 @@ class User {
 	}
 
 	printRooms(namespace, roomId = null) {
-		for (let [key, value] of namespace.adapter.rooms) {
+		for(let [key, value] of namespace.adapter.rooms) {
 			const isRoom = roomId === key ? "[+]" : "-";
 			console.log(`${isRoom} ${this.roomToString(namespace, key)}`);
 		}

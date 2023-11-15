@@ -151,36 +151,36 @@ function FaceMaskSelector(props) {
     const {faceProcessor, setFaceProcessorId } = useFaceProcessor();
     const { settings } = useSettings();
     const socket = useSocket(CMDS.NAMESPACES.CONTROL)
-    const [landmarksData, setLandmarksData] = useState(faceProcessor?.landmarksData);
-    const [ interpTime, setInterpTime ] = useState(0.5);
+    const [landSettings, setLandmarksData] = useState(faceProcessor?.landSettings);
+    const [ interpTime, setInterpTime ] = useState(DEF_TIME);
     const [ showPoints, setShowPoints ] = useState(false);
     
     const onSaveClick = props.onSaveClick ?? (() => {
         if(!socket) return;
         const data = {};
-        faceProcessor?.landmarksData.forEach((l, i) => data[l.name] = {name: l.name, scale: l.scale, visible: l.visible})
+        faceProcessor?.landSettings.forEach((l, i) => data[l.name] = {name: l.name, scale: l.scale, visible: l.visible})
         socket.emit(CMDS.SOCKET.CONTROL_ROOM_SETTINGS_UPDATE, {filename: "CustomLandmarkSettings.json", data: data})
     });
     const onRestoreClick = props.onClick ?? (() => {
-        faceProcessor?.landmarksData.forEach((l, i) => l.reset());
-        setLandmarksData(faceProcessor?.landmarksData)
+        faceProcessor?.landSettings.forEach((l, i) => l.reset());
+        setLandmarksData(faceProcessor?.landSettings)
     });
 
     useEffect(() => {
-        landmarksData?.forEach((landmark, i) => {
-            landmarksData[i].showPoints = showPoints;
-        })
+        if(faceProcessor){
+            faceProcessor.showPoints = showPoints;
+        }
     }, [showPoints])
 
     useEffect(() => {
-        landmarksData?.forEach((landmark, i) => {
-            landmarksData[i].interpTime = interpTime;
+        landSettings?.forEach((landmark, i) => {
+            landSettings[i].interpTime = interpTime;
         })
     }, [interpTime])
 
     useEffect(() => {
-        console.log("Face Processor Updated ", faceProcessor?.landmarksData);
-        setLandmarksData(faceProcessor?.landmarksData);
+        console.log("Face Processor Updated ", faceProcessor?.landSettings);
+        setLandmarksData(faceProcessor?.landSettings);
     }, [faceProcessor])
 
     return(
@@ -190,10 +190,10 @@ function FaceMaskSelector(props) {
                 landmark={{name: "ALL", visible: () => faceProcessor?.allVisible}}
                 onChange={() => faceProcessor.allVisible = !faceProcessor.allVisible }
                 faceProcessor={props.faceProcessor}/> */}
-            {landmarksData?.map((landmark, i) => (
+            {landSettings?.map((landmark, i) => (
                 <LandmarkSelector
                     key={landmark.name}
-                    landmark={landmarksData[i]}/>
+                    landmark={landSettings[i]}/>
             ))}
 
         <div  style={{...rowStyle, rowGap: '1em', marginTop: '1rem'}}>

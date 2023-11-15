@@ -9,6 +9,7 @@ import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import JSZip from "jszip";
 import { useSocket, useWebRTC } from "../../context";
 import { FPSViewer } from "../components/FPSViewer.js";
+import { ControlPanel } from "./ControlPanel.js";
 
 
 const listTracks = (video) => {
@@ -112,7 +113,7 @@ export default function VideoContainer(props) {
 			const zipFiles = true;
 			if(zipFiles){
 				const zip =  new JSZip();
-				for (let file of files) {
+				for(let file of files) {
 					zip.file(file.name, file.data);
 				}
 									
@@ -152,7 +153,7 @@ export default function VideoContainer(props) {
 				});
 			}
 			else{
-				for (let file of files) {
+				for(let file of files) {
 					FileSaver.saveAs(file.data, file.name);
 				}
 			}
@@ -312,7 +313,7 @@ export default function VideoContainer(props) {
 
 	return (
 			<div className='media-bridge'>
-				<div className="actions-panel video-actions overlay-panel">
+				<ControlPanel className="actions-panel video-actions">
 					<div className="live-icon action" onClick={() => toggleVideoMuted(localVideo.current)}>
 						{videoStatus != null && videoStatus[VIDEO_ID.LOCAL].video ?
 							<FontAwesomeIcon icon={icon({name: 'video'})} /> :
@@ -341,7 +342,7 @@ export default function VideoContainer(props) {
 						}
 					</div>
 					<FPSViewer key={faceProcessor?.tag} />
-				</div>
+				</ControlPanel>
 				<canvas className="canvas" ref={canvas} />
 				{(() => {
 					// if (socket == null) return <></>;
