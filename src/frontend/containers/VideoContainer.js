@@ -297,7 +297,7 @@ export default function VideoContainer(props) {
 		console.log("Face Processor Updated ", faceProcessor?.tag);
 		faceProcessor.canvas = canvas.current;
 		if(!faceProcessor.isRunning()){
-			const videoToProcess = remoteVideo.current.srcObject ? remoteVideo.current : localVideo.current
+			const videoToProcess = remoteVideo.current.srcObject ? remoteVideo.current : localVideo.current;
 				faceProcessor.setVideo(videoToProcess).then(() => faceProcessor.start())
 			
 			// session?.addOnStart((session) => {

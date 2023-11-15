@@ -9,6 +9,7 @@ import { useUser, useRoom, useSession, useStage, useStep, useSettings, useShortc
 import ShortcutsPanel from "../components/ShortcutsPanel.js";
 import VideoContainer from "./VideoContainer.js";
 import { FaceMaskSelector } from "../components/Controls/FaceMaskSelector.js";
+import { CameraSelector } from "../components/CameraSelector.js";
 
 const renderLog = (trigger, data) => {
 	console.log("VideoTest RERENDER! Triggered by: "+trigger, data);
@@ -67,6 +68,7 @@ export default function VideoTest(props) {
             </div>
             <ControlsOverlay>
                <ShortcutsPanel className="overlay-transparent" />
+					<CameraSelector />
                <FaceMaskSelector className="overlay-transparent" />
             </ControlsOverlay>
          </div>

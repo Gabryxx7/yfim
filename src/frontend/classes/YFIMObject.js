@@ -31,7 +31,7 @@ export default class YFIMObject extends Subscribable {
       this.calls = { draw: 0, update: 0}
       this.currStatus = this.Status.NONE;
       this.fpsCounter = new FPSCounter(30);
-      this.fpsCounter.limit = this.config.frameRate;
+      this.fpsCounter.limit = this.config.frameRate.ideal ?? this.config.frameRate.min ?? this.config.frameRate;
       this.shouldStop = false;
    }
 
