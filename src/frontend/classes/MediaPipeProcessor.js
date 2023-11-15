@@ -22,12 +22,17 @@ landmarksMap[FACE_LANDMARKS.MOUTH] = 				() => FaceLandmarker.FACE_LANDMARKS_LIP
 		this.drawingUtils = new DrawingUtils(this.ctx);
 	}
 
+	getVertices(points, landmarkVIndexes, imgSize=null){
+		imgSize ??= {width: 1280, height: 720};
+		const indexes = landmarkVIndexes.map(p => p.start);
+		return indexes.map(i => ({x: points[i].x*imgSize.width, y: points[i].y*imgSize.height, z: points[i].z}));
+	}
+
 	getLandmarkPoints(landmark, points){
 		if(!points) return;
 		const lPoints = landmarksMap[landmark.name]();
 		if(!lPoints) return;
-		const newPointsIdx = lPoints?.map(p => p.start);
-		const newPoints = newPointsIdx.map(i => ({x: points[i].x*1280, y: points[i].y*720}));
+		const newPoints = this.getVertices(points, lPoints, {width: 1280, height: 720});
 		// console.log(landmark.name, newPoints)
 		return newPoints
 	}
@@ -112,6 +117,7 @@ landmarksMap[FACE_LANDMARKS.MOUTH] = 				() => FaceLandmarker.FACE_LANDMARKS_LIP
 		// console.log(this.results.faceLandmarks);
 		if (this.results.faceLandmarks) {
 			for (const landmarks of this.results.faceLandmarks) {
+				// console.log(this.getVertices(landmarks, FaceLandmarker.FACE_LANDMARKS_TESSELATION))
 				this.updateLandmarks(landmarks)
 			}
 		}
