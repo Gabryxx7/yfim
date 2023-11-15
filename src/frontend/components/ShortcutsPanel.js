@@ -6,8 +6,7 @@ import ClosablePanel from "./ClosablePanel.js";
 
 export default function ShortcutsPanel(props) {
    const { settings } = useSettings();
-   return <ClosablePanel className={`actions-panel keyboard-actions ${props.className}`}
-            style={settings.shortcutsEnabled ? {} : {display: 'none'}}>
+   return <ClosablePanel className={`actions-panel keyboard-actions ${props.className}`}>
          {Object.values(KEY_SHORTCUTS).map((s, i) => 
             <div key={`Key-Action-${i}`} className="action">
                {s.icon ? <FontAwesomeIcon className="key key-icon" icon={s.icon} /> : <span className="key key-name">{s.keyName}</span>}

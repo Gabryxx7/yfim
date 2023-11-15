@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import "survey-react/survey.css";
-import { CMDS, DATA, STAGE, KEY_SHORTCUTS } from "../../backend/Definitions.js";
+import { CMDS, DATA, STAGE } from "../../backend/Definitions.js";
 import "react-toastify/dist/ReactToastify.css";
 import { useFaceProcessor, useSession, useSettings, useStage, useUser } from '../../context';
 import FileSaver from "file-saver";

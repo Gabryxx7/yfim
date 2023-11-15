@@ -14,6 +14,7 @@ class FaceProcessor extends VideoProcessor {
 		this.detectionsUpdated = false;
 		this.ctx = null;
 		this.allVisible = true;
+		this.invertedMask = false;
 	}
 
    setMaskData(maskFeatures=null){
@@ -101,27 +102,19 @@ class FaceProcessor extends VideoProcessor {
 	// Draw a mask over face/screen
 	draw() {
 		if (this.detections != null && this.detectionsUpdated) {
-			let imHeight = this.detections.detection.imageHeight;
-			let imWidth = this.detections.detection.imageWidth;
-			let cHeight = this.ctx.canvas.clientHeight;
-			let cWidth = this.ctx.canvas.clientWidth;
 			let videoElHeight = this.video.getBoundingClientRect().height;
 			let videoElWidth = this.video.getBoundingClientRect().width;
 
 			// console.log("IMG: ", {imHeight, imWidth})
 			// console.log("Client", {height: this.video.getBoundingClientRect().height, width: this.video.getBoundingClientRect().width})
 			// console.log("CANVS", {ctxHeight, ctxWidth})
-			const finalHeight = videoElHeight;
-			const finalWidth = videoElWidth;
-			if(finalWidth <= 1 || finalHeight <= 1){
+			if(videoElWidth <= 1 || videoElHeight <= 1){
 				return;
 			}
-			this.canvas.height = finalHeight;
-			this.canvas.width = finalWidth;
-			this.ctx.canvas.height = finalHeight;
-			this.ctx.canvas.width = finalWidth;
-			let resized = faceapi.resizeResults(this.detections, { width: finalWidth, height: finalHeight }); // For some reason it's not quite centered
-			
+			this.canvas.height = this.video.videoHeight;
+			this.canvas.width = this.video.videoWidth;
+			let resized = faceapi.resizeResults(this.detections, { width: videoElWidth, height: videoElHeight }); // For some reason it's not quite centered
+			resized = this.detections;
 			// console.log(`Image: ${imWidth} x ${imHeight}\nClient: ${cWidth} x ${cHeight}\nCtx: ${ctxWidth} x ${ctxHeight}\nBounding: ${bWidth} x ${bHeight}`)
 			// detections = faceapi.resizeResults(detections, { width: this.ctx.canvas.clientWidth, height: this.ctx.canvas.clientHeight })
 			const landmarks = resized.landmarks;
@@ -132,23 +125,21 @@ class FaceProcessor extends VideoProcessor {
 			}
 			// I need to draw the cutout/clipping maskes first and then draw the landmarks on top, i can't do both in the same loop as the clipping masks of the next
 			// Points would override the previous landmark points
-			if(!this.allVisible){
-				var canvasCleared = false;
+			if(!this.allVisible && this.landmarksData){
+				if(!this.invertedMask){
+					this.ctx.fillStyle = "black";
+					this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+					this.ctx.globalCompositeOperation = "destination-out";
+				}
 				for (let l of this.landmarksData) {
-					if(!l.visible) continue;
-					if (l.drawMask) {
-						if(!canvasCleared){
-							this.ctx.fillStyle = "black";
-							this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-							canvasCleared = true;
-						}
-						try {
-							l.drawClippingMask(this.ctx);
-						} catch (error) {
-							console.warn("Error drawing clipping mask", error.message);
-						}
+					if(!l.visible || !l.drawMask) continue;
+					try {
+						l.drawClippingMask(this.ctx);
+					} catch (error) {
+						console.warn("Error drawing clipping mask", error.message);
 					}
 				}
+				this.ctx.globalCompositeOperation = "source-over";
 			}
 			this.detectionsUpdated = false;
 		}

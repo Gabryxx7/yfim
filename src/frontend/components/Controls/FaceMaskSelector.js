@@ -5,13 +5,14 @@ import Input from '@mui/material/Input';
 import Slider from '@mui/material/Slider';
 import Checkbox from '@mui/material/Checkbox';
 import MuiInput from '@mui/material/Input';
-import { CMDS, DATA, KEY_SHORTCUTS} from "../../../backend/Definitions.js";
+import { CMDS, DATA, } from "../../../backend/Definitions.js";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { useSocket, useFaceProcessor, useSettings } from '../../../context'
 import ClosablePanel from "../ClosablePanel.js";
 import {Select} from "react-dropdown-select";
 import { AvailableVideoProcessors } from "../../../context/AppContext.js";
+import { DEF_TIME } from "../../classes/DrawableLandmark.js";
 
 const processorOptions = [
     {
@@ -31,7 +32,7 @@ const processorOptions = [
 const EyeCheckbox = (props) => <Checkbox
     {...props}
     sx={{
-        width: '1rem',
+        width: '2.5rem',
         height: '1rem',
         color: 'tomato',
         '& input': {
@@ -184,8 +185,7 @@ function FaceMaskSelector(props) {
 
     return(
         <ClosablePanel className={`face-mask-selector actions-panel ${props.className}`}
-            key={faceProcessor?.tag}
-            style={settings.shortcutsEnabled ? {} : {display: 'none'}}>
+            key={faceProcessor?.tag}>
             {/* <LandmarkSelector
                 landmark={{name: "ALL", visible: () => faceProcessor?.allVisible}}
                 onChange={() => faceProcessor.allVisible = !faceProcessor.allVisible }
@@ -197,8 +197,9 @@ function FaceMaskSelector(props) {
             ))}
 
         <div  style={{...rowStyle, rowGap: '1em', marginTop: '1rem'}}>
-        <EyeCheckbox onChange={() => setShowPoints(prev => !prev)}/>
-        <SliderInput label='lerp time' min={0.001} max={0.6} step={0.001} defaultValue={0.12} onChange={(value) => setInterpTime(value)}/>
+        <FormControlLabel label="landmarks" control={<EyeCheckbox onChange={() => setShowPoints(prev => !prev)}/>}/>
+        <FormControlLabel label="inverted" control={<Checkbox aria-label="" onChange={() => faceProcessor.invertedMask = !faceProcessor?.invertedMask}/>}/>
+        <SliderInput label='lerp time' min={0.001} max={0.6} step={0.001} defaultValue={DEF_TIME} onChange={(value) => setInterpTime(value)}/>
         </div>
         <div  style={{...rowStyle, rowGap: '1em', marginTop: '1rem'}}>
             <span className='primary-button'
@@ -207,7 +208,7 @@ function FaceMaskSelector(props) {
             <span className='primary-button'
                 style={{padding: '0.5rem 0rem'}}
                 onClick={onRestoreClick}>Restore</span>
-            <Select style={{width: '9rem !important'}} className="video-processor-select"
+            <Select style={{width: '9rem !important', backgroundColor: '#dddddd !important'}} className="video-processor-select"
                 options={processorOptions}
                 valueField="label"
                 onChange={(values) => {

@@ -155,7 +155,7 @@ input[type="checkbox"] {
 .canvas {
   position: absolute;
   // height: 100%;
-  // width: 100%;
+  width: 100%;
   z-index: 15;
   /* background-color: transparent; */
 }
@@ -266,7 +266,7 @@ input[type="checkbox"] {
 
 .overlay-panel {
   left: 0.5rem;
-  top: 1rem;
+  top: 3rem;
   display: flex;
   flex-direction: column;
   font-size: 0.7em;
@@ -280,6 +280,13 @@ input[type="checkbox"] {
   font-size: 10pt;
   border-radius: 7px;
   padding: 0.4rem;
+  display: none;
+  &.debug-mode{
+    display: block;
+  };
+  & > div{
+    position: relative;
+  }
 }
 
 .actions-panel {
@@ -546,18 +553,21 @@ main, .main-room{
 
   }
 }
+
+.video-processor-select{
+  background-color: #dddddd;
+}
 .close-button{
   position: absolute;
-  top: -0.4em;
-  right: -0.4em;
-  font-size: 2rem;
+  top: 0.3rem;
+  right: 0.3em;
+  font-size: 1.5rem;
   width: fit-content;
   height: fit-content;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1/1;
   display: block;
   border-radius: 100%;
   color: black;
-  opacity: 0;
   transition: opacity 0.2s ease-in-out;
   svg path {
     fill: rgb(203, 203, 203);

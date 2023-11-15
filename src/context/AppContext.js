@@ -1,10 +1,11 @@
 import React, { createContext, useReducer, useCallback, useContext, useState, useEffect, useRef, forwardRef } from "react";
-import { TIMES, CMDS, STAGE, KEY_SHORTCUTS } from '../backend/Definitions.js';
+import { TIMES, CMDS } from '../backend/Definitions.js';
 import { TOASTS } from "../frontend/components/ToastCommunications.js";
 import { useSocket } from "./useSocket.js";
 import { TimedEvent } from "../backend/TimedEvent.js"
 import { FaceProcessor } from "../frontend/classes/FaceProcessor.js";
 import VideoProcessor from "../frontend/classes/VideoProcessor.js";
+import { MediaPipeProcessor } from "../frontend/classes/MediaPipeProcessor.js";
 
 export const AvailableVideoProcessors = {
    VIDEO: 'video',
@@ -83,6 +84,7 @@ const AppProvider = (props) => {
       let fp = null;
       switch (faceProcessorId){
          case AvailableVideoProcessors.FACE_API: fp = new FaceProcessor(defaultSettings.video); break;
+         case AvailableVideoProcessors.MEDIA_PIPE: fp = new MediaPipeProcessor(defaultSettings.video); break;
          default: fp = new VideoProcessor(defaultSettings.video); break;
       }
       fp.tag = faceProcessorId;

@@ -1,4 +1,5 @@
 import { FACEAPI } from "../../backend/Definitions.js";
+const DEF_TIME = 0.09;
 class Interpolation {
 	static clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
 	static linear = (x) => x;
@@ -171,9 +172,10 @@ class DrawableLandmark {
 		this.pointSize = data.pointSize ?? 5;
 		this.pointColor = data.pointColor ?? "fff";
 		this.drawMask = data.drawMask ?? true;
+		this.closedPath = data.closedPath ?? false;
 		this.pointsRange = data.pointsRange ?? [0, 0];
 		this.interpFun = data.interpFun ?? INTERP_FUNCTIONS.easeInOut;
-		this.interpTime = data.interpTime ?? 0.12;
+		this.interpTime = data.interpTime ?? DEF_TIME;
 		this.pointsRange = this.pointsRange.sort();
 	}
 
@@ -185,12 +187,13 @@ class DrawableLandmark {
 		this.scale = [1, 1];
 		this.visible = true;
 		this.showPoints = false;
+		this.closedPath = false;
 		this.pointSize = 5;
 		this.pointColor = "fff";
 		this.drawMask = true;
 		this.pointsRange = [0, 0];
 		this.interpFun = INTERP_FUNCTIONS.easeInOut;
-		this.interpTime = 0.12;
+		this.interpTime = DEF_TIME;
 		this.data = data ?? {};
 		this.setData(this.data);
 
@@ -340,11 +343,11 @@ class DrawableLandmark {
 		const maskGradient = ctx.createRadialGradient(center1.x, center1.y, radius1, center2.x, center2.y, radius2);
 		// const maskGradient = ctx.createRadialGradient(x, y, 0, x, y, Math.min(rx, ry));
 		// Opaque white in the middle, Transparent white at the borders
-		maskGradient.addColorStop(0.0, "rgba(255,255,255,1)");
-		maskGradient.addColorStop(0.5, "rgba(255,255,255,0.7)");
-		// maskGradient.addColorStop(0.7, 'rgba(255,255,255,0.1)');
-		maskGradient.addColorStop(0.9, "rgba(255,255,255,0.1)");
-		maskGradient.addColorStop(1.0, "rgba(255,255,255,0)");
+		const baseColor = "0,0,0"; //"255,255,255";
+		maskGradient.addColorStop(0.0, `rgba(${baseColor}, 1)`);
+		maskGradient.addColorStop(0.5, `rgba(${baseColor}, 0.7)`);
+		maskGradient.addColorStop(0.9, `rgba(${baseColor}, 0.1)`);
+		maskGradient.addColorStop(1.0, `rgba(${baseColor}, 0)`);
 
 		ctx.fillStyle = maskGradient;
 		ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
@@ -376,7 +379,7 @@ class DrawableLandmark {
 	 * In this case we can draw a full black rectangle with "fillRect" and then cut out the "holes" with "destination-out"
 	 */
 	drawClippingMask(ctx, debug = false) {
-		ctx.globalCompositeOperation = "destination-out";
+		// ctx.globalCompositeOperation = "destination-out";
 		// console.log(`${this.name}: [${this.centerData.x}, ${this.centerData.y}], radius: ${this.centerData.radius}` );
 		ctx.beginPath();
 
@@ -399,7 +402,7 @@ class DrawableLandmark {
 		}
 
 		ctx.closePath();
-		ctx.globalCompositeOperation = "source-over";
+		// ctx.globalCompositeOperation = "source-over";
 	}
 
 	drawCentroid(ctx, debug = false) {
@@ -417,12 +420,26 @@ class DrawableLandmark {
 			console.log(this.name, this.points);
 		}
 		ctx.fillStyle = this.pointColor;
-		for (let p of this.points) {
+		ctx.strokeStyle = "#ffffff"
+		ctx.lineWidth = 2;
+
+		ctx.beginPath();
+		this.points.forEach((p, i) => {
+			if(i <= 0){
+				return ctx.moveTo(p.x, p.y);
+			}
+			ctx.lineTo(p.x, p.y);
+		})
+		if(this.closedPath) ctx.lineTo(this.points[0].x, this.points[0].y)
+		ctx.stroke();
+		ctx.closePath();
+		
+		this.points.forEach((p, i) => {
 			ctx.beginPath();
 			ctx.arc(p.x, p.y, this.pointSize, 0, 2 * Math.PI);
 			ctx.fill();
 			ctx.closePath();
-		}
+		})
 	}
 }
 
@@ -438,7 +455,7 @@ const defLandData = {
 	pointColor: "#f00",
 	drawMask: true,
 	interpFun: INTERP_FUNCTIONS.easeInOut,
-	interpTime: 0.12,
+	interpTime: DEF_TIME,
 	visible: false,
 };
 
@@ -466,9 +483,9 @@ let CustomLandmarks = [
 	{ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYEBROW, pointsRange: [17, 22], scale: [1, 1], visible: false },
 	{ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYEBROW, pointsRange: [22, 27], scale: [1, 1], visible: false },
 	{ ...defLandData, name: FACEAPI.LANDMARK.NOSE, pointsRange: [27, 36], scale: [0.5, 1], visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35], visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35], visible: false },
-	{ ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8], visible: false },
+	{ ...defLandData, name: FACEAPI.LANDMARK.LEFTEYE, pointsRange: [36, 42], scale: [1.5, 1.35], closedPath: true, visible: false },
+	{ ...defLandData, name: FACEAPI.LANDMARK.RIGHTEYE, pointsRange: [42, 48], scale: [1.5, 1.35], closedPath: true,visible: false },
+	{ ...defLandData, name: FACEAPI.LANDMARK.MOUTH, pointsRange: [48, 68], scale: [0.8, 0.8], closedPath: true, visible: false },
 ];
 
 CustomLandmarks = CustomLandmarks.map((l, i) => {
@@ -492,4 +509,4 @@ let centerOffset = 0;
 const randomInRange = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 let updateCenterOffsetInterval = null;
 
-export { CustomLandmarks };
+export { CustomLandmarks, DEF_TIME };

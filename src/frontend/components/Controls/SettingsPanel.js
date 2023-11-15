@@ -29,10 +29,6 @@ export default function SettingsPanel(props) {
 	const [settings, setSettings] = useState(ServerConfig);
 
    useEffect(() => {
-	}, [])
-
-
-   useEffect(() => {
 	}, [settings])
 
    return(

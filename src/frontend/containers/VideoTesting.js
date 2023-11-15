@@ -10,15 +10,10 @@ import ShortcutsPanel from "../components/ShortcutsPanel.js";
 import VideoContainer from "./VideoContainer.js";
 import { FaceMaskSelector } from "../components/Controls/FaceMaskSelector.js";
 import { CameraSelector } from "../components/CameraSelector.js";
+import { ControlPanel } from "./ControlPanel.js";
 
 const renderLog = (trigger, data) => {
-	console.log("VideoTest RERENDER! Triggered by: "+trigger, data);
-}
-
-function ControlsOverlay(props){
-	return <div className="overlay-panel">
-		{props.children}
-	</div>
+	// console.log("VideoTest RERENDER! Triggered by: "+trigger, data);
 }
 
 export default function VideoTest(props) {
@@ -32,7 +27,7 @@ export default function VideoTest(props) {
    const { step,  updateStep } = useStep();
 
 	useEffect(() => {
-		updateSettings({ debug: true })
+		updateSettings({ debug: true, shortcutsEnabled: true })
 	}, [])
 
 
@@ -66,11 +61,11 @@ export default function VideoTest(props) {
             <div className='main-room-container'>
                <VideoContainer />
             </div>
-            <ControlsOverlay>
+				<ControlPanel>
                <ShortcutsPanel className="overlay-transparent" />
 					<CameraSelector />
                <FaceMaskSelector className="overlay-transparent" />
-            </ControlsOverlay>
+            </ControlPanel>
          </div>
          <ToastCommunications />
       </div>

@@ -14,18 +14,10 @@ import { WebRTCContext, WebRTCProvider } from "../../context/WebRTCContext.js";
 import Toolbar from "./Toolbar.js";
 import { useParams } from "react-router-dom";
 import { AvailableVideoProcessors } from "../../context/AppContext.js";
-// import { createRequire } from "module";
-// const require = createRequire(import.meta.url);
-// var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
+import { ControlPanel } from "./ControlPanel.js";
 
 const renderLog = (trigger, data) => {
 	// console.log("ROOM RERENDER! Triggered by: "+trigger, data);
-}
-
-function ControlsOverlay(props){
-	return <div className="overlay-panel">
-		{props.children}
-	</div>
 }
 
 export default function RoomTest(props) { 
@@ -95,10 +87,10 @@ function RoomTestSession(props) {
 				<VideoContainer />
 			</div>
 			{bridge != CMDS.RTC.STATUS.ESTABLISHED && <Introduction />}
-			<ControlsOverlay>
+			<ControlPanel>
 				<ShortcutsPanel className="overlay-transparent" />
 				<FaceMaskSelector className="overlay-transparent" />
-			</ControlsOverlay>
+			</ControlPanel>
 		</div>
 		<ToastCommunications />
 		</div>
