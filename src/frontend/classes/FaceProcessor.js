@@ -13,8 +13,6 @@ class FaceProcessor extends VideoProcessor {
 		this.detections = null;
 		this.detectionsUpdated = false;
 		this.ctx = null;
-		this.recording = false;
-		this.chunks = [];
 		this.allVisible = true;
 	}
 
@@ -40,31 +38,8 @@ class FaceProcessor extends VideoProcessor {
 		}
    }
 
-   startRecording(session=null){
-		delete this.chunks;
-		this.chunks = [{start: performance.now(), startTime: Date.now(), frames: 0}];
-		if(session){
-			this.chunks.push(session.getSessionData());
-		}
-		this.recording = true;
-   }
 
-   stopRecording(filename){
-      this.recording = false;
-	  this.chunks[0].end = performance.now();
-	  this.chunks[0].duration = performance.now() - this.chunks[0].start;
-	  this.chunks[0].endTime = Date.now();
-	  this.chunks[0].frames = this.chunks.length - 1;
-      // console.log(this.chunks[0])
-      // const blob = new Blob(this.chunks, {type: "text/plain;charset=utf-8"});
-      const blob = new Blob([JSON.stringify(this.chunks)], {type: "text/plain;charset=utf-8"});
-      // FileSaver.saveAs(blob, `${filename}.json`);
-		return blob;
-      // const videos = this.state.videos.concat([videoURL]);
-      // this.setState({ videos });
-   }
-
-	async loadModels() {
+	async init() {
 		// load faceapi models for detection
 		console.info("++ loading model");
 	  	await faceapi.tf?.setWasmPaths(`https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${faceapi.tf.version_core}/dist/`);
@@ -80,61 +55,39 @@ class FaceProcessor extends VideoProcessor {
 		
 		const MODEL_URL = "/models";
 		await faceapi.nets.ssdMobilenetv1.load(MODEL_URL);
-		await faceapi.nets.ageGenderNet.load(MODEL_URL);
+		await faceapi.nets.faceLandmark68TinyNet.load(MODEL_URL)
 		await faceapi.nets.faceLandmark68Net.load(MODEL_URL);
 		await faceapi.nets.faceRecognitionNet.load(MODEL_URL);
-		await faceapi.nets.faceExpressionNet.load(MODEL_URL);
-		// await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
-		// await faceapi.loadFaceLandmarkModel(MODEL_URL);
-		// await faceapi.loadFaceRecognitionModel(MODEL_URL);
-		// await faceapi.loadFaceExpressionModel(MODEL_URL);
+		// await faceapi.nets.ageGenderNet.load(MODEL_URL);
+		// await faceapi.nets.faceExpressionNet.load(MODEL_URL);
 	}
 
-	async init() {
-		const tmpCanvas = faceapi.createCanvasFromMedia(this.video);
-
-		const displaySize = {
-			width: tmpCanvas.width,
-			height: tmpCanvas.height,
-		};
-		faceapi.matchDimensions(this.canvas, displaySize);
-		this.ctx = this.canvas.getContext("2d");
-		// console.log(this.canvas.width, this.canvas.height);
+	get lastFrame(){
+		const data = {};
+		data.landmarks = [];
+		for (let l of this.landmarksData) {
+			data.landmarks.push({name: l.name, points: l.getUpdatedPoints(this.detections.landmarks.positions), visible: (this.allVisible || l.visible)});
+		}
+		data.expressions = this.detections.expressions.asSortedArray();
+		data.class = {name: this.detections.detection.className, score: this.detections.detection.classScore}
+		data.score = this.detections.detection.score;
+		data.imageDims = this.detections.detection.imageDims;
+		data.box = this.detections.detection.box;
+		data.angle = this.detections.angle;
+		return data;
 	}
 
 	async update() {
-		// let currentVideoSource = remoteVideo.current;
-		// if(remoteVideo == null){
-		//    currentVideoSource = localVideo.current;
-		//   console.warn("No remote video source, using local video for face api detection");
-		// }
 		try {
 			const newDetections = await faceapi
 				.detectSingleFace(this.video, new faceapi.SsdMobilenetv1Options())
 				.withFaceLandmarks()
-				.withFaceExpressions();
+				// .withFaceExpressions();
 			if (newDetections != undefined && newDetections != null) {
 				this.detections = newDetections;
 				this.allVisible = true;
 				for (let l of this.landmarksData) {
 					this.allVisible = this.allVisible && l.visible;
-				}
-				if(this.recording){
-					const data = {};
-					data.timestamp = performance.now();
-					data.offset = performance.now() - this.chunks[0].start;
-					data.landmarks = [];
-					for (let l of this.landmarksData) {
-						data.landmarks.push({name: l.name, points: l.getUpdatedPoints(this.detections.landmarks.positions), visible: (this.allVisible || l.visible)});
-					}
-					data.expressions = this.detections.expressions.asSortedArray();
-					data.class = {name: this.detections.detection.className, score: this.detections.detection.classScore}
-					data.score = this.detections.detection.score;
-					data.imageDims = this.detections.detection.imageDims;
-					data.box = this.detections.detection.box;
-					data.angle = this.detections.angle;
-					// this.chunks.push(JSON.stringify(data));
-					this.chunks.push(data);
 				}
 			}
 			this.detectionsUpdated = true;
@@ -143,20 +96,6 @@ class FaceProcessor extends VideoProcessor {
 			console.error(`ERROR detecting single face ${error}`);
 			this.detectionsUpdated = false;
 		}
-		// if (this.props.roomPage.state.session.running && !this.state.survey_in_progress) {
-		//   try {
-		// 	 const emo_data = {
-		// 		timeStamp: utc,
-		// 		elapsedStage: 0,
-		// 		elapsedSession: 0,
-		// 		emotion: this.detections.expressions,
-		// 	 };
-		// 	 this.record.record_detail.push(emo_data);
-		// 	 this.record.record_count += 1;
-		//   } catch (err) {
-		// 	 console.warn(`Error showing emotion: ${err}`);
-		//   }
-		// }
 	}
 
 	// Draw a mask over face/screen
@@ -166,25 +105,22 @@ class FaceProcessor extends VideoProcessor {
 			let imWidth = this.detections.detection.imageWidth;
 			let cHeight = this.ctx.canvas.clientHeight;
 			let cWidth = this.ctx.canvas.clientWidth;
-			let ctxHeight = this.ctx.canvas.height;
-			let ctxWidth = this.ctx.canvas.width;
-			let bHeight = this.ctx.canvas.getBoundingClientRect().height;
-			let bWidth = this.ctx.canvas.getBoundingClientRect().width;
+			let videoElHeight = this.video.getBoundingClientRect().height;
+			let videoElWidth = this.video.getBoundingClientRect().width;
 
-			let imgWidthR = this.detections.detection.imageWidth;
-			let imgHeightR = this.detections.detection.imageHeight;
-
-			const finalHeight = cHeight;
-			const finalWidth = cWidth;
+			// console.log("IMG: ", {imHeight, imWidth})
+			// console.log("Client", {height: this.video.getBoundingClientRect().height, width: this.video.getBoundingClientRect().width})
+			// console.log("CANVS", {ctxHeight, ctxWidth})
+			const finalHeight = videoElHeight;
+			const finalWidth = videoElWidth;
 			if(finalWidth <= 1 || finalHeight <= 1){
 				return;
 			}
+			this.canvas.height = finalHeight;
+			this.canvas.width = finalWidth;
 			this.ctx.canvas.height = finalHeight;
 			this.ctx.canvas.width = finalWidth;
-			// let resized = faceapi.resizeResults(this.detections, { width: ctxWidth, height: ctxHeight }); // For some reason it's not quite centered
 			let resized = faceapi.resizeResults(this.detections, { width: finalWidth, height: finalHeight }); // For some reason it's not quite centered
-			imgWidthR = resized.detection.imageWidth;
-			imgHeightR = resized.detection.imageHeight;
 			
 			// console.log(`Image: ${imWidth} x ${imHeight}\nClient: ${cWidth} x ${cHeight}\nCtx: ${ctxWidth} x ${ctxHeight}\nBounding: ${bWidth} x ${bHeight}`)
 			// detections = faceapi.resizeResults(detections, { width: this.ctx.canvas.clientWidth, height: this.ctx.canvas.clientHeight })

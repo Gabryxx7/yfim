@@ -55,7 +55,7 @@ class User {
       name: this.name,
       role: this.type,
       status: this.status,
-      room: this.room?.id
+      roomId: this.room?.id
     }
   }
 
@@ -256,15 +256,25 @@ class User {
     this.room?.session.updateSessionStatus();
 	}
 
+	roomIdFromURL(){
+		let roomId = 'DEFAULT';
+		try{
+			const url = this.socket.request.headers.referer;
+			const urlRoomData = url.split("/room")[1];
+			roomId = "room_" + urlRoomData.split("/")[1];
+		} catch(error){
+			
+		}
+		return roomId;
+	}
+
 	joinCreateRoom(userData) {
 		console.log("Received Join/Create Room Request");
 		if (userData.name != null && userData.name != undefined) {
 			this.name = userData.name;
 		}
 		this.started = true;
-		const url = this.socket.request.headers.referer;
-		const urlRoomData = url.split("/room")[1];
-		const roomId = "room_" + urlRoomData.split("/")[1];
+		const roomId = userData.roomId ?? this.roomIdFromURL();
 		// console.log(this.room.id, urlRoomData)
 		// this.type = url[url.length - 1];
 		let userRoom = this.nsManager.getRoom(roomId);

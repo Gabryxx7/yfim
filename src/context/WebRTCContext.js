@@ -200,6 +200,7 @@ export const WebRTCProvider = (props) => {
 			case CMDS.RTC.STATUS.ACCEPTED: {
 				localVideo?.current?.srcObject.getTracks().forEach((track) => {
 					// console.log(`RTC: Adding local video track ${track.label} to PeerConnection`);
+					// console.log("Track capabilities: ", track, track.getCapabilities());
 					peerConnection?.addTrack(track, localVideo?.current?.srcObject);
 				});
 				console.log("initializing call from user", user);

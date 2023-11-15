@@ -10,6 +10,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core/import.macro'
 import { useSocket, useFaceProcessor, useSettings } from '../../../context'
 import ClosablePanel from "../ClosablePanel.js";
+import {Select} from "react-dropdown-select";
+import { AvailableVideoProcessors } from "../../../context/AppContext.js";
+
+const processorOptions = [
+    {
+        value: 0,
+        label: AvailableVideoProcessors.VIDEO
+    },
+    {
+        value: 1,
+        label:  AvailableVideoProcessors.FACE_API
+    },
+    {
+        value: 2,
+        label: AvailableVideoProcessors.MEDIA_PIPE
+    }
+]
 
 const EyeCheckbox = (props) => <Checkbox
     {...props}
@@ -115,8 +132,7 @@ function LandmarkSelector(props) {
     }, [landmark])
 
     return(
-        <div className="landmark-selector"
-            style={rowStyle}>
+        <div className="landmark-selector" style={rowStyle}>
             <label style={{width: '8rem'}}>{landmark?.name}</label>
             <EyeCheckbox
                 checked={visible}
@@ -131,12 +147,13 @@ function LandmarkSelector(props) {
 
 
 function FaceMaskSelector(props) {
-    const {faceProcessor} = useFaceProcessor();
+    const {faceProcessor, setFaceProcessorId } = useFaceProcessor();
     const { settings } = useSettings();
     const socket = useSocket(CMDS.NAMESPACES.CONTROL)
     const [landmarksData, setLandmarksData] = useState(faceProcessor?.landmarksData);
     const [ interpTime, setInterpTime ] = useState(0.5);
     const [ showPoints, setShowPoints ] = useState(false);
+    
     const onSaveClick = props.onSaveClick ?? (() => {
         if(!socket) return;
         const data = {};
@@ -161,25 +178,28 @@ function FaceMaskSelector(props) {
     }, [interpTime])
 
     useEffect(() => {
+        console.log("Face Processor Updated ", faceProcessor?.landmarksData);
         setLandmarksData(faceProcessor?.landmarksData);
     }, [faceProcessor])
 
     return(
         <ClosablePanel className={`face-mask-selector actions-panel ${props.className}`}
-        style={settings.shortcutsEnabled ? {} : {display: 'none'}}>
-        {/* <LandmarkSelector
-            landmark={{name: "ALL", visible: () => faceProcessor?.allVisible}}
-            onChange={() => faceProcessor.allVisible = !faceProcessor.allVisible }
-            faceProcessor={props.faceProcessor}/> */}
-        {landmarksData?.map((landmark, i) => (
-            <LandmarkSelector
-                key={landmark.name}
-                landmark={landmarksData[i]}
-                faceProcessor={faceProcessor}/>
-        ))}
+            key={faceProcessor?.tag}
+            style={settings.shortcutsEnabled ? {} : {display: 'none'}}>
+            {/* <LandmarkSelector
+                landmark={{name: "ALL", visible: () => faceProcessor?.allVisible}}
+                onChange={() => faceProcessor.allVisible = !faceProcessor.allVisible }
+                faceProcessor={props.faceProcessor}/> */}
+            {landmarksData?.map((landmark, i) => (
+                <LandmarkSelector
+                    key={landmark.name}
+                    landmark={landmarksData[i]}/>
+            ))}
 
-            <EyeCheckbox onChange={() => setShowPoints(prev => !prev)}/>
+        <div  style={{...rowStyle, rowGap: '1em', marginTop: '1rem'}}>
+        <EyeCheckbox onChange={() => setShowPoints(prev => !prev)}/>
         <SliderInput label='lerp time' min={0.001} max={0.6} step={0.001} defaultValue={0.12} onChange={(value) => setInterpTime(value)}/>
+        </div>
         <div  style={{...rowStyle, rowGap: '1em', marginTop: '1rem'}}>
             <span className='primary-button'
                 style={{padding: '0.5rem 0rem'}}
@@ -187,6 +207,13 @@ function FaceMaskSelector(props) {
             <span className='primary-button'
                 style={{padding: '0.5rem 0rem'}}
                 onClick={onRestoreClick}>Restore</span>
+            <Select style={{width: '9rem !important'}} className="video-processor-select"
+                options={processorOptions}
+                valueField="label"
+                onChange={(values) => {
+                    setFaceProcessorId(values[0].label)
+                }}
+                />
         </div>
     </ClosablePanel>
     )

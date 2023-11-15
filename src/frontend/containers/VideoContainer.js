@@ -11,15 +11,15 @@ import { useSocket, useWebRTC } from "../../context";
 import { FPSViewer } from "../components/FPSViewer.js";
 
 
-const setVideoConstraints = (video) => {
+const listTracks = (video) => {
 	video.getTracks().forEach((track) => {
 		console.log("Track capabilities: ", track, track.getCapabilities());
-		track.applyConstraints({
-			colorTemperature: 10000,
-			exposureCompensation: 3,
-		 }).catch( ( error ) => {
-			console.warn(`Error applying constraints to track: `, error)
-		 });
+		// track.applyConstraints({
+		// 	colorTemperature: 10000,
+		// 	exposureCompensation: 3,
+		//  }).catch( ( error ) => {
+		// 	console.warn(`Error applying constraints to track: `, error)
+		//  });
 	});
 }
 
@@ -30,7 +30,14 @@ const VIDEO_ID = {
 
 export default function VideoContainer(props) {
 	const { faceProcessor } = useFaceProcessor();
-	const { stream } = useWebRTC();
+	let stream = null;
+	try{
+		const rtc = useWebRTC()
+		stream = rtc.stream;
+	} catch(error){
+		// console.warn("VideoContainer not in WebRTC context!");
+	}
+
 	const { settings, updateSettings } = useSettings();
 	const { session } = useSession();
 	const { localVideo, remoteVideo, canvas } = session;
@@ -44,6 +51,10 @@ export default function VideoContainer(props) {
 	// recording = props.recording ?? recording;
 	const mediaChunks = useRef([]);
 	const onRemotePlay = props.onRemotePlay ?? (() => {});
+
+	useEffect(() => {
+		initLocalVideo().catch(console.error);
+	}, [])
 
 	useEffect(() => {
 		if(!stream) return;
@@ -217,10 +228,13 @@ export default function VideoContainer(props) {
 		console.log("initializing local video");
 		try {
 			const stream = await navigator.mediaDevices.getUserMedia({
-				audio: settings.audio,
-				video: {...settings.video },
+				audio: false,
+				video: {...settings.video }
 			});
+			console.log(stream)
+			listTracks(stream)
 			localVideo.current.srcObject = stream;
+			listTracks(localVideo.current)
 			if(settings.recording){
 				if(mediaRecorder.current != null){
 					return;
@@ -280,12 +294,11 @@ export default function VideoContainer(props) {
 
 	useEffect(() => {
 		if(faceProcessor == null) return;
+		console.log("Face Processor Updated ", faceProcessor?.tag);
 		faceProcessor.canvas = canvas.current;
 		if(!faceProcessor.isRunning()){
-			initLocalVideo()
-				.then(() => faceProcessor.setVideo(localVideo.current))
-				.then(() => faceProcessor.loadModels())
-				.then(() => faceProcessor.start())
+			const videoToProcess = remoteVideo.current.srcObject ? remoteVideo.current : localVideo.current
+				faceProcessor.setVideo(videoToProcess).then(() => faceProcessor.start())
 			
 			// session?.addOnStart((session) => {
 			// 	const maskFeatures = session.data?.stage?.mask;
@@ -296,7 +309,6 @@ export default function VideoContainer(props) {
 			// });
 		}
 	}, [faceProcessor]);
-
 
 	return (
 			<div className='media-bridge'>
@@ -328,7 +340,7 @@ export default function VideoContainer(props) {
 							<FontAwesomeIcon icon={icon({name: 'play'})} />
 						}
 					</div>
-					<FPSViewer />
+					<FPSViewer key={faceProcessor?.tag} />
 				</div>
 				<canvas className="canvas" ref={canvas} />
 				{(() => {

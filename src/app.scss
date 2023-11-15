@@ -154,8 +154,8 @@ input[type="checkbox"] {
 }
 .canvas {
   position: absolute;
-  height: 100%;
-  width: 100%;
+  // height: 100%;
+  // width: 100%;
   z-index: 15;
   /* background-color: transparent; */
 }
@@ -567,4 +567,10 @@ main, .main-room{
     cursor: pointer;
     filter: brightness(0.2);
   }
+}
+
+.react-dropdown-select-dropdown{
+  width: 100% !important;
+  color: black !important;
+  font-size: 0.7em !important;
 }

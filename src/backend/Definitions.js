@@ -28,10 +28,10 @@ const ROUTES = {
     path: "/control/",
     description: "Control room with an overview of all running rooms and their status and list of participants",
   },
-  FACE_API_TEST: {
-    name: "Face API Video Test",
-    path: "/faceTest/",
-    description: "A simple page to test the face API in its face processor component (camera is initially disabled, enable it from the top left toolbar)",
+  VDEO_TEST: {
+    name: "Video, FaceAPI and Recorder Testing",
+    path: "/video/",
+    description: "A simple page to test the Video Component, the face API and the recorder (camera is initially disabled, enable it from the top left toolbar)",
   },
   SURVEY_TEST: {
     name: "Surveys Test",

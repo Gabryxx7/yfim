@@ -4,7 +4,13 @@ import { TOASTS } from "../frontend/components/ToastCommunications.js";
 import { useSocket } from "./useSocket.js";
 import { TimedEvent } from "../backend/TimedEvent.js"
 import { FaceProcessor } from "../frontend/classes/FaceProcessor.js";
+import VideoProcessor from "../frontend/classes/VideoProcessor.js";
 
+export const AvailableVideoProcessors = {
+   VIDEO: 'video',
+   FACE_API: 'face-api',
+   MEDIA_PIPE: 'media-pipe'
+}
 
 export const defaultSettings ={
    shortcutsEnabled: false,
@@ -12,11 +18,11 @@ export const defaultSettings ={
    mic: false,
    video: {
       enabled: true,
-      width: { min: 1280, ideal: 1280 },
-      height: { min: 720, ideal: 720 },
-      frameRate: 30,
+      width: { min: 1280 },
+      height: { min: 720 },
+      frameRate: { min: 29 },
       // resizeMode: 'crop-and-scale',
-      colorTemperature: 7000.0,
+      // colorTemperature: 7000.0,
    },
    recording: false,
    debug: false,
@@ -32,7 +38,8 @@ const AppProvider = (props) => {
       remoteVideo: useRef(),
       canvas: useRef(),
    });
-	const [faceProcessor, setFaceProcessor] = useState();
+	const [faceProcessorId, setFaceProcessorId] = useState(AvailableVideoProcessors.VIDEO);
+	const [faceProcessor, setFaceProcessor] = useState(null);
    const faceProcessorRef = useRef();
    const [settings, setSettings] = useState({...defaultSettings});
    const [user, setUser] = useState({ initialized: false });
@@ -68,10 +75,23 @@ const AppProvider = (props) => {
 		socket.on(CMDS.SOCKET.ROOM_UPDATE, (data) => {
          setRoom(prev => ({...prev, ...data}))
       });
-
-      faceProcessorRef.current = new FaceProcessor();
-      setFaceProcessor(faceProcessorRef.current);
    }, [])
+
+   useEffect(() => {
+      if(!faceProcessorId) return;
+      if(faceProcessorRef.current && faceProcessorRef.current.tag === faceProcessorId) return;
+      let fp = null;
+      switch (faceProcessorId){
+         case AvailableVideoProcessors.FACE_API: fp = new FaceProcessor(defaultSettings.video); break;
+         default: fp = new VideoProcessor(defaultSettings.video); break;
+      }
+      fp.tag = faceProcessorId;
+      console.log("Creating new GLOBAL video processor: ", faceProcessorId, fp.name);
+      faceProcessorRef?.current?.stop();
+      delete faceProcessorRef.current;
+      faceProcessorRef.current = fp;
+      setFaceProcessor(faceProcessorRef.current)
+   }, [faceProcessorId])
 
 
    const sessionData = {
@@ -81,13 +101,12 @@ const AppProvider = (props) => {
       session,       setSession,
       stage,         setStage,
       step,          setStep,
-      faceProcessorRef,
+      faceProcessorRef, setFaceProcessorId,
       socket,
       sessionTimer
    }
    
    return <AppContext.Provider value={sessionData}>
-      
       {props.children}
    </AppContext.Provider>;
 }

@@ -16,16 +16,13 @@ import Introduction from "../components/Introduction.js";
 import { AVAILABLE_SURVEYS, SURVEY_CSS_CLASSES, } from "../../../assets/PostChatSurvey.js";
 import { TimedEvent } from "../../backend/TimedEvent.js";
 import {useSocket} from "../../context";
-// import { createRequire } from "module";
-// const require = createRequire(import.meta.url);
-// var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
 
 const START_SHORTCUTS_ENABLED = false;
 
 export default function Room(props) {
 	const socket = useSocket(CMDS.NAMESPACES.CHAT);
 	const useJoinForm = props.useJoinForm ?? true;
-	const [faceProcessor, setFaceProcessor] = useState(null);
+	const [faceProcessor] = useState(null);
 	const [prompt, setPrompt] = useState("Waiting for your conversation partner to join the call...")
 	const [connectionStatus, setConnectionStatus] = useState("none")
 	const [bridge, setBridge] = useState("none");

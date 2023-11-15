@@ -12,6 +12,8 @@ import VideoContainer from "./VideoContainer.js";
 import { FaceMaskSelector } from "../components/Controls/FaceMaskSelector.js";
 import { WebRTCContext, WebRTCProvider } from "../../context/WebRTCContext.js";
 import Toolbar from "./Toolbar.js";
+import { useParams } from "react-router-dom";
+import { AvailableVideoProcessors } from "../../context/AppContext.js";
 // import { createRequire } from "module";
 // const require = createRequire(import.meta.url);
 // var AVAILABLE_SURVEYS = require("../../assets/PostChatSurvey.js");
@@ -34,10 +36,11 @@ export default function RoomTest(props) {
 }
 
 function RoomTestSession(props) {
+	const params = useParams();
 	const socket = useSocket(CMDS.NAMESPACES.CHAT);
    const { shortcutsHandler } = useShortcuts();
    const { settings, updateSettings } = useSettings();
-   const { faceProcessor } = useFaceProcessor();
+   const { faceProcessor } = useFaceProcessor(AvailableVideoProcessors.VIDEO);
    const { user,  updateUser } = useUser();
    const { room,  updateRoom } = useRoom();
    const { stage, updateStage } = useStage();
@@ -46,6 +49,7 @@ function RoomTestSession(props) {
 
 	useEffect(() => {
 		updateSettings({ debug: true })
+		params.room_id && updateUser({ roomId: params.room_id})
 	}, [])
 
 	useEffect(() => {
@@ -77,29 +81,26 @@ function RoomTestSession(props) {
 	}, [settings])
 	
 	return (
-			<div className='main-room' tabIndex={"0"} onKeyDown={shortcutsHandler}>
-				<Toolbar 
-					// onTimerEnd={() => {
-					// 	setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.COMPLETED, data: null}));
-					// 	console.log("STAGE COMPLETED (time limit reached)");
-					// 	socket.emit(CMDS.SOCKET.STEP_COMPLETED);
-					// }}
-				/>
-					
-			<div className={`main-call-container ${bridge}`}>
-				<div className='main-room-container' style={{display: `${stage.type == STAGE.TYPE.SURVEY ? 'none' : 'block'}`}}>
-					<VideoContainer />
-				</div>
-				{bridge != CMDS.RTC.STATUS.ESTABLISHED && <Introduction />}
-				<ControlsOverlay>
-					<ShortcutsPanel className="overlay-transparent" />
-					<FaceMaskSelector className="overlay-transparent" />
-				</ControlsOverlay>
+		<div className='main-room' tabIndex={"0"} onKeyDown={shortcutsHandler}>
+			<Toolbar 
+				// onTimerEnd={() => {
+				// 	setStageData((prev) => ({...prev, reason: "time limit reached", state: STAGE.STATUS.COMPLETED, data: null}));
+				// 	console.log("STAGE COMPLETED (time limit reached)");
+				// 	socket.emit(CMDS.SOCKET.STEP_COMPLETED);
+				// }}
+			/>
+				
+		<div className={`main-call-container ${bridge}`}>
+			<div className='main-room-container' style={{display: `${stage.type == STAGE.TYPE.SURVEY ? 'none' : 'block'}`}}>
+				<VideoContainer />
 			</div>
-			<ToastCommunications />
-			<div>{user?.name}</div>
-				<div>{room?.name}</div>
-				<div>{stage?.index}</div>
-			</div>
+			{bridge != CMDS.RTC.STATUS.ESTABLISHED && <Introduction />}
+			<ControlsOverlay>
+				<ShortcutsPanel className="overlay-transparent" />
+				<FaceMaskSelector className="overlay-transparent" />
+			</ControlsOverlay>
+		</div>
+		<ToastCommunications />
+		</div>
 	);
 }
