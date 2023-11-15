@@ -27,8 +27,8 @@ landmarksMap[FACE_LANDMARKS.MOUTH] = 				() => FaceLandmarker.FACE_LANDMARKS_LIP
 			const start = points[line.start];
 			const end = points[line.end]
 			return {
-				start: {x: start.x*imgSize.width, y: start.y*imgSize.height, z: start.z},
-				end: {x: end.x*imgSize.width, y: end.y*imgSize.height, z: end.z}
+				start: {index: line.start, x: start.x*imgSize.width, y: start.y*imgSize.height, z: start.z},
+				end: {index: line.end, x: end.x*imgSize.width, y: end.y*imgSize.height, z: end.z}
 			}
 		});
 	}

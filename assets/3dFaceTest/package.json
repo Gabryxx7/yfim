@@ -1,0 +1,23 @@
+{
+  "name": "threejs-facemesh",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "start": "parcel index.html --open",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^0.10.8",
+    "@react-three/drei": "^9.88.14",
+    "@react-three/fiber": ">=8.0",
+    "react": ">=18.0",
+    "react-dom": ">=18.0",
+    "three": ">=0.137"
+  },
+  "devDependencies": {
+    "@babel/core": "7.22.0",
+    "parcel-bundler": "^1.6.1"
+  },
+  "keywords": []
+}

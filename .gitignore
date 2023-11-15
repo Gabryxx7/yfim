@@ -1,5 +1,6 @@
 # Node Modules
 /node_modules
+/*/*node_modules*
 
 ./rtc-video-room-cert.pem
 
@@ -22,3 +23,7 @@ package-lock.json
 uploads/*/*
 uploads/
 uploads
+
+assets/3dFaceTest/.cache/
+assets/3dFaceTest/node_modules
+assets/3dFaceTest/dist
