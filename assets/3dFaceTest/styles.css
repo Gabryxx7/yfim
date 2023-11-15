@@ -5,10 +5,13 @@ body {
  }
 
  video {
-  /* width: 1280px;
-  height: 960px; */
   display: block;
   position: fixed;
-  z-index: 99999;
+  width: 100% !important;
+  height: auto !important;
+  top: 0px;
+  left: 0px;
+  opacity: 0.2;
+  transform: scaleX(-1);
  }
  

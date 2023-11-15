@@ -645,7 +645,8 @@ const initLandmarker = async () => {
 
 const init = () => {
 	THREE.CullFaceNone = true;
-	app.renderer = new THREE.WebGLRenderer();
+	app.renderer = new THREE.WebGLRenderer({ alpha: true })
+  // app.renderer.setClearColor( 0x000000, 0 ); // the default
 	app.renderer.cullFace = THREE.CullFaceNone;
 	console.log(app.renderer);
 	app.renderer.setSize(window.innerWidth, window.innerHeight);
