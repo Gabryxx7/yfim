@@ -4,7 +4,6 @@ import { CustomLandmarks } from "./DrawableLandmark.js"
 import { FACE_LANDMARKS } from "../../backend/Definitions.js";
 import { FaceProcessor } from "./FaceProcessor.js";
 const runningMode = "VIDEO";
-
 const landmarksMap = {};
 landmarksMap[FACE_LANDMARKS.JAWOUTLINE] = 		() => FaceLandmarker.FACE_LANDMARKS_CONTOURS;
 landmarksMap[FACE_LANDMARKS.LEFTEYEBROW] = 		() => FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW;
@@ -24,8 +23,14 @@ landmarksMap[FACE_LANDMARKS.MOUTH] = 				() => FaceLandmarker.FACE_LANDMARKS_LIP
 
 	getVertices(points, landmarkVIndexes, imgSize=null){
 		imgSize ??= {width: 1280, height: 720};
-		const indexes = landmarkVIndexes.map(p => p.start);
-		return indexes.map(i => ({x: points[i].x*imgSize.width, y: points[i].y*imgSize.height, z: points[i].z}));
+		return landmarkVIndexes.map(line => {
+			const start = points[line.start];
+			const end = points[line.end]
+			return {
+				start: {x: start.x*imgSize.width, y: start.y*imgSize.height, z: start.z},
+				end: {x: end.x*imgSize.width, y: end.y*imgSize.height, z: end.z}
+			}
+		});
 	}
 
 	getLandmarkPoints(landmark, points){
@@ -34,7 +39,7 @@ landmarksMap[FACE_LANDMARKS.MOUTH] = 				() => FaceLandmarker.FACE_LANDMARKS_LIP
 		if(!lPoints) return;
 		const newPoints = this.getVertices(points, lPoints, {width: 1280, height: 720});
 		// console.log(landmark.name, newPoints)
-		return newPoints
+		return newPoints.map(p => p.start)
 	}
 
 	async init() {
@@ -117,6 +122,7 @@ landmarksMap[FACE_LANDMARKS.MOUTH] = 				() => FaceLandmarker.FACE_LANDMARKS_LIP
 		// console.log(this.results.faceLandmarks);
 		if (this.results.faceLandmarks) {
 			for (const landmarks of this.results.faceLandmarks) {
+				// console.log(FaceLandmarker.FACE_LANDMARKS_TESSELATION)
 				// console.log(this.getVertices(landmarks, FaceLandmarker.FACE_LANDMARKS_TESSELATION))
 				this.updateLandmarks(landmarks)
 			}
